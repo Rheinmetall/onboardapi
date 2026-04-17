@@ -1,0 +1,95 @@
+// Copyright (c) 2026 Rheinmetall Electronics GmbH
+//
+// This program and the accompanying materials are made available under the
+// terms of the Eclipse Public License 2.0 which is available at
+// https://www.eclipse.org/legal/epl-2.0.
+//
+// SPDX-License-Identifier: EPL-2.0
+
+#include "HidManagerTypes.idl"
+
+
+/**
+ * Interfaces used by the HID Manager.
+ */
+module M_HidManager
+{
+  /// Interface version number.
+  const string Version = "4.1.0";
+
+
+  /**
+   * Service interface.
+   * Contains operations that a client can command the HID Manager Service to perform.
+   */
+  interface IService
+  {
+    /**
+     * Command to check if service is alive.
+     * If the service is not available, then an exception will be thrown.
+     */
+    void CmdIsHidManagerAlive();
+
+    /**
+     * Used to assign various elements of the HID Manager.
+     * Note: The HID Manager should respond to the assignment with the
+     * EventHidAssignment() operation.
+     */
+    void ConfigHidAssignment
+    (
+      /// Name of the application issuing the request.
+      in string KeyAppName,
+
+      /// List of axes needed by the client.
+      in RequestedAxisListType RequestedAxes,
+
+      /// List of value inputs needed by the client.
+      in RequestedValueInputListType RequestedValueInputs,
+
+      /// List of buttons needed by the client.
+      in RequestedButtonListType RequestedButtons,
+
+      /// List of menus needed by the client.
+      in RequestedMenuListType RequestedMenus,
+
+      /// Indicates if the payload is no longer available
+      /// Note: This will always be set to true when the instance has been shut down
+      /// After this has been set to true, the payload will no longer be available to late joiners.
+      in boolean IsRemoved
+    );
+  };
+
+
+  /**
+   * Client interface.
+   * Contains operations reported by a HID Manager Service.
+   */
+  interface IClient
+  {
+    /**
+     * Used by the HID Manager to report assigned buttons and axis.
+     */
+    void ReportHidAssignment
+    (
+      /// Name of the application to which the buttons and axis have been assigned.
+      in string KeyAppName,
+
+      /// Axes assigned by the HID Manager.
+      in AssignedAxisListType AxisAssignments,
+
+      /// Value inputs assigned by the HID Manager.
+      in AssignedValueInputListType ValueInputAssignments,
+
+      /// Buttons assigned by the HID Manager.
+      in AssignedButtonListType ButtonAssignments,
+
+      /// Menus assigned by the HID Manager.
+      in AssignedMenuListType MenuAssignments,
+
+      /// Indicates if the payload is no longer available
+      /// Note: This will always be set to true when the instance has been shut down
+      /// After this has been set to true, the payload will no longer be available to late joiners.
+      in boolean IsRemoved
+    );
+  };
+};

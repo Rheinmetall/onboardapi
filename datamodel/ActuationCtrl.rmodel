@@ -1,0 +1,97 @@
+// Copyright (c) 2026 Rheinmetall Electronics GmbH
+//
+// This program and the accompanying materials are made available under the
+// terms of the Eclipse Public License 2.0 which is available at
+// https://www.eclipse.org/legal/epl-2.0.
+//
+// SPDX-License-Identifier: EPL-2.0
+
+#include "ActuationCtrlTypes.idl"
+
+
+/**
+ * Interfaces used by the actuation control service and client.
+ */
+module M_ActuationCtrl
+{
+  /// Interface version number.
+  const string Version = "2.1.0";
+
+
+  /**
+   * Actuator control service interface.
+   * Contains operations that a client can command the actuation control service to perform.
+   */
+  interface IService
+  {
+    /**
+     * Command to check if actuation control service is alive.
+     * If the service is not available, then an exception will be thrown.
+     */
+    void CmdIsActuationAlive();
+
+    /**
+     * Notify to set the reference state of a specific actuation component.
+     */
+    void ConfigActuationComponentReference
+    (
+      /// Identifies the actuation component.
+      in string KeyId,
+
+      /// Actuation component reference state.
+      in ActuationCommandType ReferenceState,
+
+      /// Indicates whether to store the reference state persistently.
+      in boolean StorePersistently,
+
+      // Indicates if the payload is no longer available
+      in boolean IsRemoved
+    );
+
+    /**
+     * Notify to command value of a specific actuation component.
+     */
+    void NotifyActuationComponentCommand
+    (
+      /// Identifies the actuation component.
+      in string KeyId,
+
+      /// Actuation component input.
+      in ActuationCommandType Command
+    );
+  };
+
+
+  /**
+   * Actuator control client interface.
+   * Contains callback operations from the actuation control service to a client.
+   */
+  interface IClient
+  {
+    /**
+     * Report the static settings of the actuation control service.
+     */
+    void ReportActuationCtrlSettings
+    (
+      /// Settings of the actuation control service.
+      in ActuationCtrlSettingsType Settings
+    );
+
+    /**
+     * Report the current status of a specific actuation component.
+     */
+    void ReportActuationComponentStatus
+    (
+      /// Identifies the actuation component.
+      in string KeyId,
+
+      /// Actuation component output.
+      in ActuationStatusType Status,
+
+      /// Indicates if the status is no longer available.
+      /// Note: This will always be set to true when a service has been shut down.
+      /// After this has been set to true, the status will no longer be available to late joiners.
+      in boolean IsRemoved
+    );
+  };
+};

@@ -1,0 +1,182 @@
+// Copyright (c) 2026 Rheinmetall Electronics GmbH
+//
+// This program and the accompanying materials are made available under the
+// terms of the Eclipse Public License 2.0 which is available at
+// https://www.eclipse.org/legal/epl-2.0.
+//
+// SPDX-License-Identifier: EPL-2.0
+
+#include "CommonTypes.idl"
+#include "LaserRangeFinderTypes.idl"
+#include "Sensor.idl"
+
+
+/**
+ * A Laser Range Finder (LRF) service represents a Laser Range Finder.
+ * It extends a Sensor service with information specific to a Laser Range Finder (LRF) Sensor.
+ *
+@startuml "Laser Range Finder"
+title Laser Range Finder
+hide footbox
+
+== Startup ==
+Client <- Service: ReportSensorSettings(Settings)
+Client <- Service: ReportLrfSettings(Settings)
+note over Service
+    On startup the Service always reports
+    the inherited Sensor static settings
+    as well as the specific Laser Range Finder
+    information
+end note
+Client <- Service: ReportSensorStatus(Status, IsRemoved=false)
+Client <- Service: ReportLrfStatus(Status)
+note over Service
+    Service always reports the initial
+    status with the IsRemoved flag set
+    to false
+end note
+...
+
+== Status update ==
+Client -> Service: CmdSetFirstOrLastMeasurement(StrongestMeasurement)
+Client <- Service: ReportLrfStatus(Status.StrongestMeasurement)
+note over Service
+    Service reports the updated
+    status
+end note
+...
+
+== LRF detection ==
+Client -> Service: CmdSingleFireLaser()
+Client <- Service: EventSensorDetection(DetectionId=x, Detection)
+note over Service
+    Service reports the LRF measurements
+    as part of the general sensor detection
+end note
+...
+
+== Shutdown ==
+Client <- Service: ReportSensorStatus(Status, IsRemoved=true)
+note over Service
+    On service shutdown the previously reported
+    status is automatically removed. This is
+    used as an indication that the Service
+    is no longer running
+end note
+
+@enduml
+ */
+module M_LaserRangeFinder
+{
+  /// Interface version number.
+  const string Version = "7.1.0";
+
+
+  /**
+   * Laser Range Finder Service (LRF) interface.
+   * Contains operations that a Client can use to control the Laser Range Finder Service.
+   */
+  interface IService : M_Sensor::IService
+  {
+    /**
+     * Cmd to start (true) or stop (false) the measurement of the laser in pulse mode.
+     */
+    void CmdMultiFireLaser
+    (
+      /// Indicates if pulse mode firing should be started (true) or stopped (false).
+      /// True = Start firing laser
+      /// False = Stop firing laser
+      in boolean IsActivated
+    );
+
+    /**
+     * Cmd to fire a single shot with the laser.
+     */
+    void CmdSingleFireLaser();
+
+    /**
+     * Indicate whether the first or the last range returned contains the strongest measurement.
+     */
+    void ConfigSetFirstOrLastMeasurement   // TODO: Do we really need to support this? Is it really supposed to be set from a Client??
+    (
+      /// Indicate if the first range returned contains the strongest measurement or if
+      /// the last measurement returned is the strongest measurement.
+      in FirstOrLast::Type StrongestMeasurement
+    );
+
+    /**
+     * Sets the user defined minimum and maximum range.
+     * Note: Additionally the LRF has a minimum and maximum range that is defined by the settings.
+     */
+    void ConfigSetUserRange
+    (
+      /// The user defined minimum range. This range may differ from the device minimum range.
+      /// Note: In case the user defined minimum range is lower than the device minimum range,
+      /// the device minimum range is used.
+      /// Not present indicates that the user minimum range is disabled.
+      in M_Common::DistanceMetersOptionalType MinimumRange,
+
+      /// The user defined maximum range. This range may differ from the device maximum range.
+      /// Note: In case the user defined maximum range is higher than the device maximum range,
+      /// the device maximum range is used.
+      /// Not present indicates that the user maximum range is disabled.
+      in M_Common::DistanceMetersOptionalType MaximumRange
+    );
+
+    /**
+     * Configure to set or remove the interlock that prevents the accidental firing of the laser.
+     */
+    void ConfigInhibitLaserFiring
+    (
+      /// Identifies the component responsible for the laser firing or blocking.
+      in M_Common::ObjectIdType KeyComponentId,
+
+      /// Indicates if firing should be enabled (true) or inhibited (false).
+      /// True = Enable firing by removing the interlock that prevents the accidental firing of the laser.
+      /// False = Inhibit firing by setting the interlock that prevents the accidental firing of the laser.
+      in boolean IsRemoved
+    );
+
+    /**
+     * Configure the frequency of multi firing laser.
+     */
+    void ConfigMultiFireFrequency
+    (
+      /// Frequency in Hz.
+      in M_Common::FrequencyHertzType Frequency
+    );
+  };
+
+
+  /**
+   * Laser Range Finder (LRF) Client interface.
+   * Contains operations reported by a Laser Range Finder Service.
+   */
+  interface IClient : M_Sensor::IClient
+  {
+    /**
+     * Contains the static settings for a Laser Range Finder (LRF).
+     * This should be provided at startup and in the event of degraded functionality,
+     * e.g. due to an internal failure.
+     */
+    void ReportLrfSettings
+    (
+      /// Laser Range Finder settings data.
+      in LrfSettingsType Settings
+    );
+
+    /**
+     * Report status of Laser Range Finder.
+     */
+    void ReportLrfStatus
+    (
+      /// Current status data for Laser Range Finder (LRF).
+      in LrfStatusType Status,
+
+      /// Indicates if the status is no longer available.
+      /// Note: This will always be set to true when a service has been shut down.
+      /// After this has been set to true, the status will no longer be available to late joiners.
+      in boolean IsRemoved
+    );
+  };
+};

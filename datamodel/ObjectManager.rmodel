@@ -1,0 +1,271 @@
+// Copyright (c) 2026 Rheinmetall Electronics GmbH
+//
+// This program and the accompanying materials are made available under the
+// terms of the Eclipse Public License 2.0 which is available at
+// https://www.eclipse.org/legal/epl-2.0.
+//
+// SPDX-License-Identifier: EPL-2.0
+
+#include "CommonTypes.idl"
+#include "ObjectManagerTypes.idl"
+
+
+/**
+ * Interfaces used by the ObjectManager Service and Client.
+ *
+@startuml "ObjectManager Overview"
+title ObjectManager Overview
+hide footbox
+
+== Startup ==
+Client <- Service: ReportObjectManagerSettings(Settings)
+note over Service
+    On startup the Service always reports
+    the static settings information
+end note
+...
+
+== Add point ==
+Client -> Service: CmdAddUpdatePoint(KeyId, Obj)
+Client <- Service: ReportPoint(KeyId, Obj, IsRemoved=false)
+note over Service
+    Service adds the point to the local set and reports the
+    point transformed into configured coordinate frames. The
+    point is automatically reported once each cycle with the
+    newly calculated data. Same goes for CmdAddUpdateMultiPoint.
+end note
+...
+
+== Update point ==
+Client -> Service: CmdModifyPoint(KeyId, Obj)
+Client <- Service: ReportPoint(KeyId, Obj, IsRemoved=false)
+note over Service
+    Service updates the stored point with the given KeyId and
+    reports the updated point transformed into configured
+    coordinate frames. The point is automatically reported
+    once each cycle with the newly caluclated data. Same goes
+    for CmdModifyMultiPoint.
+end note
+...
+
+== Update point ==
+Client -> Service: CmdRemove(KeyId)
+Client <- Service: ReportPoint(KeyId, Obj, IsRemoved=true)
+note over Service
+    Service reports the points associated with the given KeyId
+    as removed to indicate that it will no longer be reported
+    with newly calculated data.
+end note
+...
+
+== Shutdown ==
+Client <- Service: ReportPoint(KeyId, Obj, IsRemoved=true)
+note over Service
+    On service shutdown the previously reported
+    points are automatically removed. This is used
+    as an indication that the Service is no longer
+    running.
+end note
+
+@enduml
+ */
+module M_ObjectManager
+{
+  /// Interface version number.
+  const string Version = "11.3.0";
+
+
+  /**
+   * ObjectManager Service interface.
+   * Contains operations that a Client can use for CRUD operations to the ObjectManager Service.
+   *
+   * Note: These functions should normally only be used for manual operations. Data from sensors
+   * should NOT be created or removed with the Service interface.
+   */
+  interface IService
+  {
+    /**
+     * Request for the service to transform a position from one coordinate frame to another.
+     */
+    void RequestPosition
+    (
+      /// The unique ID of the position. The same ID will be used in the response from the service.
+      in M_Common::ObjectIdType PosId,
+
+      /// Position relative to a specified source coordinate frame.
+      in M_Common::PositionType SourcePosition,
+
+      /// Identifies the coordinate frame in which the resulting position vector should be resolved.
+      in string TargetCoordinateFrame
+    );
+
+    /**
+     * Cmd to add or replace an existing point object.
+     * Note: If the object with the same ID already exists it will be replaced.
+     */
+    void CmdAddUpdatePoint
+    (
+      /// The unique ID of the object.
+      in M_Common::ObjectIdType KeyId,
+
+      /// Point object with positional data relative to own vehicle.
+      in PointObjectType Obj
+    );
+
+    /**
+     * Cmd to modify an existing point object.
+     * Note: This command can only be used to modify an already existing object.
+     */
+    void CmdModifyPoint
+    (
+      /// The unique ID of the object.
+      in M_Common::ObjectIdType KeyId,
+
+      /// The data to modify for an existing point object.
+      in ModifyPointType Obj
+    );
+
+    /**
+     * Cmd to add or replace an existing multi-point object.
+     * Note: If the object with the same ID already exists it will be replaced.
+     */
+    void CmdAddUpdateMultiPoint
+    (
+      /// The unique ID of the object.
+      in M_Common::ObjectIdType KeyId,
+
+      /// Multi-point object with positional data relative to own vehicle.
+      in MultiPointObjectType Obj
+    );
+
+    /**
+     * Cmd to modify an existing multi-point object.
+     * Note: This command can only be used to modify an already existing object.
+     */
+    void CmdModifyMultiPoint
+    (
+      /// The unique ID of the object.
+      in M_Common::ObjectIdType KeyId,
+
+      /// The data to modify for an existing multi-point object.
+      in ModifyMultiPointType Obj
+    );
+
+    /**
+     * Cmd to remove an existing object.
+     * Note: This can be used to remove a relative point, sector or polygon object.
+     */
+    void CmdRemove
+    (
+      /// The unique ID of the object.
+      in M_Common::ObjectIdType KeyId
+    );
+  };
+
+
+  /**
+   * ObjectManager Client interface.
+   * Contains operations from the ObjectManager Service to the Client(s).
+   */
+  interface IClient
+  {
+    /**
+     * Report with static service settings.
+     * This should be provided at startup and in the event of degraded functionality,
+     * e.g. due to an internal failure.
+     */
+    void ReportObjectManagerSettings
+    (
+      /// Object Manager settings data.
+      in ObjectManagerSettingsType Settings
+    );
+
+    /**
+     * Response to a request for the service to transform a position from one coordinate frame to another.
+     */
+    void ResponsePosition
+    (
+      /// The unique ID of the position. This is the same ID provided in the request from the client.
+      in M_Common::ObjectIdType PosId,
+
+      /// Coordinates relative to the specified target coordinate frame in the request.
+      in M_Common::PositionType TargetPosition
+    );
+
+    /**
+     * Reports information relating to own vehicle.
+     */
+    void ReportOwnInfo
+    (
+      /// Identifies the platform whose navigation data is being reported.
+      /// Note: This should correspond to its navigation service name.
+      in string KeyPlatformId,
+
+      /// Information relating to own vehicle.
+      /// Contains information such as position, heading, unit name etc for own vehicle.
+      in OwnInfoType Obj,
+
+      /// Indicates if the status no longer exists.
+      /// Note: After this has been set to true, the status will no longer be available to late joiners.
+      in boolean IsRemoved
+    );
+
+    /**
+     * Reports a point object.
+     */
+    void ReportPoint
+    (
+      /// The unique ID of the object.
+      in M_Common::ObjectIdType KeyId,
+
+      /// Point object with positional data.
+      in PointObjectType Obj,
+
+      /// Indicates if the object no longer exists.
+      /// Note: After this has been set to true, the object will no longer be available to late joiners.
+      in boolean IsRemoved
+    );
+
+    /**
+     * Reports a multi-point object.
+     */
+    void ReportMultiPoint
+    (
+      /// The unique ID of the object.
+      in M_Common::ObjectIdType KeyId,
+
+      /// Multi-point object with positional data.
+      in MultiPointObjectType Obj,
+
+      /// Indicates if the object no longer exists.
+      /// Note: After this has been set to true, the object will no longer be available to late joiners.
+      in boolean IsRemoved
+    );
+
+    /**
+     * Reports a list of the transformations between specified coordinate frames.
+     */
+    void ReportCoordinateTransformations
+    (
+      /// List of coordinate transformations.
+      in M_Common::CoordinateTransformationListType CoordinateTransformationList,
+
+      /// Indicates if the status is no longer available.
+      /// Note: This will always be set to true when a service has been shut down.
+      /// After this has been set to true, the status will no longer be available to late joiners.
+      in boolean IsRemoved
+    );
+
+    /**
+     * Reports changes to the specified object's data upon the occurrence of that change.
+     */
+    void EventObjectChanged
+    (
+      /// The unique ID of the object.
+      in M_Common::ObjectIdType KeyId,
+
+      /// Change in object parameters.
+      in ParameterDifferenceType Difference
+    );
+  };
+};

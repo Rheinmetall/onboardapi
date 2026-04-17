@@ -1,0 +1,117 @@
+// Copyright (c) 2026 Rheinmetall Electronics GmbH
+//
+// This program and the accompanying materials are made available under the
+// terms of the Eclipse Public License 2.0 which is available at
+// https://www.eclipse.org/legal/epl-2.0.
+//
+// SPDX-License-Identifier: EPL-2.0
+
+#include "WatchdogTypes.idl"
+
+
+/**
+ * Interfaces used by the watchdog service and client.
+ */
+module M_Watchdog
+{
+  /// Interface version number.
+  const string Version = "1.1.0";
+
+
+  /**
+   * Watchdog service interface.
+   * Contains operations that a client can command the watchdog service to perform.
+   *
+@startuml "Watchdog Client Liveliness Monitoring"
+
+title Client Liveliness Monitoring
+hide footbox
+
+==Startup==
+Mount -> "Controlling instance": ReportWatchdogSettings(WatchableOperations)
+"Controlling instance" -> Mount: ConfigWatch(WatchedClientId,\nAssociatedServiceName,\nWatchedOperations=NotifyRateAbsolute)
+Mount -> "Controlling instance": ReportWatchStatus(Status)
+note over "Controlling instance"
+At startup, fail-sensitive devices may be configured to watch
+specific commanding clients for connection losses.
+end note
+...
+
+==Normal operation==
+"Control handle" -> Mount: NotifyRateAbsolute
+note over Mount
+An example of data that should be rendered invalid
+upon client connection loss.
+end note
+...
+
+==Connection loss==
+"Control handle" -> Mount: ReportDeviceStatus(Status, IsRemoved=true)
+Mount -> Mount: failure handling
+note over Mount
+When the commanding client disconnects, the mount
+is notified by means of the associated service's IsRemoved
+and can take appropriate measures.
+end note
+
+@enduml
+   */
+  interface IService
+  {
+    /**
+     * Configure to watch a specified function.
+     */
+    void ConfigWatch
+    (
+      /// Identifies the client whose operations are to be watched.
+      in string KeyWatchedClientId,
+
+      /// Identifies the service name corresponding to the client that executes the operations to be watched.
+      in string KeyAssociatedServiceName,
+
+      /// List of operations issued by the client to be watched.
+      /// Note: If empty, all watchable operations should be watched.
+      in M_Common::StringListType WatchedOperations,
+
+      /// Indicates to the service whether the specific watch should be removed.
+      in boolean IsRemoved
+    );
+  };
+
+
+  /**
+   * Watchdog client interface.
+   * Contains callback operations from the watchdog service to the client.
+   */
+  interface IClient
+  {
+    /**
+     * Report watchdog static settings.
+     */
+    void ReportWatchdogSettings
+    (
+      /// Watchdog settings.
+      in WatchdogSettingsType Settings
+    );
+
+    /**
+     * Report current status of specific watch.
+     */
+    void ReportWatchStatus
+    (
+      /// Identifies the client whose operations are to be watched.
+      in string KeyWatchedClientId,
+
+      /// Identifies the service name corresponding to the client that executes the operations to be watched.
+      in string KeyAssociatedServiceName,
+
+      /// Status of the specified client/service-mapped watch.
+      in WatchStatusType Status,
+
+      /// Indicates if the status is no longer available. 
+      /// Note: This will always be set to true when a service has been shut down.
+      /// After this has been set to true, the status will no longer be available to late joiners.
+      in boolean IsRemoved
+    );
+  };
+};

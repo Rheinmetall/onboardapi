@@ -1,0 +1,204 @@
+// Copyright (c) 2026 Rheinmetall Electronics GmbH
+//
+// This program and the accompanying materials are made available under the
+// terms of the Eclipse Public License 2.0 which is available at
+// https://www.eclipse.org/legal/epl-2.0.
+//
+// SPDX-License-Identifier: EPL-2.0
+
+#include "CommonTypes.idl"
+#include "VideoTrackerTypes.idl"
+
+
+/**
+ * Interfaces used by the Line-of-Sight Control (LOS) Service and Client.
+ * VideoTracker LOS-Control module holds the Line-of-Sight onto objects for Line-of-Sight tracking.
+ * The units of this interface are angular. The LOS-Control module needs information from the system to perform LOS-Control tasks, see M_VideoTrackerCommon interface description.
+ */
+module M_VideoTrackerLosCtrl
+{
+  /// Interface version number.
+  const string Version = "8.2.0";
+
+
+  /**
+   * Line-of-Sight Control (LOS) Service interface.
+   * Contains operations that a client can command the Line-of-Sight Control (LOS) Service to perform.
+   *
+@startuml "VideoTracker State Chart"
+state VIDEO_TRACKER_LOS_CTRL<<sysBorder>>{
+
+
+    [*] --> NO_LEADING_OBJECT
+    state "NO_LEADING_OBJECT" as NO_LEADING_OBJECT <<internalState>>
+    NO_LEADING_OBJECT : All ATR/LoT objects in VtLosCtrl state "None" or no objects at all.
+    NO_LEADING_OBJECT : <b>OnEntry: GEN( ReportPosError, IsRemoved=true )
+
+    state LOS_CTRL_ACTIVE<<internalState>>{
+
+
+        NO_LEADING_OBJECT -up-> LOS_CTRL_STATE_INIT_LEADING : CmdLeadOn[ObjectFound]
+        LOS_CTRL_STATE_INIT_LEADING --> LOS_CTRL_STATE_INIT_LEADING : _InternalEvent_ImgCycle/\nGEN ( ReportPosError, IsRemoved=false, PosError=0 )
+
+        note "These states can be found in reported track objects" as N6
+
+        state LOS_CTRL_STATE_LEADING{
+            LOS_CTRL_STATE_INIT_LEADING --> LOS_CTRL_STATE_LEADING : NotifyMountTrackingState=Centering
+            [*] --> TRACKING_STATE_TRACKING
+            TRACKING_STATE_TRACKING : <b>Inputs:
+            TRACKING_STATE_TRACKING : <b>CmdApd...
+            TRACKING_STATE_TRACKING --> TRACKING_STATE_TRACKING : _InternalEvent_ImgCycle/\nGEN ( ReportPosError, IsCoasting=false, IsRemoved=false )
+
+
+            TRACKING_STATE_COASTING : <b>Inputs:
+            TRACKING_STATE_COASTING : <b>NotifyHelpRate (if not done at mount)
+            TRACKING_STATE_COASTING --> TRACKING_STATE_COASTING : _InternalEvent_ImgCycle/\nGEN ( ReportPosError, IsCoasting=true, IsRemoved=false )
+
+            TRACKING_STATE_TRACKING --> TRACKING_STATE_COASTING : _InternalEvent_ObjOccluded
+            TRACKING_STATE_TRACKING --> TRACKING_STATE_COASTING : CmdLotForceCoasting[Id==LeadingObjectId]
+            TRACKING_STATE_COASTING --> TRACKING_STATE_TRACKING : _InternalEvent_ObjReacquired
+        }
+
+        LOS_CTRL_STATE_LEADING --> LOS_CTRL_STATE_LEADING : CmdLeadOn[ObjectFound]
+        note on link
+            New lead-on while los-tracking is possible
+        end note
+
+        LOS_CTRL_STATE_LEADING -up-> NO_LEADING_OBJECT : M_Sensor::CmdDeleteTracks[Id==LeadingObjectId]
+        LOS_CTRL_STATE_LEADING -up-> NO_LEADING_OBJECT : M_Sensor::CmdDeleteAllTracks
+        LOS_CTRL_STATE_LEADING -up-> NO_LEADING_OBJECT : _InternalEvent_LostObject
+        LOS_CTRL_STATE_LEADING -up-> NO_LEADING_OBJECT : NotifyMountTrackingState=No_Tracking
+    }
+
+    note "<b>Rate report (ReportRate) behaves the same way!" as N5
+}
+@enduml
+   */
+  interface IService
+  {
+    /**
+     * Configure the client source for help rate input.
+     *
+     * Note: The "NotifyHelpRate" calls should only be handled from this configured client.
+     */
+    void ConfigHelpRateInputSource (
+      /// Name of client to accept data inputs from.
+      /// Empty string indicates data shall be accepted from all clients.
+      in string ClientId
+    );
+
+    /// Lead-on an object.
+    void CmdLeadOn (
+      /// Identifies an existing currently tracked object.<br>
+      /// Note: If not present then the VideoTracker should initiate a lead-on at the aligned image centre.<br>
+      /// Note: If ObjId is "Selected", a lead-on on the currently selected object (if available) is initiated.<br>
+      /// Note: If ObjId is "SelectedOrCenter", a leaded-on on  the currently selected object (if available) is initiated.<br>
+      /// Which object will be leaded-on is described by M_VideoTracker::VtObjectType::IsSelected flag.
+      in M_Common::ObjectIdOptionalType ObjId
+    );
+
+
+    /// Set offset between aligned image centre and object centre (Aim Point Designation - APD) by selecting a position in the image.<br>
+    /// The current difference between leading object centre and selected position is applied as aim point offset.<br>
+    /// Note: APD is applied to the current leading object only and is not persistent. It is reset to zero at every lead-on.
+    void CmdApdAbsolute (
+      /// Position in camera field of view w.r.t. image centre.
+      in M_Common::SphericalPositionType Pos
+    );
+
+    /// Increment/decrement current offset between aligned image centre and object centre (Aim Point Designation - APD).<br>
+    /// Note: APD is applied to current leading object only and is not persistent. It is reset to zero at every lead-on.<br>
+    /// Note: One step corresponds to the angular extent of one pixel of the current VideoTracker input video.
+    void CmdApdByStep (
+      /// The number of steps to increase/decrease in azimuth direction.
+      in long StepsAzimuth,
+      /// The number of steps to increase/decrease in elevation direction.
+      in long StepsElevation
+    );
+
+    /// Set offset between aligned image centre and object centre (Aim Point Designation - APD).<br>
+    /// Note: APD is applied to current leading object only and is not persistent. It is reset to zero at every lead-on.
+    void CmdApdByCenterOffset (
+      /// Offset from object centre.
+      in M_Common::SphericalPositionType Pos
+    );
+
+    /// Set automatic Lock-On and Lead-On enabled.
+    /// When enabled, a lead-on the current or first upcoming selected ATR object is initiated.
+    void ConfigAutoLeadOn (
+      /// Enable or disable (True = Enable, False = Disable).
+      in boolean Enable
+    );
+
+    /// Inform LOS-Control about the state of mount regarding being controlled by VideoTracker.
+    /// This information is needed to close the LosCtrl loop.
+    void NotifyMountTrackingState (
+      /// Tracking state of a Mount.
+      in M_VideoTracker::MountTrackingState::Type State
+    );
+
+    /// Set help rate to influence rate that VideoTracker generates. E.g. to support the VideoTracker while coasting.
+    void NotifyHelpRate (
+      /// Angular rate [deg/s].
+      in M_Common::AngularVelocityType HelpRate
+    );
+  };
+
+
+  /**
+   * Line-of-Sight Control (LOS) Client interface.
+   * Contains callback operations from the Line-of-Sight Control (LOS) Service to the Client.
+   */
+  interface IClient
+  {
+// TODO: Add void ReportSettings(in LosCtrlSettingsType Settings);
+
+    /// Report with the current LoS-Ctrl VideoTracker status.
+    /// This will be continually updated every time a value is changed.
+    void ReportLosCtrlStatus (
+	    /// Current status of the LoS client.
+	    in M_VideoTracker::LosCtrlStatusType LosCtrlStatus,
+      /// Indicates if the status is no longer available.
+      /// Note: This will always be set to True when a Service has been shut down.
+      /// After this has been set to True the status will no longer be available to late joiners.
+      in boolean IsRemoved
+    );
+
+    /// Report current angular velocity.
+    /// Note: This value can be used to command the Mount Service to hold the LoS on the leading object.
+    void ReportRate (
+      /// Angular velocity (rotational speed) around the X, Y, Z axes.
+      in M_Common::AngularVelocityType AngularVelocity,
+      /// Coasting flag.
+      in boolean IsCoasting,
+      /// Indicates if the leading track is no longer available.
+      /// Note: Whenever this report is available the VideoTracker has valid data to lead a mount.
+      in boolean IsRemoved
+    );
+
+    /// Report position error between leading object and aim point.
+    /// Note: This value can be used in a mount control loop to hold the LoS on the leading object.
+    void ReportPosError (
+      /// Difference of currently followed object with regard to aligned image centre + aim point offset.
+      in M_Common::PositionType PosError,
+      /// Coasting flag.
+      in boolean IsCoasting,
+      /// Indicates if the leading track is no longer available.
+      /// Note: Whenever this report is available the VideoTracker has valid data to lead a mount.
+      in boolean IsRemoved
+    );
+
+    /// Report current maximum centring rate.
+    /// Note: This value can be used to command the Mount Service to limit the centring rate in the image plane.
+    void ReportMaxCenteringRate (
+      /// Angular velocity (rotational speed) around the X, Y, Z axes.
+      in M_Common::AngularVelocityType AngularVelocity
+    );
+
+    /// Report current aim point offset, which was set by APD commands.
+    void ReportApd (
+      /// Current offset between leading object centre and aligned image centre point.
+      in M_Common::PositionType ApdOffset
+    );
+  };
+};

@@ -1,0 +1,472 @@
+// Copyright (c) 2026 Rheinmetall Electronics GmbH
+//
+// This program and the accompanying materials are made available under the
+// terms of the Eclipse Public License 2.0 which is available at
+// https://www.eclipse.org/legal/epl-2.0.
+//
+// SPDX-License-Identifier: EPL-2.0
+
+#ifndef _CAMERA_TYPES_IDL_
+#define _CAMERA_TYPES_IDL_
+
+
+#include "CommonTypes.idl"
+
+
+/**
+ * Types used by the Camera Service.
+ */
+module M_Camera
+{
+  /// Scale direction context.
+  module ScaleDirection
+  {
+    /// Scale direction enumeration.
+    enum Type
+    {
+      /// Increase
+      Increase,
+
+      /// Decrease
+      Decrease
+    };
+  };
+
+
+  /// Polarity hot color context.
+  module PolarityHotColor
+  {
+    /// Polarity hot color enumeration.
+    enum Type
+    {
+      /// White-Is-Hot
+      White,
+
+      /// Black-Is-Hot
+      Black,
+
+      /// Red-Is-Hot
+      Red
+    };
+  };
+
+  /// Optional PolarityHotColor.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<PolarityHotColor::Type, 1> PolarityHotColorOptionalType;
+
+
+  /// Indicates which polarity colors are supported to represent hot.
+  struct SupportedPolarityHotColorType
+  {
+    /// Indicates if White-Is-Hot is supported.
+    boolean IsWhiteSupported;
+
+    /// Indicates if Black-Is-Hot is supported.
+    boolean IsBlackSupported;
+
+    /// Indicates if Red-Is-Hot is supported.
+    boolean IsRedSupported;
+  };
+
+
+  /**
+   * Auto-focus context.
+   */
+  module AutoFocusKind
+  {
+    /// Auto-focus enumeration.
+    enum Type
+    {
+      /// Stop auto-focus.
+      Stop,
+
+      /// Start auto-focus.
+      Start,
+
+      /// Hold current auto-focus.
+      Hold,
+
+      /// Move auto-focus to infinity.
+      Infinity
+    };
+  };
+
+
+  /**
+   * Contains the mapping of a zoom level to a field of view.
+   */
+  struct ZoomStateType
+  {
+    /// Zoom level [%].
+    M_Common::PercentType Level;
+
+    /// Field of view corresponding to zoom level [deg].
+    M_Common::DegreeRegionType Fov;
+  };
+
+  /// List of ZoomStateType.
+  typedef sequence<ZoomStateType> ZoomStateListType;
+
+  /// Contains the camera render settings.
+  struct RenderSettingsType
+  {
+    /// The render width.
+    long renderWidth;
+
+    /// The render height.
+    long renderHeight;
+
+    /// The render x position.
+    long renderPosX;
+
+    // The render y position
+    long renderPosY;
+  };
+
+  /// Optional RenderSettingsType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<RenderSettingsType, 1> RenderSettingsOptionalType;
+
+  /// Contains the camera settings data.
+  struct CameraSettingsType
+  {
+    /// Mappings of zoom levels to fields of view.
+    ZoomStateListType ZoomStateList;
+
+    /// Step size percent of each focus increase/decrease step.
+    M_Common::PercentType FocusStepSize;        // TODO: Change this to a list of the actual levels instead? Otherwise every step has to be the same size...
+
+    /// Step size percent of each brightness increase/decrease step.
+    M_Common::PercentType BrightnessStepSize;   // TODO: Change this to a list of the actual levels instead? Otherwise every step has to be the same size...
+
+    /// Step size percent of each contrast increase/decrease step.
+    M_Common::PercentType ContrastStepSize;     // TODO: Change this to a list of the actual levels instead? Otherwise every step has to be the same size...
+
+    /// Step size percent of each gain increase/decrease step.
+    M_Common::PercentType GainStepSize;         // TODO: Change this to a list of the actual levels instead? Otherwise every step has to be the same size...
+
+     /// Step size percent of each alpha blending increase/decrease step.
+    M_Common::PercentType AlphaBlendingStepSize;// TODO: Change this to a list of the actual levels instead? Otherwise every step has to be the same size...
+
+    /// Available apertures.
+    M_Common::ProportionalListType AvailableApertures;
+
+    /// Indicates if auto focus is supported.
+    boolean IsAutoFocusSupported;
+
+    /// Indicates if focus is supported.
+    boolean IsFocusSupported;
+
+    /// Indicates if focus engine is supported.
+    boolean IsFocusEngineSupported;
+
+    /// Indicates if 2x digital zoom is supported.
+    boolean IsDigitalZoomSupported;
+
+    /// Indicates if zoom is supported.
+    boolean IsZoomSupported;
+
+    /// Indicates if zoom engine (FoV motor) is supported.
+    boolean IsZoomEngineSupported;
+
+    /// Indicates if auto brightness is supported.
+    boolean IsAutoBrightnessSupported;
+
+    /// Indicates if brightness is supported.
+    boolean IsBrightnessSupported;
+
+    /// Indicates if auto contrast is supported.
+    boolean IsAutoContrastSupported;
+
+    /// Indicates if contrast is supported.
+    boolean IsContrastSupported;
+
+    /// Indicates if polarity for IR-Camera is supported.
+    boolean IsPolaritySupported;
+
+    /// Indicates which polarity colors are supported to represent hot.
+    SupportedPolarityHotColorType SupportedHotColors;
+
+    /// Indicates if economy mode for IR-Camera is supported.
+    boolean IsEconomyModeSupported;
+
+    /// Indicates if cooler for IR-Camera is supported.
+    boolean IsCoolerSupported;
+
+    /// Indicates if auto gain supported.
+    boolean IsAutoGainSupported;
+
+    /// Indicates if gain supported.
+    boolean IsGainSupported;
+
+    /// Indicates if exposure is supported.
+    boolean IsExposureSupported;
+
+    /// Indicates if auto exposure is supported.
+    boolean IsAutoExposureSupported;
+
+    /// Indicates if changing the aperture is supported.
+    boolean IsSetApertureSupported;
+
+    /// Indicates if external trigger mode is supported.
+    boolean IsExternalTriggerModeSupported;
+
+    /// Indicates if grabbing is supported.
+    boolean IsGrabbingSupported;
+
+    /// Indicates if Region of Interest (cropping) is supported.
+    boolean IsRegionOfInterestSupported;
+
+    /// Indicates if calibration of NUC (Non-Uniformity Compensation) for IR-Camera is supported.
+    boolean IsCalibrateNucSupported;
+
+    /// Indicates if calibration of NUC (Non-Uniformity Compensation) can be aborted mid-process.
+    boolean IsAbortCalibrateNucSupported;
+
+    /// Indicates if false color processing is supported.
+    boolean IsFalseColorSupported;
+
+    /// List of supported false color processing algorithm names.
+    M_Common::StringListType SupportedFalseColorAlgorithms;
+
+    /// Indicates if operation mode is supported.
+    boolean IsOperationModeSupported;
+
+    /// Indicates if alpha blending is supported.
+    boolean IsAlphaBlendingSupported;
+
+    /// Indicates if infrared dynamic mode is supported.
+    boolean IsInfraredDynamicModeSupported;
+
+    /// Indicates if freezing a camera image is supported.
+    boolean IsFreezeImageSupported;
+
+    /// Indicates if HDR is supported.
+    boolean IsHdrSupported;
+
+    /// List of supported camera preset names.
+    M_Common::StringListType SupportedCameraPresets;
+
+    /// The render settings.
+    /// Note: Typically used in case of virtual cameras.
+    RenderSettingsOptionalType RenderSettings;
+
+    /// The camera position.
+    /// Note: Typically used in case of virtual cameras.
+    M_Common::PositionOptionalType Position;
+
+    /// The rotation of the camera.
+    /// Note: Typically used in case of virtual cameras.
+    M_Common::EulerAttitudeOptionalType Rotation;
+
+    /// Additional properties for the Service.
+    /// Note: Properties are defined generically to enable non-essential additional
+    /// information to be provided without impacting the Data Model.
+    M_Common::PropertyListType AdditionalInfo;
+  };
+
+
+  /// Contains the camera status data.
+  struct CameraStatusType
+  {
+    /// Operation status.
+    M_Common::OperationStatusType OperationStatus;
+
+    /// Indicates if auto focus is enabled.
+    /// Not present indicates unknown status.
+    M_Common::GeneralStatusOptionalType IsAutoFocusEnabled;
+
+    /// Indicates if the specified IsAutoFocusEnabled value is a part of a change currently in-progress (true)
+    /// or if it has been applied and is currently in use (false).
+    boolean IsAutoFocusChangeInProgress;
+
+    /// Focus level percent.
+    /// Not present indicates unknown or not supported.
+    M_Common::PercentOptionalType FocusLevel;
+
+    /// Indicates if the specified FocusLevel value is a part of a change currently in-progress (true)
+    /// or if it has been applied and is currently in use (false).
+    boolean IsFocusLevelChangeInProgress;
+
+    /// Indicates if focus engine is running.
+    /// Not present indicates unknown status.
+    M_Common::GeneralStatusOptionalType IsFocusEngineRunning;
+
+    /// Indicates if the specified IsFocusEngineRunning value is a part of a change currently in-progress (true)
+    /// or if it has been applied and is currently in use (false).
+    boolean IsFocusEngineChangeInProgress;
+
+    /// Current setting of zoom level and field of view.
+    ZoomStateType ZoomState;
+
+    /// Indicates if digital zoom (2x) is enabled.
+    /// Not present indicates unknown status.
+    M_Common::GeneralStatusOptionalType IsDigitalZoomEnabled;
+
+    /// Indicates if the specified IsDigitalZoomEnabled value is a part of a change currently in-progress (true)
+    /// or if it has been applied and is currently in use (false).
+    boolean IsDigitalZoomChangeInProgress;
+
+    /// Indicates if the specified ZoomLevel value is a part of a change currently in-progress (true)
+    /// or if it has been applied and is currently in use (false).
+    boolean IsZoomLevelChangeInProgress;
+
+    /// Predefined Field of View (Zoom) adjusted level.
+    /// Only present if a predefined level is currently being used.
+    M_Common::UShortOptionalType PredefinedZoomFov;
+
+    /// Indicates if the specified PredefinedZoomFov value is a part of a change currently in-progress (true)
+    /// or if it has been applied and is currently in use (false).
+    boolean IsPredefinedZoomFovChangeInProgress;
+
+    /// Indicates if the specified ZoomFovRegion value is a part of a change currently in-progress (true)
+    /// or if it has been applied and is currently in use (false).
+    boolean IsZoomFovRegionChangeInProgress;
+
+    /// Indicates if zoom engine is running.
+    /// Not present indicates unknown status.
+    M_Common::GeneralStatusOptionalType IsZoomEngineRunning;
+
+    /// Indicates if the specified IsZoomEngineRunning value is a part of a change currently in-progress (true)
+    /// or if it has been applied and is currently in use (false).
+    boolean IsZoomEngineChangeInProgress;
+
+    /// Indicates if auto brightness is enabled.
+    /// Not present indicates unknown status.
+    M_Common::GeneralStatusOptionalType IsAutoBrightnessEnabled;
+
+    /// Brightness level percent.
+    /// Not present indicates unknown or not supported.
+    M_Common::PercentOptionalType BrightnessLevel;
+
+    /// Indicates if auto contrast is enabled.
+    /// Not present indicates unknown status.
+    M_Common::GeneralStatusOptionalType IsAutoContrastEnabled;
+
+    /// Contrast level percent.
+    /// Not present indicates unknown or not supported.
+    M_Common::PercentOptionalType ContrastLevel;
+
+    /// Indicates which IR-Camera polarity color is hot.
+    /// Not present indicates unknown status.
+    PolarityHotColorOptionalType PolarityHotIs;
+
+    /// Indicates if economy mode is enabled.
+    /// Enabled = Economy mode
+    /// Disabled = Normal mode
+    /// Not present indicates unknown status.
+    M_Common::GeneralStatusOptionalType IsEconomyModeEnabled;
+
+    /// IR-Camera cooler is enabled.
+    /// Not present indicates unknown status.
+    M_Common::GeneralStatusOptionalType IsCoolerEnabled;
+
+    /// Optional temperature [K].
+    /// Not present indicates unknown or not supported.
+    M_Common::TemperatureKelvinsOptionalType Temperature;
+
+    /// Indicates if communication is active.
+    /// True = Communication Active
+    /// False = Not Active, for example by Communication Error
+    boolean IsCommunicationActive;    // TODO: Remove this, should probably be replaced by seperate error handling such as BITE?
+
+    /// Indicates if auto gais enabled.
+    /// Not present indicates unknown status.
+    M_Common::GeneralStatusOptionalType IsAutoGainEnabled;
+
+    /// Gain level percent.
+    /// Not present indicates unknown or not supported.
+    M_Common::PercentOptionalType GainLevel;
+
+    /// Indicates if auto exposure is enabled.
+    /// Not present indicates unknown status.
+    M_Common::GeneralStatusOptionalType IsAutoExposureEnabled;
+
+    /// Exposure time (e.g. shutter speed) fractions of a second.
+    /// Not present indicates unknown or not supported.
+    /// Examples:
+    ///  A value of 1 = One second
+    ///  A value of 2 = Half a second
+    ///  A value of 3 = Third of a second
+    ///  A value of 75 = 1/75 of a second
+    ///  A value of 10000 = 1/10000 of a second
+    ///
+    /// Note: As reference the NGVA currently supports the following values:
+    /// 1, 2, 3, 6, 12, 25, 50, 75, 100, 120, 150, 215, 300, 425, 600, 1000, 1250, 1750, 2500, 3500, 6000, 10000
+    M_Common::UShortOptionalType ShutterSpeedPerSec;
+
+    /// Lens aperture [-].
+    /// Not present indicates unknown or not supported.
+    M_Common::ProportionalOptionalType Aperture;
+
+    /// Indicates if external trigger mode is enabled.
+    /// Not present indicates unknown status.
+    M_Common::GeneralStatusOptionalType IsExternalTriggerModeEnabled;
+
+    /// Indicates if grabbing is running.
+    /// Not present indicates unknown status.
+    M_Common::GeneralStatusOptionalType IsGrabbingRunning;
+
+    /// Rectangle in pixels defining the Region of Interest.
+    /// Not present indicates none or not supported.
+    M_Common::PixelRegionOptionalType RegionOfInterest;
+
+    /// Indicates the count of hours the cooler was in operation.
+    /// Not present indicates none or not supported.
+    M_Common::ULongLongOptionalType CoolerOperatingHoursCountTotal;       // TODO: Replace with a timestamp instead - In operation since timestamp
+
+    /// Indicates the count of hours the electronic was in operation.
+    /// Not present indicates none or not supported.
+    M_Common::ULongLongOptionalType ElectronicOperatingHoursCountTotal;   // TODO: Replace with a timestamp instead - In operation since timestamp
+
+    /// Indicates the native sensor resolution.
+    /// Not present indicates none or not supported.
+    M_Common::PixelRectSizeOptionalType SensorResolution;
+
+    /// Indicates if false color processing is enabled.
+    M_Common::GeneralStatusOptionalType IsFalseColorEnabled;
+
+    /// Indicates if dynamic mode for IR-Camera is enabled.
+    M_Common::GeneralStatusOptionalType IsInfraredDynamicModeEnabled;
+
+    /// Currently active HDR mode.
+    long HdrMode;
+
+    /// False color processing algorithm name.
+    /// Empty if not applicable or unknown.
+    string FalseColorAlgorithmName;
+
+    /// The name of the currently applied preset of camera values.
+    /// Note: This is only set if the current values completely correspond to the applied preset.
+    /// If any values has been changed after applying a preset then this name will be empty.
+    /// Empty if the currently used values do not correspond to a preset.
+    string Preset;
+  };
+
+  /// The type which represents the safety code.
+  struct SafetyCodeType
+  {
+    /// The start buffer.
+    M_Common::UShortOptionalType StartBuffer;
+
+    /// The source id.
+    M_Common::ByteOptionalType SourceId;
+
+    /// The timestamp.
+    M_Common::UShortOptionalType TimeStamp;
+  
+    /// The checksum.
+    M_Common::UShortOptionalType Checksum;
+
+    /// The display mask StartPattern|SourceID|TimeStamp|CRC.
+    M_Common::ByteOptionalType DisplayMask;
+
+    /// Position and overall size of the safety code.
+    M_Common::PixelRegionOptionalType RegionOfInterest;
+  };
+
+  typedef sequence<SafetyCodeType> SafetyCodeListType;
+
+};
+
+#endif // _CAMERA_TYPES_IDL_

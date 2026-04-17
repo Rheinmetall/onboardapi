@@ -1,0 +1,83 @@
+// Copyright (c) 2026 Rheinmetall Electronics GmbH
+//
+// This program and the accompanying materials are made available under the
+// terms of the Eclipse Public License 2.0 which is available at
+// https://www.eclipse.org/legal/epl-2.0.
+//
+// SPDX-License-Identifier: EPL-2.0
+
+#include "CommonTypes.idl"
+
+
+/**
+ * Types used by the coordinate frame service and client.
+ */
+module M_CoordinateFrame
+{
+  /**
+   * Contains meta-information about a coordinate frame.
+   */
+  struct CoordinateFrameDatumSupportType
+  {
+    /// Identifies where the parameters apply.
+    /// Note: This should equal the defined KeyId of the corresponding interface operation.
+    string Name;
+
+    /// List of available coordinate frames relative to which kinematic properties can be reported but not set.
+    string SupportedCoordinateFrame;
+
+    /// Data output frequency [Hz].
+    M_Common::FrequencyHertzOptionalType DataOutputFrequency;
+
+    /// Property access mode.
+    M_Common::PropertyAccessKind::Type AccessMode;
+
+    /// Additional properties of the service.
+    /// Note: Properties are defined generically to enable non-essential additional
+    /// information to be provided without impacting the data model.
+    M_Common::PropertyListType AdditionalInfo;
+  };
+
+  /// List of CoordinateFrameDatumSupportType.
+  typedef sequence<CoordinateFrameDatumSupportType> CoordinateFrameDatumSupportListType;
+
+
+  /**
+   * Contains the settings of the coordinate frame service.
+   */
+  struct CoordinateFrameSettingsType
+  {
+    /// Meta-information about coordinate frames used for a position.
+    CoordinateFrameDatumSupportListType SupportedPositionList;
+
+    /// Meta-information about coordinate frames used for an attitude.
+    CoordinateFrameDatumSupportListType SupportedAttitudeList;
+
+    /// Meta-information about coordinate frames used for a linear velocity.
+    CoordinateFrameDatumSupportListType SupportedLinearVelocityList;
+
+    /// Meta-information about coordinate frames used for an angular velocity.
+    CoordinateFrameDatumSupportListType SupportedAngularVelocityList;
+
+    /// Meta-information about coordinate frames used for a linear acceleration.
+    CoordinateFrameDatumSupportListType SupportedLinearAccelerationList;
+
+    /// Meta-information about coordinate frames used for an angular acceleration.
+    CoordinateFrameDatumSupportListType SupportedAngularAccelerationList;
+
+    /// Additional properties of the service.
+    /// Note: Properties are defined generically to enable non-essential additional
+    /// information to be provided without impacting the data model.
+    M_Common::PropertyListType AdditionalInfo;
+  };
+
+
+  /**
+   * Contains coordinate frame status data.
+   */
+  struct CoordinateFrameStatusType
+  {
+    /// Operation status.
+    M_Common::OperationStatusType OperationStatus;
+  };
+};

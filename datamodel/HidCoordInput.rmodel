@@ -1,0 +1,124 @@
+// Copyright (c) 2026 Rheinmetall Electronics GmbH
+//
+// This program and the accompanying materials are made available under the
+// terms of the Eclipse Public License 2.0 which is available at
+// https://www.eclipse.org/legal/epl-2.0.
+//
+// SPDX-License-Identifier: EPL-2.0
+
+#include "CommonTypes.idl"
+#include "HidCoordInputTypes.idl"
+
+
+/**
+ * A Coord Input service represents an input device such as a touch screen or a mouse 
+ * which can generate input coordinates (2D pixel points) representing a mouse button
+ * or touch screen press.
+ *
+@startuml "Coordinate Input"
+title Coordinate Input
+hide footbox
+
+== Startup ==
+Client <- Service: ReportCoordInputSettings(Settings)
+note over Service
+    On startup the Service always reports
+    the static settings information
+end note
+Client <- Service: ReportXYZStatus(Status, IsRemoved=false)
+note over Service
+    Service always reports the initial 
+    status with the IsRemoved flag set
+    to false
+end note
+...
+
+== Click event ==
+Client <- Service: EventClick(Point, IsPressed=true)
+note over Service
+    Service generates button pressed event
+    when a touch screen is pressed
+end note
+Client <- Service: EventClick(Point, IsPressed=false)
+note over Service
+    Service generates button released event
+    when press is released
+end note
+...
+
+== Cursor position update ==
+Client <- Service: ReportCursorPosition(Point, IsRemoved=false)
+note over Service
+    Service reports the updated
+    cursor position
+end note
+...
+
+== Shutdown ==
+Client <- Service: ReportCursorPosition(Point, IsRemoved=true)
+note over Service
+    On service shutdown the previously reported
+    cursor position is automatically removed
+end note
+
+@enduml
+ */
+module M_HidCoordInput
+{
+  /// Interface version number.
+  const string Version = "1.1.0";
+
+
+  /**
+   * Service interface.
+   * Contains operations that a client can command the Coord Input Service to perform.
+   */
+  interface IService
+  {
+    /**
+     * Command to check if service is alive.
+     * If the service is not available, then an exception will be thrown.
+     */
+    void CmdIsCoordInputAlive();
+  };
+
+
+  /**
+   * Client interface.
+   * Contains operations reported by a Coord Input Service.
+   */
+  interface IClient
+  {
+    /**
+     * Contains the static settings for a Coord Input Service.
+     * This should be provided at startup and in the event of degraded functionality,
+     * e.g. due to an internal failure.
+     */
+    void ReportCoordInputSettings (
+      /// Settings for Coord Input Service.
+      in CoordInputSettingsType Settings
+    );
+
+    /**
+     * Triggered every time an input is generated, such as a touch screen is pressed or released,
+     * or a mouse button is pressed or released.
+     */
+    void EventClick (
+      /// The X/Y position in pixels of the click.
+      in M_Common::PixelPoint2DType Point,
+      /// Indicates if the button has been pressed (true) or released (false).
+      in boolean IsPressed
+    );
+
+    /**
+     * Contains the current position generated from the input, such as a mouse cursor,
+     * or the coordinates when performing a dragging action on a touch screen.
+     */
+    void ReportCursorPosition (
+      /// The current X/Y position in pixels.
+      in M_Common::PixelPoint2DType Point,
+      /// Indicates if cursor position is no longer available (true) or is available (false).
+      in boolean IsRemoved
+    );
+  };
+};

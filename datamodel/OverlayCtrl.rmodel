@@ -1,0 +1,143 @@
+// Copyright (c) 2026 Rheinmetall Electronics GmbH
+//
+// This program and the accompanying materials are made available under the
+// terms of the Eclipse Public License 2.0 which is available at
+// https://www.eclipse.org/legal/epl-2.0.
+//
+// SPDX-License-Identifier: EPL-2.0
+
+#include "OverlayCtrlTypes.idl"
+
+
+/**
+ * An Overlay Control service is used to handle graphical overlays.
+ *
+@startuml "Overlay Control"
+title Overlay Control
+hide footbox
+
+== Startup ==
+Client <- Service: ReportOverlayCtrlSettings(Settings.IsEnableOverlaySupported=true, Settings.SupportedOverlaysList=["TurretPosition", "ReferenceLines", ...])
+note over Service
+    On startup the Service reports the
+    names of all available Overlays
+end note
+Client <- Service: ReportOverlayStatus(KeyOverlayName="TurretPosition", IsEnabled=true/false)
+Client <- Service: ReportOverlayStatus(KeyOverlayName="ReferenceLines", IsEnabled=true/false)
+note over Service
+    Service reports the initial status for
+    each of the available Overlays
+end note
+...
+
+== Enable Overlay ==
+note over Client
+    Client enables Overlay
+end note
+Client -> Service: CmdEnableOverlay(OverlayName="TurretPosition", Enable=true)
+Client <- Service: ReportOverlayStatus(KeyOverlayName="TurretPosition", IsEnabled=true)
+note over Service
+    Service reports the modified status for
+    the specified Overlay
+end note
+...
+
+== Disable Overlay ==
+note over Client
+    Client disables Overlay
+end note
+Client -> Service: CmdEnableOverlay(OverlayName="TurretPosition", Enable=false)
+Client <- Service: ReportOverlayStatus(KeyOverlayName="TurretPosition", IsEnabled=false)
+note over Service
+    Service reports the modified status for
+    the specified Overlay
+end note
+...
+
+@enduml
+ */
+module M_OverlayCtrl
+{
+  /// Interface version number.
+  const string Version = "3.1.0";
+
+
+  /**
+   * Overlay Control Service interface.
+   * Contains operations that a Client can command the Overlay Control Service to perform.
+   */
+  interface IService
+  {
+    /**
+     * Configure to enable (true) or disable (false) a specified Overlay.
+    */
+    void ConfigEnableOverlay
+    (
+      /// The name of the Overlay to enable or disable.
+      /// Note: The supported names are reported by the Service in the settings on startup.
+      in string KeyOverlayName,
+
+      /// Indicates if the specified Overlay should be enabled (true) or disabled (false).
+      in boolean Enable,
+
+      /// Indicates if the payload is no longer available
+      /// Note: This will always be set to true when the instance has been shut down
+      /// After this has been set to true, the payload will no longer be available to late joiners.
+      in boolean IsRemoved
+    );
+
+    /**
+     * Configure overlay colour style.
+     */
+    void ConfigColourStyle
+    (
+      /// Identifies the overlay.
+      in string KeyOverlayName,
+
+      /// Overlay colour style.
+      in M_Common::ColourStyleType ColourStyle,
+
+      /// Indicates if the payload is no longer available
+      /// Note: This will always be set to true when the instance has been shut down
+      /// After this has been set to true, the payload will no longer be available to late joiners.
+      in boolean IsRemoved
+    );
+  };
+
+
+  /**
+   * Overlay Control Client interface.
+   * Contains callback operations from the Service to the Client.
+   */
+  interface IClient
+  {
+    /**
+     * Report with static Service settings.
+     * This should be provided at startup and in the event of degraded functionality,
+     * e.g. due to an internal failure.
+     */
+    void ReportOverlayCtrlSettings
+    (
+      /// Service settings data.
+      in OverlayCtrlSettingsType Settings
+    );
+
+    /**
+     * Report with the current status for an Overlay.
+     * This will be reported for every Overlay and updated every time a status is changed.
+     */
+    void ReportOverlayStatus
+    (
+      /// The name of the overlay.
+      in string KeyOverlayName,
+
+      /// Overlay control status.
+      in OverlayCtrlStatusType Status,
+
+      /// Indicates if the status is no longer available.
+      /// Note: This will always be set to true when a service has been shut down.
+      /// After this has been set to true, the status will no longer be available to late joiners.
+      in boolean IsRemoved
+    );
+  };
+};

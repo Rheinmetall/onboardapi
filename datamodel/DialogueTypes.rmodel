@@ -1,0 +1,73 @@
+// Copyright (c) 2026 Rheinmetall Electronics GmbH
+//
+// This program and the accompanying materials are made available under the
+// terms of the Eclipse Public License 2.0 which is available at
+// https://www.eclipse.org/legal/epl-2.0.
+//
+// SPDX-License-Identifier: EPL-2.0
+
+#ifndef _DIALOGUE_TYPES_IDL_
+#define _DIALOGUE_TYPES_IDL_
+
+
+#include "CommonTypes.idl"
+
+
+/**
+ * Types used by the dialogue service and client.
+ */
+module M_Dialogue
+{
+  /// Context for dialogue category kind.
+  module DialogueCategoryKind
+  {
+    /// Enumeration for dialogue category kind.
+    enum Type
+    {
+      /// Off.
+      Off,
+
+      /// Trace.
+      Trace,
+
+      /// Information.
+      Info,
+
+      /// Warning.
+      Warning,
+
+      /// Error.
+      Error,
+
+      /// Question.
+      Question
+    };
+  };
+
+  /// Optional DialogueCategoryKind.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<DialogueCategoryKind::Type, 1> DialogueCategoryOptionalType;
+
+
+  /**
+   * Contains input choice parameters.
+   */
+  struct InputChoiceType
+  {
+    /// The text to be displayed describing the required user input.
+    string Text;
+
+    /// The list of possible selections as answer to the input choice.
+    M_Common::StringListType InputSelectionList;
+
+    /// The category of the input choice dialogue.
+    /// This can be used to determine which icon should be displayed to the user together
+    /// with the dialogue.
+    DialogueCategoryKind::Type Category;
+
+    /// The ID of the client which initiated the dialogue.
+    string InitiatedByClientId;
+  };
+};
+
+#endif

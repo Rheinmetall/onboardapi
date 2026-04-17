@@ -1,0 +1,70 @@
+// Copyright (c) 2026 Rheinmetall Electronics GmbH
+//
+// This program and the accompanying materials are made available under the
+// terms of the Eclipse Public License 2.0 which is available at
+// https://www.eclipse.org/legal/epl-2.0.
+//
+// SPDX-License-Identifier: EPL-2.0
+
+#include "AuthTypes.idl"
+
+
+/**
+ * A auth service.
+ */
+module M_Auth
+{
+  /// Interface version number.
+  const string Version = "1.1.0";
+
+
+  /**
+   * Auth service interface.
+   * Contains operations that a client can command the auth service to perform.
+   */
+  interface IService
+  {
+    /**
+     * Log the user out.
+     */
+    void CmdLogoutUser
+    (
+      /// The id of the user.
+      in string KeyUserId
+    );
+  };
+
+  /**
+   * Auth client interface.
+   * Contains callback operations from the auth service to the client.
+   */
+  interface IClient
+  {
+    /**
+     *  Login events.
+     */
+    void EventLogin
+    (
+      /// The id of the user.
+      in string KeyUserId,
+
+      /// The login event.
+      in LoginEventType LoginEvent
+    );
+
+    /// Report the current auth status of a user.
+    void ReportAuthStatus
+    (
+      /// The id of the user.
+      in string KeyUserId,
+
+      /// Auth status
+      in AuthStatusType Status,
+
+      /// Indicates if the auth status is no longer available.
+      /// Note: This will always be set to true when a service has been shut down.
+      /// After this has been set to true, the status will no longer be available to late joiners.
+      in boolean IsRemoved
+    );
+  };
+};

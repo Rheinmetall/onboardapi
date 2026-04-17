@@ -1,0 +1,77 @@
+// Copyright (c) 2026 Rheinmetall Electronics GmbH
+//
+// This program and the accompanying materials are made available under the
+// terms of the Eclipse Public License 2.0 which is available at
+// https://www.eclipse.org/legal/epl-2.0.
+//
+// SPDX-License-Identifier: EPL-2.0
+
+#include "CommonTypes.idl"
+
+/**
+ * Types used by the GenericInputOutput Service and Client
+ */
+module M_GenericInputOutput
+{
+  /**
+   * Contains some input/output data
+   */
+  struct InputOutputData
+  {
+    /// Raw binary data
+    M_Common::ByteSeqType Data;
+
+    /// Timestamp
+    M_Common::TimeOptionalType Timestamp;
+
+    /// Additional info
+    M_Common::PropertyListType AdditionalInfo;
+  };
+
+  /**
+   * Contains settings for an input/ouput interface
+   */
+  struct InputOutputSettings
+  {
+    /// Name of the interface
+    string InterfaceName;
+
+    /// Extended description of the interface
+    string InterfaceDescription;
+
+    /// AdditionalInfo
+    M_Common::PropertyListType AdditionalInfo;
+  };
+
+  /**
+   * Contains the configuration of an input/output interface
+   */
+  struct InputOutputConfiguration
+  {
+    /// Override status
+    /// If it is set to true, the provided configuration will overwrite all existing configurations,
+    /// even if they're incompatible.
+    boolean Override;
+
+    /// Configuration Parameters
+    M_Common::PropertyListType InterfaceConfiguration;
+  };
+
+  /**
+   * Contains the status of the input/output interface
+   */
+  struct InputOutputStatus
+  {
+    /// Specifies if interface is open
+    boolean IsOpen;
+
+    /// List of active configuration sources
+    M_Common::StringListType ActiveConfigurationSources;
+
+    /// Currently active configuration
+    InputOutputConfiguration ActiveConfiguration;
+
+    /// AdditionalInfo
+    M_Common::PropertyListType AdditionalInfo;
+  };
+};

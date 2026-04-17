@@ -1,0 +1,275 @@
+// Copyright (c) 2026 Rheinmetall Electronics GmbH
+//
+// This program and the accompanying materials are made available under the
+// terms of the Eclipse Public License 2.0 which is available at
+// https://www.eclipse.org/legal/epl-2.0.
+//
+// SPDX-License-Identifier: EPL-2.0
+
+#include "BuiltInTestTypes.idl"
+
+
+/**
+ * A BITE (Built-In Test Equipment) service is used to perform PBIT, CBIT and IBIT
+ * and report results and failures.
+ *
+@startuml "Built-In Test Start"
+title Built-In Test Start
+hide footbox
+
+== Startup ==
+Client <- Service: ReportBitSettings(Settings.IsPBitSupported=true, Settings.IsCBitSupported=true, Settings.IsIBitSupported=true, \n                             Settings.SupportedPBitNames=["FlashUnreadable", "FlashSizeError", ...], Settings.SupportedCBitNames=["PowerSupplyFailure", ...] \n                             Settings.SupportedIBitRoutines=[{RoutineName="IBIT-Hardwaretest", SupportedIBitNames=["MotorAzimuthFailure", "MotorElevationFailure", ..]}, ...])
+note over Service
+    On startup the Service reports the
+    names of all available
+    -Power-Up Built-In Tests
+    -Continuous Built-In Tests
+    -Initiated Built-In Tests
+end note
+Client <- Service: ReportPBitStatus(KeyPBitName="FlashUnreadable", Status, IsRemoved=false)
+Client <- Service: ReportPBitStatus(KeyPBitName="FlashSizeError", Status, IsRemoved=false)
+note over Service
+    Service reports the status for
+    each of the Power-Up Built-In Test
+    which are started.
+    Status.Result indicates
+    if a failure was detected
+end note
+...
+
+== Continuous Built-In Test ==
+Client <- Service: ReportCBitStatus(KeyCBitName="PowerSupplyFailure", Status, IsRemoved=false)
+note over Service
+    Service reports Continuous Built-In Test
+    status upon initial completion and then
+    on a status change.
+    Status.Result indicates
+    if a failure was detected
+end note
+...
+
+== Run Initiated Built-In Test ==
+note over Client
+    Client starts Initiated Built-In Test
+    for a specified routine
+end note
+Client -> Service: CmdStartIBitRoutine(RoutineName="IBIT-Hardwaretest")
+Client <- Service: ReportIBitRoutineStatus(KeyRoutineName="IBIT-Hardwaretest", Status.State=Running, IsRemoved=false)
+note over Service
+    Service reports the status for the
+    Initiated Built-In Test routine as
+    Running when test is started
+end note
+Client <- Service: ReportIBitStatus(KeyIBitName="MotorAzimuthFailure", RoutineName="IBIT-Hardwaretest", Status, IsRemoved=false)
+Client <- Service: ReportIBitStatus(KeyIBitName="MotorElevationFailure", RoutineName="IBIT-Hardwaretest", Status, IsRemoved=false)
+note over Service
+    Service reports Initiated Built-In Test
+    status for each tested unit
+    Status.Result indicates
+    if a failure was detected
+end note
+Client <- Service: ReportIBitRoutineStatus(KeyRoutineName="IBIT-Hardwaretest", Status.State=Go/No_Go, IsRemoved=false)
+note over Service
+    Service reports the status for the
+    Initiated Built-In Test routine as
+    Go on completion if the routine passed
+    and No_Go if the test routine failed
+end note
+
+@enduml
+
+
+
+@startuml "Built-In Test Stop"
+title Built-In Test Stop
+hide footbox
+
+== Cancel Initiated Built-In Test ==
+note over Client
+    Client starts Initiated Built-In Test
+end note
+Client -> Service: CmdStartIBitRoutine(RoutineName="IBIT-Hardwaretest")
+Client <- Service: ReportIBitRoutineStatus(KeyRoutineName="IBIT-Hardwaretest", Status.State=Running, IsRemoved=false)
+note over Service
+    Service reports Initiated Built-In Test
+    status as Running when test is started
+end note
+...
+
+note over Client
+    Client cancels the currently running
+    Initiated Built-In Test
+end note
+Client -> Service: CmdCancelIBitRoutine(RoutineName="IBIT-Hardwaretest")
+Client <- Service: ReportIBitRoutineStatus(KeyRoutineName="IBIT-Hardwaretest", Status.State=Cancelled, IsRemoved=false)
+note over Service
+    Service reports Initiated Built-In Test
+    status as Cancelled when test was cancelled
+end note
+...
+
+== Shutdown ==
+Client <- Service: ReportPBitStatus(KeyPBitName="FlashUnreadable", ..., IsRemoved=true)
+Client <- Service: ReportPBitStatus(KeyPBitName="FlashSizeError", ..., IsRemoved=true)
+Client <- Service: ReportCBitStatus(KeyCBitName="PowerSupplyFailure", ..., IsRemoved=true)
+Client <- Service: ReportIBitRoutineStatus(KeyRoutineName="IBIT-Hardwaretest", ..., IsRemoved=true)
+Client <- Service: ReportIBitStatus(KeyIBitName="MotorAzimuthFailure", ..., IsRemoved=true)
+Client <- Service: ReportIBitStatus(KeyIBitName="MotorElevationFailure", ..., IsRemoved=true)
+note over Service
+    On service shutdown all previously reported
+    tests status are automatically removed
+end note
+
+@enduml
+ */
+module M_BuiltInTest
+{
+  /// Interface version number.
+  const string Version = "8.1.0";
+
+
+  /**
+   * Service interface.
+   * Contains operations that a client can command the BITE Service to perform.
+   */
+  interface IService
+  {
+    /**
+     * Cmd to start offline IBIT (Initiated Built-In Test) routine.
+     *
+     * Usually invoked following a failure, IBIT initiates tests to isolate a
+     * fault within a system or subsystem. In general, IBIT will halt the current
+     * application, run its tests, and either resume or restart the application.
+     */
+    void CmdStartIBitRoutine
+    (
+      /// Name of IBIT routine to execute.
+      /// This name is used as an identifying key so that one Service can support multiple IBIT tests.
+      /// Note: The specific string names are defined separately for each implementing Service.
+      in string RoutineName
+    );
+
+    /**
+     * Cmd to stop a currently running IBIT (Initiated Built-In Test) routine.
+     */
+    void CmdCancelIBitRoutine
+    (
+      /// Name of the currently running IBIT routine to cancel.
+      in string RoutineName
+    );
+  };
+
+
+  /**
+   * BITE Client interface.
+   * Contains callback operations from the BITE Service to the Client.
+   */
+  interface IClient
+  {
+    /**
+     * Report with BITE Service settings.
+     * This should be provided at startup and in the event of degraded functionality,
+     * e.g. due to an internal failure.
+     */
+    void ReportBitSettings
+    (
+      /// BITE Service settings data.
+      in BitSettingsType Settings
+    );
+
+    /**
+     * Reports the current status for an IBIT (Initiated Built-In Test) BITE
+     * test routine. This status is reported for the routines that are started
+     * by a Client with the CmdStartIBitRoutine command.
+     */
+    void ReportIBitRoutineStatus
+    (
+      /// Name of IBIT routine of the currently reported status.
+      /// Note: The specific string names are defined separately for each implementing Service and
+      /// are reported in ReportBitSettings in the SupportedIBitRoutineNames settings element.
+      in string KeyRoutineName,
+
+      /// Current state of an IBIT routine.
+      in IBitRoutineState::Type RoutineState,
+
+      /// Indicates if the status is no longer available.
+      /// Note: This will always be set to True when a Service has been shut down.
+      /// After this has been set to True, the status will no longer be available to late joiners.
+      in boolean IsRemoved
+    );
+
+    /**
+     * Reports the IBIT (Initiated Built-In Test) BITE status. This status is
+     * reported for the potential errors that can be detected from a IBIT routine
+     * that has been started by a Client with the CmdStartIBitRoutine command.
+     *
+     * Usually invoked following a failure, IBIT initiates tests to isolate a
+     * fault within a system or subsystem. In general, IBIT will halt the current
+     * application, run its tests, and either resume or restart the application.
+     */
+    void ReportIBitStatus
+    (
+      /// Name identifying the currently reported status.
+      /// Note: The specific string names are defined separately for each implementing Service and
+      /// are reported in ReportBitSettings in the SupportedIBitNames settings element.
+      in string KeyIBitName,
+
+      /// Current status/result of IBIT.
+      in BitStatusType Status,
+
+      /// Indicates if the status is no longer available.
+      /// Note: This will always be set to True when a Service has been shut down.
+      /// After this has been set to True, the status will no longer be available to late joiners.
+      in boolean IsRemoved
+    );
+
+    /**
+     * Reports the PBIT (Power-up Built-In Test) BITE status.
+     *
+     * Comprehensive tests of hardware functionality extending as close to the
+     * edge of a module as possible.
+     */
+    void ReportPBitStatus
+    (
+      /// Name identifying the currently reported status.
+      /// This name is used as an identifying key so that one Service can report multiple status
+      /// relevant for a device, such as the "Program Checksum" status and the "Temperature" status.
+      /// Note: The specific string names are defined separately for each implementing Service and
+      /// are reported in ReportBitSettings in the SupportedPBitNames settings element.
+      in string KeyPBitName,
+
+      /// Current status/result of PBIT.
+      in BitStatusType Status,
+
+      /// Indicates if the status is no longer available.
+      /// Note: This will always be set to True when a Service has been shut down.
+      /// After this has been set to True, the status will no longer be available to late joiners.
+      in boolean IsRemoved
+    );
+
+    /**
+     * Reports the CBIT (Continuous Built-In Test) BITE status.
+     *
+     * These are any tests performed while the application is active. They may be
+     * part of the application itself or might be supplied by the hardware module
+     * vendors to run periodically.
+     */
+    void ReportCBitStatus
+    (
+      /// Name identifying the currently reported status.
+      /// This name is used as an identifying key so that one Service can report multiple status
+      /// relevant for a device, such as the "Program Checksum" status and the "Temperature" status.
+      /// Note: The specific string names are defined separately for each implementing Service and
+      /// are reported in ReportBitSettings in the SupportedCBitNames settings element.
+      in string KeyCBitName,
+
+      /// Current status/result of CBIT.
+      in BitStatusType Status,
+
+      /// Indicates if the status is no longer available.
+      /// Note: This will always be set to True when a Service has been shut down.
+      /// After this has been set to True, the status will no longer be available to late joiners.
+      in boolean IsRemoved
+    );
+  };
+};

@@ -1,0 +1,599 @@
+// Copyright (c) 2026 Rheinmetall Electronics GmbH
+//
+// This program and the accompanying materials are made available under the
+// terms of the Eclipse Public License 2.0 which is available at
+// https://www.eclipse.org/legal/epl-2.0.
+//
+// SPDX-License-Identifier: EPL-2.0
+
+#include "CommonTypes.idl"
+
+
+/**
+ * Types used by the Mount Service.
+ */
+module M_Mount
+{
+  /// Mount of control and stabilisation command context.
+  module ModeCommand
+  {
+    /// Mount control mode enumeration.
+    /// The mount mode commanded by a client.
+    enum Type
+    {
+      /// Mount motor drives are turned off.
+      Motor_Off,
+      /// Mount is locked in a fixed position.
+      Locked,
+      /// Mount is selected.
+      Select,
+      /// Mount is deselected.
+      Deselect,
+      /// Mount runs in unstabilised mode.
+      Unstab,
+      /// Mount runs in stabilised mode.
+      Stab,
+      /// Mount runs in horizontal stabilised mode.
+      Horizontal_Stab,
+      /// Mount runs in vertical stabilised mode.
+      Vertical_Stab,
+      /// Mount is handling dynamic angular positions for target assignment.
+      /// If a search sector is configured, automatic search process starts automatically.
+      Target_Assignment,
+      /// Mount is slaved to another device over an internal interface.
+      Slaved_To_Leading_Device,
+      /// Mount is performing a rotational scan (Wide Area Scan).
+      /// This is normally used to generate a panorama picture from a rotating camera.
+      Wide_Area_Scan
+    };
+  };
+
+
+  /// Mount stabilisation state context.
+  module StabState
+  {
+    /// Mount stabilisation state enumeration.
+    /// Describes the current state of a mount's motor control.
+    enum Type
+    {
+      /// Mount motor drives are turned off.
+      Motor_Off,
+      /// Mount is locked in a fixed position.
+      Locked,
+      /// Mount runs in unstabilised mode.
+      Unstab,
+      /// Mount runs in stabilised mode.
+      Stab,
+      /// Mount runs in horizontal stabilised mode.
+      Horizontal_Stab,
+      /// Mount runs in vertical stabilised mode.
+      Vertical_Stab,
+      /// Mount is reacting to selection.
+      Selecting,
+      /// Mount is reacting to deselection.
+      Deselecting,
+      /// Mount is inactive.
+      Deselected
+    };
+  };
+
+  /// Optional StabState.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<StabState::Type, 1> StabStateOptionalType;
+
+
+  /// Mount control state context.
+  module ControlState
+  {
+    /// Mount control state enumeration.
+    /// Describes how mount is controlled in addition to its stab mode.
+    enum Type
+    {
+      /// Mount is handling rate inputs.
+      Controlled_By_Rate,
+      /// Mount is handling angle inputs.
+      Controlled_By_Angle,
+      /// Mount is handling dynamic angular positions for target assignment.
+      Target_Assignment,
+      /// Mount is slaved to another device over an internal interface.
+      Slaved_To_Leading_Device,
+      /// Mount is performing a rotational scan (Wide Area Scan).
+      /// This is normally used to generate a panorama picture from a rotating camera.
+      Wide_Area_Scan,
+      /// Mount follows a video tracker that is connected by the Vt-Interface.
+      Controlled_By_Video_Tracker,
+      /// Mount follows a video tracker but Vt is in coasting
+      Controlled_By_Video_Tracker_Coasting
+    };
+  };
+
+  /// Optional ControlState.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<ControlState::Type, 1> ControlStateOptionalType;
+
+
+  /// Mount movement state context.
+  module MovementState
+  {
+    /// Mount movement state enumeration.
+    /// Describes the current state of a commanded positional movement.
+    enum Type
+    {
+      /// Mount has reached the commanded position.
+      Position_Reached,
+      /// Mount has been commanded to a specific position and movement is in progress.
+      Position_Not_Reached
+    };
+  };
+
+  /// Optional MovementState.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<MovementState::Type, 1> MovementStateOptionalType;
+
+
+  /// Drift compensation kind context.
+  module DriftCompensationKind
+  {
+    /// Drift compensation kind enumeration.
+    enum Type
+    {
+      /// No drift compensation.
+      None,
+      /// Manual values are used for drift compensation.
+      Manual,
+      /// The drift compensation is automatically determined by the mount.
+      Auto,
+      /// Drift compensation is allowed to be commanded by a client.
+      Allowed,
+      /// Drift compensation is not allowed to be commanded by a client.
+      Not_Allowed,
+      /// The mount has cancelled a previous drift compensation state.
+      Cancelled
+    };
+  };
+
+  /// Optional DriftCompensationKind.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<DriftCompensationKind::Type, 1> DriftCompensationKindOptionalType;
+
+
+  /// Relative coordinate system context.
+  module RelativeToCoordSystem
+  {
+    /// Relative coordinate system enumeration.
+    enum Type
+    {
+      /// Relative to the installation position (zero position), e.g. local coordinate system.
+      Zero_Position,
+      /// Relative to current position in the local coordinate system.
+      Current_Position,
+      /// Relative to the vehicle frame.
+      Vehicle,
+      /// Relative to the geographic (e.g. true north).
+      Geographic
+    };
+  };
+
+
+  /// Contains parameters to tune how the Mount should be commanded into position.
+  struct MountAngleParamsType
+  {
+    /// Specifies what coordinate system the position is relative to.
+    /// Default should be relative to the Mounts zero position, e.g. installation point.
+    RelativeToCoordSystem::Type RelativeTo;
+    /// The horizontal direction to move in order to reach the specified position.
+    /// Not present indicates the shortest path should be used.
+    M_Common::HorizontalDirectionOptionalType HorizontalDirection;
+    /// The vertical direction to move in order to reach the specified position.
+    /// Not present indicates the shortest path should be used.
+    M_Common::VerticalDirectionOptionalType VerticalDirection;
+    /// Specifies the amount of time until the specified position should be reached.
+    /// Note: This can be used to set the speed of a scan.
+    /// Not present indicates that the Mount can decide the movement speed.
+    M_Common::TimeSecondsOptionalType TimeToPosition;
+  };
+
+
+  /// Contains rate of movement normed to the maximum possible rate.
+  struct ScaledRateType
+  {
+    /// Azimuth rate.
+    /// Note: A value of 0 means no movement.
+    /// A value of +-1 means maximum rate (in the different directions).
+    /// Range: -1 to +1
+    double AzimuthScaledRate;
+    /// Elevation rate
+    /// Note: A value of 0 means no movement.
+    /// A value of +-1 means maximum rate (in the different directions).
+    /// Range: -1 to +1
+    double ElevationScaledRate;
+  };
+
+  /// Optional ScaledRateType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<ScaledRateType, 1> ScaledRateOptionalType;
+
+
+  /// Target Assignment search command kind context.
+  module TgtAssignmentSearchCmdKind
+  {
+    /// Target Assignment search command kind enumeration.
+    enum Type
+    {
+      /// Run automatic search process.
+      Automatic_Search,
+      /// Pause automatic search process for manual search by rate input.
+      Manual_Search,
+      /// Reset automatic search. Mount restarts search pattern from beginning.
+      Reset_Search
+    };
+  };
+
+
+  /// Target Assignment search state kind context.
+  module TgtAssignmentSearchStateKind
+  {
+    /// Target Assignment search state kind enumeration.
+    enum Type
+    {
+      /// Target Assignment is not active.
+      No_Search,
+      /// At start of target assignment or reset of search, this state is reported
+      /// until mount reached designated position for searching.
+      Init,
+      /// Mount is at target position. Automatic search is inactive.
+      Manual_Search,
+      /// Mount is at target position. Automatic search is active.
+      Automatic_Search
+    };
+  };
+
+
+  /// Search pattern kind context.
+  module SearchPatternKind
+  {
+    /// Drift compensation kind enumeration.
+    enum Type
+    {
+      /// Search in azimuth continuously. At edge of sector move in elevation according to step size
+      Azimuth_Continuous_Elevation_Step,
+      /// Search in elevation continuously. At edge of sector move in azimuth according to step size
+      Elevation_Continuous_Azimuth_Step,
+      /// Search in elevation and azimuth continuously.
+      Both_Continuous,
+      /// Search in elevation and azimuth in steps, according to step size.
+      Both_Step
+    };
+  };
+
+
+  /// Contains information on angular limits in horizontal and vertical directions.
+  struct TgtAssignmentSearchPatternType
+  {
+    /// Top left corner of search area w.r.t. TgtAssignment position
+    M_Common::SphericalPositionType TopLeft;
+    /// Bottom right corner of search area w.r.t. TgtAssignment position
+    M_Common::SphericalPositionType BottomRight;
+    /// Position relative to TgtAssignment position where to start search at.
+    M_Common::SphericalPositionType StartPosition;
+    /// Direction in which to start search with.
+    M_Common::HorizontalDirection::Type StartDirectionHorizontal;
+    /// Direction in which to start search with.
+    M_Common::VerticalDirection::Type StartDirectionVertical;
+    /// Search pattern.
+    SearchPatternKind::Type Pattern;
+    /// Horizontal movement reference.
+    RelativeToCoordSystem::Type SearchReferenceHorizontal;
+    /// Vertical movement reference.
+    RelativeToCoordSystem::Type SearchReferenceVertical;
+    /// Search speed for continuous movement.
+    M_Common::SphericalPositionRateType SearchSpeed;
+    /// Step Size in degrees for step-wise movement.
+    M_Common::AngleDegreesType StepSize;
+  };
+
+  /// Optional TgtAssignmentSearchPatternType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<TgtAssignmentSearchPatternType, 1> TgtAssignmentSearchPatternOptionalType;
+
+
+  /// Contains availability status for Mode functionality.
+  struct ModeAvailabilityType
+  {
+    /// Indicates the general availability of Mount Mode.
+    M_Common::Availability::Type GeneralControlModeAvailability;
+    /// Indicates the availability of Mount Mode "Motor_Off".
+    M_Common::Availability::Type StateMotorOffAvailability;
+    /// Indicates the availability of Mount Mode "Locked".
+    M_Common::Availability::Type StateLockedAvailability;
+    /// Indicates the availability of Mount Mode "Stab".
+    M_Common::Availability::Type StateStabAvailability;
+    /// Indicates the availability of Mount Mode "Unstab".
+    M_Common::Availability::Type StateUnstabAvailability;
+    /// Indicates the availability of Mount Mode "Horizontal_Stab".
+    M_Common::Availability::Type StateHorizontalStabAvailability;
+    /// Indicates the availability of Mount Mode "Vertical_Stab".
+    M_Common::Availability::Type StateVerticalStabAvailability;
+    /// Indicates the availability of Mount Mode "Target_Assignment".
+    M_Common::Availability::Type StateTargetAssignmentAvailability;
+    /// Indicates the availability of Mount Mode "Slaved_To_Leading_Device".
+    M_Common::Availability::Type StateSlavedToLeadingDeviceAvailability;
+    /// Indicates the availability of Mount Mode "Wide_Area_Scan".
+    M_Common::Availability::Type StateWideAreaScanAvailability;
+  };
+
+
+  /// Contains info on supported control modes.
+  struct ModeSupportedType
+  {
+    /// Indicates if "Motor_Off" mode is supported.
+    boolean IsMotorOffSupported;
+    /// Indicates if "Locked" mode is supported.
+    boolean IsLockedSupported;
+    /// Indicates if "Unstab" mode is supported.
+    boolean IsUnstabSupported;
+    /// Indicates if "Stab" mode is supported.
+    boolean IsStabSupported;
+    /// Indicates if "Horizontal_Stab" mode is supported.
+    boolean IsHorizontalStabSupported;
+    /// Indicates if "Vertical_Stab" mode is supported.
+    boolean IsVerticalStabSupported;
+    /// Indicates if "Target_Assignment" mode is supported.
+    boolean IsTargetAssignmentSupported;
+    /// Indicates if "Slaved_To_Leading_Device" mode is supported.
+    boolean IsSlavedToLeadingDeviceSupported;
+    /// Indicates if "Wide_Area_Scan" mode is supported.
+    boolean IsWideAreaScanSupported;
+  };
+
+
+  /// Contains info on supported control modes.
+  struct SearchActionSupportedType
+  {
+    /// Indicates if "ManualSearch" mode is supported.
+    boolean IsManualSearchSupported;
+    /// Indicates if "AutomatichSearch" mode is supported.
+    boolean IsAutomatichSearchSupported;
+    /// Indicates if "ResetSearch" is supported.
+    boolean IsResetSearchSupported;
+  };
+
+
+  /// Contains info on supported coordinate systems.
+  /// Note: "Zero_Position", e.g. relative to the installation position, must always be supported,
+  /// so it is not specified here.
+  struct RelativeToCoordSystemSupportedType
+  {
+    /// Indicates if "Current_Position" is supported.
+    boolean IsCurrentPositionSupported;
+    /// Indicates if "Vehicle" is supported.
+    boolean IsVehicleSupported;
+    /// Indicates if "Geographic" is supported.
+    boolean IsGeographicSupported;
+  };
+
+
+  /// Contains information on angular limits in horizontal and vertical directions.
+  struct AngularLimitType
+  {
+    /// Indicates the azimuth horizontal movement limit (min).
+    M_Common::AngleDegreesOptionalType MinimumAzimuth;
+    /// Indicates the azimuth horizontal movement limit (max).
+    M_Common::AngleDegreesOptionalType MaximumAzimuth;
+    /// Indicates the elevation vertical movement limit (min).
+    M_Common::AngleDegreesOptionalType MinimumElevation;
+    /// Indicates the elevation vertical movement limit (max).
+    M_Common::AngleDegreesOptionalType MaximumElevation;
+  };
+
+
+  /// Stored mount position
+  struct StoredPositionType
+  {
+    /// Identifies the stored position
+    string Id;
+    /// Azimuth in degrees
+    M_Common::AngleDegreesType Azimuth;
+    /// Elevation in degrees
+    M_Common::AngleDegreesType Elevation;
+  };
+
+  /// Stored mount position list
+  typedef sequence<StoredPositionType> StoredPositionListType;
+
+
+  /// Contains the Mount settings data.
+  struct MountSettingsType
+  {
+    /// Indicates which control modes are supported.
+    ModeSupportedType SupportedModes;
+    /// Indicates if the control mode can be set with CmdControlMode from a Client.
+    boolean IsCmdModeSupported;
+    /// Indicates if the source for rate and angle input can be set with ConfigInputSource from a Client.
+    boolean IsConfigInputSourceSupported;
+    /// Indicates if the source for target assignment can be set with ConfigTgtAssignmentInputSource from a Client.
+    boolean IsConfigTgtAssignmentInputSourceSupported;
+    /// Indicates if the source for rate input in manual search can be set with ConfigTgtAssignmentSearchInputSource from a Client.
+    boolean IsConfigTgtAssignmentSearchInputSourceSupported;
+    /// Indicates if the source for rate input can be set with ConfigTgtAssignmentSearchPattern from a Client.
+    boolean IsConfigTgtAssignmentSearchPatternSupported;
+    /// Indicates if slew limits can be set with ConfigSlewLimits.
+    boolean IsConfigSlewLimitsSupported;
+    /// Indicates if key-indexed mount positions can be stored via ConfigStorePosition
+    boolean IsConfigStorePositionSupported;
+    /// Indicates if key-indexed stored mount positions can be moved to via CmdMoveToStoredPosition
+    boolean IsCmdMoveToStoredPositionSupported;
+    /// Indicates if the angle (position) of the Mount can be set with NotifyAngle from a Client.
+    boolean IsNotifyAngleSupported;
+    /// Indicates if the target assignment (position) of the Mount can be set with NotifyTgtAssignmentCart from a Client.
+    boolean IsNotifyTgtAssignmentCartSupported;
+    /// Indicates if the target assignment (position) of the Mount can be set with NotifyTgtAssignmentSphere from a Client.
+    boolean IsNotifyTgtAssignmentSphereSupported;
+    /// Indicates which relative coordinate systems can be specified as parameter when commanding the position
+    /// with NotifyAngle, NotifyTgtAssignmentSphere or NotifyTgtAssignmentCart from a Client.
+    RelativeToCoordSystemSupportedType SupportedRelativeTo;
+    /// Indicates if the vertical direction to move can be specified as parameter when commanding
+    /// the position with NotifyAngle, NotifyTgtAssignmentSphere or NotifyTgtAssignmentCart from a Client.
+    boolean IsParamVerticalDirectionSupported;
+    /// Indicates if the horizontal direction to move can be specified as parameter when commanding
+    /// the position with NotifyAngle, NotifyTgtAssignmentSphere or NotifyTgtAssignmentCart from a Client.
+    boolean IsParamHorizontalDirectionSupported;
+    /// Indicates if the number of seconds until the specified absolute position should be reached can be specified
+    /// as parameter when commanding the position with NotifyAngle, NotifyTgtAssignmentSphere
+    /// or NotifyTgtAssignmentCart from a Client.
+    boolean IsParamTimeToPositionSupported;
+    /// Indicates search actions can be set with CmdTgtAssignmentSearchAction from a Client.
+    boolean IsCmdTgtAssignmentSearchActionSupported;
+    /// Indicates which search actions can be specified when commanding the action
+    /// with CmdTgtAssignmentSearchAction from a Client.
+    SearchActionSupportedType SupportedSearchActions;
+    /// Indicates if automatic drift compensation can be enabled/disabled with CmdAutoDriftCompensation
+    /// from a Client.
+    boolean IsCmdAutoDriftCompensationSupported;
+    /// Indicates if drift compensation can be manually set with CmdManualDriftCompensation
+    /// from a Client.
+    boolean IsCmdManualDriftCompensationSupported;
+    /// Indicates if allowance for external drift compensation can be set by a client.
+    boolean IsCmdAllowExternalDriftCompensationSupported;
+    /// Indicates if horizontal aiming can be enabled/disabled with CmdHorizontalAiming.
+    boolean IsCmdHorizontalAimingSupported;
+    /// Indicates if enabling Rate Aid via CmdSetOperationalMode is supported (true) or not (false).
+    boolean IsSetOperationalModeRateAidSupported;
+    /// Indicates if the maximum rate (soft-limits) supported can be set with CmdMaximumRate
+    /// from a Client.
+    boolean IsConfigMaximumRateSupported;
+    /// Indicates if the absolute rate can be set with NotifyRateAbsolute from a Client.
+    boolean IsNotifyRateAbsoluteSupported;
+    /// Indicates if the normed rate can be set with NotifyRateScaled from a Client.
+    boolean IsNotifyRateScaledSupported;
+    /// Indicates if leading device id can be set with ConfigLeadingDevice from a Client.
+    boolean IsConfigLeadingDeviceSupported;
+    /// Indicates if slaved device id can be set with ConfigSlavedDevice from a Client.
+    boolean IsConfigSlavedDeviceSupported;
+    /// Indicates the angular hard limits relative to the installation position.
+    /// Note: This is an installation restriction for how far in the horizontal and
+    /// vertical direction the Mount can move.
+    AngularLimitType HardLimits;
+    /// Indicates the time that the operating lifetime of the Mount began.
+    M_Common::TimeOptionalType OperatingStartTime;
+    /// The positional data of the installed equipment relative to the center of the mounted platform.
+    M_Common::CoordinateTransformationType EquipmentPosition;
+    /// Additional properties for the Service.
+    /// Note: Properties are defined generically to enable non-essential additional
+    /// information to be provided without impacting the Data Model.
+    M_Common::PropertyListType AdditionalInfo;
+  };
+
+
+  /// Contains the Mount status data.
+  struct MountStatusType
+  {
+    /// The current client name of client to accept data (angles, rates) inputs from.
+    /// Empty string indicates data is accepted from all clients.
+    /// The following calls should only be handled from the specified client:
+    /// - NotifyAngle
+    /// - NotifyRateAbsolute
+    /// - NotifyRateRelative
+    /// - NotifyRateScaled
+    string InputSourceClientId;
+    /// The current client name of client id from which target assignment notifies shall are processed.
+    /// Empty string indicates data shall be accepted from all clients.
+    /// The following calls should only be handled from the specified client:
+    /// - NotifyTgtAssignment
+    string TgtAssignmentInputSourceClientId;
+    /// The current client name from which rates are processed in manual search mode.
+    /// Empty string indicates rates are accepted from all clients when in manual search mode.
+    /// The following calls will only be handled from the specified client:
+    /// - NotifyRateAbsolute
+    /// - NotifyRateRelative
+    /// - NotifyRateScaled
+    string TgtAssignmentSearchInputSourceClientId;
+    /// Current state of motor control.
+    /// Note: If not present then the service does not know the current stab state.
+    StabStateOptionalType StabState;
+    /// Current control state.
+    /// Note: If not present then the service does not know the current control state.
+    ControlStateOptionalType CtrlState;
+    /// Maximum allowed azimuth rate of movement in degrees per second (soft-limits).
+    M_Common::AngleRateDegreesPerSecOptionalType MaximumAzimuthRate;
+    /// Maximum allowed elevation rate of movement in degrees per second (soft-limits).
+    M_Common::AngleRateDegreesPerSecOptionalType MaximumElevationRate;
+    /// Indicates the current drift compensation mode.
+    DriftCompensationKindOptionalType DriftCompensationMode;
+    /// Indicates whether drift compensation is externally allowed.
+    boolean IsExternalDriftCompensationAllowed;
+    /// Drift compensation azimuth rate in degrees.
+    M_Common::AngleRateDegreesPerSecOptionalType DriftCompensationOffsetAzimuthRate;
+    /// Drift compensation elevation rate in degrees.
+    M_Common::AngleRateDegreesPerSecOptionalType DriftCompensationOffsetElevationRate;
+    /// Indicates if rate aid is available.
+    M_Common::Availability::Type RateAidState;
+    /// Operational mode activation state of the RateAid calculation.
+    boolean IsModeRateAidActive;
+    /// The current state of the positional movement for the Mount.
+    /// Indicates the has reached a commanded position or is currently moving towards
+    /// a commanded position.
+    /// Not present if Mount has not been commanded into position.
+    MovementStateOptionalType PositionState;
+    /// The current count of finished search cycles.
+    M_Common::UShortOptionalType NumberOfSearchCycles;
+    /// The current state of search process within target assignment.
+    TgtAssignmentSearchStateKind::Type TgtAssignmentSearchState;
+    /// The current search pattern for target assignment.
+    TgtAssignmentSearchPatternOptionalType TgtAssignmentSearchPattern;
+    /// The currently set id of internal leading device.
+    M_Common::LongOptionalType LeadingDeviceId;
+    /// The currently set id of internal slaved device.
+    M_Common::LongOptionalType SlavedDeviceId;
+    /// Name of the current operation stage.
+    /// Note: Empty if unknown or not relevant.
+    string OperationStageName;
+    /// Indicates the overtemperature status of the Mount.
+    M_Common::OperationFaultType OverTemperature;
+    /// Angular slew limits for Mount which can change during runtime.
+    AngularLimitType SlewLimits;
+    /// Status indicating any restrictions to available Mode functionality.
+    ModeAvailabilityType ModeAvailability;
+    /// Indicates if horizontal aiming is available.
+    M_Common::Availability::Type HorizontalAimingState;
+    /// Indicates if horizontal aiming is enabled.
+    boolean IsHorizontalAimingEnabled;
+    /// Stored mount position list
+    StoredPositionListType StoredPositionList;
+    /// Input sources which are currently feeding:
+    /// - NotifyAngle
+    /// - NotifyRateAbsolute
+    /// - NotifyRateRelative
+    /// - NotifyRateScaled
+    M_Common::StringListType AvailableInputSources;
+    /// Input sources which are currently feeding:
+    /// - NotifyTgtAssignment
+    M_Common::StringListType AvailableTgtAssignmentInputSources;
+  };
+
+
+  /// Contains the Mount position data which are usually frequently updated at a high rate.
+  struct MountPositionType
+  {
+    /// Current azimuth in degrees.
+    /// The angle is relative to the installation position of the Mount.
+    /// Note: Under normal conditions, this value should always be provided.
+    M_Common::AngleDegreesOptionalType Azimuth;
+    /// Current elevation in degrees.
+    /// The angle is relative to the installation position of the Mount.
+    /// Note: Under normal conditions, this value should always be provided.
+    M_Common::AngleDegreesOptionalType Elevation;
+    /// Current azimuth in degrees relative to true north.
+    /// Note: This is only provided if the Mount is capable of determining its
+    /// orientation w.r.t. true north.
+    M_Common::AngleDegreesOptionalType AzimuthNorth;
+    /// Current elevation in degrees relative to horizon.
+    /// Note: This is only provided if the Mount is capable of determining its
+    /// orientation w.r.t. gravity.
+    M_Common::AngleDegreesOptionalType ElevationHorizon;
+    /// Current azimuth rate of movement in degrees per second.
+    M_Common::AngleRateDegreesPerSecOptionalType AzimuthRate;
+    /// Current elevation rate of movement in degrees per second.
+    M_Common::AngleRateDegreesPerSecOptionalType ElevationRate;
+  };
+};

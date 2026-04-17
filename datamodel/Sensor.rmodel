@@ -1,0 +1,193 @@
+// Copyright (c) 2026 Rheinmetall Electronics GmbH
+//
+// This program and the accompanying materials are made available under the
+// terms of the Eclipse Public License 2.0 which is available at
+// https://www.eclipse.org/legal/epl-2.0.
+//
+// SPDX-License-Identifier: EPL-2.0
+
+#include "CommonTypes.idl"
+#include "SensorTypes.idl"
+
+
+/**
+ * The sensor interface contains general information common to different tactical sensors.
+ *
+@startuml "Sensor 1"
+title Sensor 1
+hide footbox
+
+== Startup ==
+Client <- Service: ReportSensorSettings(Settings)
+note over Service
+    On startup the Service always reports
+    the static settings information
+end note
+Client <- Service: ReportSensorStatus(Status, IsRemoved=false)
+note over Service
+    Service always reports the initial
+    status with the IsRemoved flag set
+    to false
+end note
+...
+
+== Sensor detection ==
+Client <- Service: EventSensorDetection(DetectionId=x, Detection)
+note over Service
+    Service reports the positional
+    information of the detection as
+    a single shot event
+end note
+...
+
+== Sensor track ==
+Client <- Service: ReportSensorTrack(KeyId=y, Track, IsRemoved=false)
+note over Service
+    Service reports the positional
+    information as a track with a
+    lifetime
+end note
+...
+Client -> Service: CmdDeleteTracks(KeyIdList=[y])
+Client <- Service: ReportSensorTrack(KeyId=y, Track, IsRemoved=true)
+note over Service
+    Service reports the track as
+    removed when it can no longer
+    be tracked by the Sensor or it
+    is explicitly deleted
+end note
+
+@enduml
+
+
+
+@startuml "Sensor 2"
+title Sensor 2
+hide footbox
+
+== Activate/deactivate ==
+Client -> Service: CmdDeactivateSensor(Deactivate)
+Client <- Service: ReportSensorStatus(Status.IsDeactivated, IsRemoved=false)
+note over Service
+    Service reports the updated
+    status
+end note
+...
+
+== Shutdown ==
+Client <- Service: ReportSensorStatus(Status, IsRemoved=true)
+note over Service
+    On service shutdown the previously reported
+    status is automatically removed. This is
+    used as an indication that the Service
+    is no longer running
+end note
+
+@enduml
+ */
+module M_Sensor
+{
+  /// Interface version number.
+  const string Version = "11.2.0";
+
+
+  /**
+   * Service interface.
+   * Contains operations that a client can command the sensor service to perform.
+   */
+  interface IService
+  {
+    /// Cmd to check if service is alive.
+    /// If the service is not available then an exception will be thrown.
+    void CmdIsSensorAlive();
+
+    /// Delete/Abort one or more tracks.
+    /// Note: This function can only be used if the sensor supports tracking.
+    void CmdDeleteTracks
+    (
+      /// Identifies the objects to delete.
+      in M_Common::ObjectIdListType KeyIdList
+    );
+
+    /// Delete/Abort all tracks.
+    /// Note: This function can only be used if the sensor supports tracking.
+    void CmdDeleteAllTracks();
+
+    /// Deactivate sensor.
+    /// This can be used to avoid erroneous detection from a sensor when performing
+    /// certain actions, such as avoiding acoustic detections when firing our own gun.
+    void CmdDeactivateSensor
+    (
+      /// Indicates if sensor should be deactivated (true) or activated (false).
+      in boolean Deactivate
+    );
+  };
+
+
+  /**
+   * Client interface.
+   * Contains operations reported by a sensor service.
+   */
+  interface IClient
+  {
+    /**
+     * Report static settings of the sensor.
+     */
+    void ReportSensorSettings
+    (
+      /// Sensor settings data.
+      in SensorSettingsType Settings
+    );
+
+    /**
+     * Report current status of the sensor.
+     */
+    void ReportSensorStatus
+    (
+      /// Current status data for sensor.
+      in SensorStatusType Status,
+
+      /// Indicates if the status is no longer available.
+      /// Note: This will always be set to True when a Service has been shut down.
+      /// After this has been set to True the status will no longer be available to late joiners.
+      in boolean IsRemoved
+    );
+
+    /**
+     * Event of a detected object.
+     */
+    void EventSensorDetection
+    (
+      /// Identifies the detection for the location measurement.
+      /// Note: Since an event does not have a lifetime, it cannot be updated/deleted, but
+      /// multiple locations can belong to the same detection and will then have
+      /// the same detection ID.
+      in M_Common::ObjectIdType DetectionId,
+
+      /// Detection data.
+      in SensorDetectionType Detection
+    );
+
+    /**
+     * Report an object tracked by the sensor (i.e. a track).
+     * A tracked object has a lifetime and updates to the same tracked object will be
+     * reported with the same KeyId. When an object is no longer tracked (i.e. lost), it
+     * should be reported with IsRemoved set to true.
+     *
+     * Note: If the sensor does NOT have the ability to track objects then a detection
+     * should be reported via the EventSensorDetection() operation instead.
+     */
+    void ReportSensorTrack
+    (
+      /// The unique track ID.
+      in M_Common::ObjectIdType KeyId,
+
+      /// Tracked object data.
+      in SensorDetectionType Track,
+
+      /// Indicates if the sensor track has been lost (i.e. no longer tracked by sensor).
+      /// Note: After this has been set to True the track will no longer be available to late joiners.
+      in boolean IsRemoved
+    );
+  };
+};

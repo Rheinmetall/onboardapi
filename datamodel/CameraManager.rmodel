@@ -1,0 +1,90 @@
+// Copyright (c) 2026 Rheinmetall Electronics GmbH
+//
+// This program and the accompanying materials are made available under the
+// terms of the Eclipse Public License 2.0 which is available at
+// https://www.eclipse.org/legal/epl-2.0.
+//
+// SPDX-License-Identifier: EPL-2.0
+
+#include "CommonTypes.idl"
+#include "CameraTypes.idl"
+
+
+/**
+ * A camera manager to dynamically create, update and delete cameras.
+ */
+module M_CameraManager
+{
+  /// Interface version number.
+  const string Version = "1.1.0";
+
+  /**
+   * CameraManager Service interface.
+   * Contains operations that a client can command the CameraManager Service to perform.
+   */
+  interface IService
+  {
+    /// Create a camera with id.
+    void CmdCreateCamera
+    (
+      /// The id of the camera to create.
+      in string KeyId,
+
+      /// The setttings of the camera.
+      in M_Camera::CameraSettingsType CameraSettings
+    );
+
+    /// Update the camera.
+    void CmdUpdateCamera
+    (
+      /// The id of the camera to update.
+      in string KeyId,
+
+      /// The updated setttings of the camera.
+      in M_Camera::CameraSettingsType CameraSettings
+    );
+
+    /// Delete the camera.
+    void CmdDeleteCamera
+    (
+      /// The id of the camera to delete.
+      in string KeyId
+    );
+  };
+
+  /**
+   * CameraManager Client interface.
+   * Contains callback operations from the Camera Service to the Client.
+   */
+  interface IClient
+  {
+    /// Report with static camera settings of a specific camera with id.
+    /// This should be provided at startup and in the event of degraded functionality,
+    /// e.g. due to an internal failure.
+    void ReportCameraSettings
+    (
+      /// The id of the camera.
+      in string KeyId,
+      /// Camera settings data.
+      in M_Camera::CameraSettingsType Settings,
+      /// Indicates if the status is no longer available.
+      /// Note: This will always be set to True when a Service has been shutdown.
+      /// After this has been set to True the status will no longer be available to late joiners.
+      in boolean IsRemoved
+    );
+
+    /// Report with the current camera status of a specific camera with id.
+    /// This will be continually updated every time a value is changed.
+    void ReportCameraStatus
+    (
+      /// The id of the camera.
+      in string KeyId,
+      /// Current status data for Camera.
+      in M_Camera::CameraStatusType Status,
+      /// Indicates if the status is no longer available.
+      /// Note: This will always be set to True when a Service has been shutdown.
+      /// After this has been set to True the status will no longer be available to late joiners.
+      in boolean IsRemoved
+    );
+  };
+};

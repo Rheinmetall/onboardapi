@@ -1,0 +1,60 @@
+// Copyright (c) 2026 Rheinmetall Electronics GmbH
+//
+// This program and the accompanying materials are made available under the
+// terms of the Eclipse Public License 2.0 which is available at
+// https://www.eclipse.org/legal/epl-2.0.
+//
+// SPDX-License-Identifier: EPL-2.0
+
+#include "CommonTypes.idl"
+#include "MetSensorTypes.idl"
+
+
+/**
+ * Interfaces used by the Meteorological Sensor Service and Client.
+ */
+module M_MetSensor
+{
+  /// Interface version number.
+  const string Version = "7.1.0";
+
+
+  /**
+   * Meteorological Sensor Service interface.
+   * Contains operations that a client can command the Meteorological Sensor Service to perform.
+   */
+  interface IService
+  {
+    /**
+     * Command to check if Meteorological Sensor Service is running.
+     */
+    void CmdIsMetSensorAlive();
+  };
+
+
+  /**
+   * Meteorological Sensor Client interface.
+   * Contains callback operations from the Meteorological Sensor Service to the Client.
+   */
+  interface IClient
+  {
+    /// Reports static settings for a Meteorological Sensor.
+    void ReportMetSensorSettings
+    (
+      /// Meteorological Sensor settings data.
+      in MetSensorSettingsType Settings
+    );
+
+    /// Reports the current status for a Meteorological Sensor.
+    void ReportMetSensorStatus
+    (
+      /// Atmospheric data.
+      in AtmosphericType AtmosphericData,
+
+      /// Indicates if the status is no longer available.
+      /// Note: This will always be set to true when a service has been shut down.
+      /// After this has been set to true, the status will no longer be available to late joiners.
+      in boolean IsRemoved
+    );
+  };
+};

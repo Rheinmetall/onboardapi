@@ -1,0 +1,71 @@
+// Copyright (c) 2026 Rheinmetall Electronics GmbH
+//
+// This program and the accompanying materials are made available under the
+// terms of the Eclipse Public License 2.0 which is available at
+// https://www.eclipse.org/legal/epl-2.0.
+//
+// SPDX-License-Identifier: EPL-2.0
+
+#include "ErrorMemoryTypes.idl"
+
+/**
+ * An error memory service is used to store errors in a database.
+ */
+module M_ErrorMemory
+{
+  /// Interface version number.
+  const string Version = "1.2.0";
+
+  /**
+  * Service interface.
+  * Contains operations that a client can command the error memory service to perform.
+  */
+  interface IService
+  {
+    /**
+    * Create an error entry.
+    */
+    void CmdCreateEntry
+    (
+      /// Value to set.
+      in M_ErrorMemory::ErrorEntryType Value
+    );
+
+    /**
+    * Delete an error entry.
+    */
+    void CmdDeleteEntry
+    (
+      in string KeyId
+    );
+
+    /**
+    * Delete all error memory entries.
+    */
+    void CmdDeleteAll();
+  };
+
+  /**
+   * Client interface.
+   * Contains callback operations from the error memory service to the client.
+   */
+  interface IClient
+  {
+    /**
+    * Report an error entry.
+    */
+    void ReportEntry
+    (
+        /// Identifies the key of the error entry.
+        in string KeyId,
+
+		/// Error entry.
+        in M_ErrorMemory::ErrorEntryType Value,
+        
+        /// Indicates if the entry is no longer available.
+        /// Note: This will always be set to true when a service has been shut down.
+        /// After this has been set to true, the status will no longer be available to late joiners.
+        in boolean IsRemoved
+    );
+  };
+};

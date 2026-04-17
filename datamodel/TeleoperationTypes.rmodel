@@ -1,0 +1,133 @@
+// Copyright (c) 2026 Rheinmetall Electronics GmbH
+//
+// This program and the accompanying materials are made available under the
+// terms of the Eclipse Public License 2.0 which is available at
+// https://www.eclipse.org/legal/epl-2.0.
+//
+// SPDX-License-Identifier: EPL-2.0
+
+#include "CommonTypes.idl"
+
+
+/**
+ * Types used by the teleoperation service and client.
+ */
+module M_Teleoperation
+{
+  /**
+   * Contains the status of a battery.
+   */
+  struct BatteryStatusType
+  {
+    /// Operation status.
+    M_Common::OperationStatusType OperationStatus;
+
+    /// Potential difference across battery [V].
+    M_Common::VoltageVoltsOptionalType Voltage;
+
+    /// Net electrical current provided by battery (positive) and charger (negative).
+    M_Common::CurrentAmperesOptionalType Current;
+
+    /// List of temperatures measured in the cells [K].
+    M_Common::TemperatureKelvinsListType TemperatureList;
+
+    /// Scaled remaining electrical charge of battery [%].
+    M_Common::PercentOptionalType ScaledRemainingCharge;
+
+    /// Remaining runtime of battery [s].
+    M_Common::TimeSecondsOptionalType RemainingRuntime;
+  };
+
+  /// Optional BatteryStatusType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<BatteryStatusType, 1> BatteryStatusOptionalType;
+
+  /**
+   * Radio Link Connection State
+   */
+  module RadioLinkConnectionState
+  {
+    /// Enumeration of states of a the radio link.
+    enum Type
+    {
+      /// The connection is in a undefined state.
+      Undefined,
+
+      /// The link is currently disconnected.
+      Disconnected,
+
+      /// The link is currently connecting.
+      Connecting,
+
+      /// The link is currently disconnecting
+      Diconnecting,
+
+      /// The link is currently connected.
+      Connected,
+
+      /// The link is currently in error state.
+      Error
+    };
+  };
+
+  /**
+   * Contains the status of the radio signal connection to the remote system.
+   */
+  struct RadioConnectionStatusType
+  {
+    /// Scaled signal strength [%].
+    M_Common::PercentOptionalType SignalStrength;
+
+    /// The current drop rate in [%] of the radio.
+    M_Common::PercentOptionalType CurrentDropRate;
+
+    /// The current available bandwith in bits/sec of the radio.
+    M_Common::DoubleOptionalType AvailableBandwidth;
+
+    /// The maximum available bandwith in bits/sec of the radio.
+    M_Common::DoubleOptionalType MaxBandwidth;
+
+    /// The connection state of the radio.
+    RadioLinkConnectionState::Type LinkConnectionState;
+
+    /// The current jitter.
+    M_Common::TimeSecondsOptionalType Jitter;
+
+    /// The current round trip time.
+    M_Common::TimeOptionalType RoundTripTime;
+  };
+
+  /// Optional RadioConnectionStatusType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<RadioConnectionStatusType, 1> RadioConnectionStatusOptionalType;
+
+
+  /**
+   * Contains the settings of the remote system.
+   */
+  struct TeleoperationCtrlSettingsType
+  {
+    /// Additional properties of the service.
+    /// Note: Properties are defined generically to enable non-essential additional
+    /// information to be provided without impacting the data model.
+    M_Common::PropertyListType AdditionalInfo;
+  };
+
+
+  /**
+   * Contains the status of the remote system.
+   */
+  struct TeleoperationStatusType
+  {
+    /// Battery status of the remote system.
+    BatteryStatusOptionalType BatteryStatus;
+
+    /// Radio connection status of the remote system.
+    RadioConnectionStatusOptionalType RadioConnectionStatus;
+
+    /// Additional properties of the service.
+    /// Note: Properties are defined generically to enable non-essential additional
+    /// information to be provided without impacting the data model.
+    M_Common::PropertyListType AdditionalInfo;
+  };
+};

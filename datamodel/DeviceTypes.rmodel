@@ -1,0 +1,165 @@
+// Copyright (c) 2026 Rheinmetall Electronics GmbH
+//
+// This program and the accompanying materials are made available under the
+// terms of the Eclipse Public License 2.0 which is available at
+// https://www.eclipse.org/legal/epl-2.0.
+//
+// SPDX-License-Identifier: EPL-2.0
+
+#include "CommonTypes.idl"
+
+
+/**
+ * Types used by the Device Service and Client.
+ */
+module M_Device
+{
+  /**
+   * Contains hardware information.
+   */
+  struct HardwareInfoType
+  {
+    /// Name of the module to which the hardware version applies.
+    /// Empty if not relevant or unknown.
+    string ModuleName;
+  
+    /// Hardware version.
+    /// Empty if not relevant or unknown.
+    string HardwareVersion;
+
+    /// Hardware part number.
+    /// Empty if not relevant or unknown.
+    string HardwarePartNumber;
+
+    /// Hardware serial number.
+    /// Empty if not relevant or unknown.
+    string HardwareSerialNumber;
+  };
+
+  /// List of HardwareInfoType.
+  typedef sequence<HardwareInfoType> HardwareInfoListType;
+
+
+  /**
+   * Contains software version information.
+   */
+  struct SoftwareVersionType
+  {
+    /// Name of the module to which the software version applies.
+    /// Note: Can be empty for the software version of the complete device,
+    /// e.g. where DeviceName is the ModuleName.
+    string ModuleName;
+
+    /// List of child module names.
+    M_Common::StringListType ChildModuleNames;
+
+    /// Major version number.
+    unsigned long Major;
+
+    /// Minor version number.
+    unsigned long Minor;
+
+    /// Patch version number.
+    unsigned long Patch;
+
+    /// Part number
+    /// Empty if not relevant or unknown
+    string PartNumber;
+
+    /// Version postfix tag.
+    /// Empty if not relevant or unknown.
+    string Tag;
+
+    /// Version Control System identifier.
+    /// Empty if not relevant or unknown.
+    string VcsId;
+
+    /// Material revision.
+    /// Empty if not relevant or unknown.
+    string MaterialRevision;
+
+    /// Build date.
+    /// Not present indicates not relevant or unknown.
+    M_Common::TimeOptionalType BuildDate;
+
+    /// Commit date.
+    /// Not present indicates not relevant or unknown.
+    M_Common::TimeOptionalType CommitDate;
+
+    /// Checksum for software.
+    /// Empty if not relevant or unknown.
+    string Checksum;
+  };
+
+  /// List of SoftwareVersionType.
+  typedef sequence<SoftwareVersionType> SoftwareVersionListType;
+
+
+  /**
+   * Contains settings for a device.
+   */
+  struct DeviceSettingsType
+  {
+    /// Name of the device.
+    string DeviceName;
+
+    /// Textual description of the device.
+    /// Empty if not relevant or unknown.
+    string Description;
+
+    /// Hardware information about the device.
+    /// Note: This list may have several entries if more than one actual device are associated with one interface instance.
+    HardwareInfoListType HwInfoList;
+
+    /// Software version hierarchy integrated in the device.
+    SoftwareVersionListType SwVersionList;
+
+    /// Indicates if the mode of the device can be changed from a client with CmdSetDeviceMode.
+    boolean IsSetDeviceModeSupported;
+
+    /// List of supported operation status.
+    /// This can be used to publish all possible states and faults
+    /// which the device could be in and thus publish via DeviceStatusType.
+    M_Common::OperationStatusListType SupportedOperationStatusList;
+
+    /// Indicates if the Device can be shutdown from a client with CmdShutdownDevice.
+    boolean IsShutdownDeviceSupported;
+
+    /// Indicates the time it takes to shutdown the device.
+    /// If not present then the time required for the Device to complete a shutdown is unknown.
+    /// If 0 then the device will be shutdown immediately and does not require
+    /// any waiting time.
+    M_Common::ULongOptionalType ShutdownDurationSec;
+
+    /// Indicates if the Device can be restarted from a client with CmdRestartDevice.
+    boolean IsRestartDeviceSupported;
+
+    /// Indicates the time it takes to restart the device.
+    /// If not present then the time required for the Device to complete a restart is unknown.
+    /// If 0 then the device will be restarted immediately and does not require
+    /// any waiting time.
+    M_Common::ULongOptionalType RestartDurationSec;
+
+    /// Additional properties for the Service.
+    /// Note: Properties are defined generically to enable non-essential additional
+    /// information to be provided without impacting the Data Model.
+    M_Common::PropertyListType AdditionalInfo;
+  };
+
+
+  /**
+   * Contains the status for a device.
+   */
+  struct DeviceStatusType
+  {
+    /// Indicates if device is enabled (true) or not (false).
+    /// Note: This flag is basically a hardware status, i.e. it should be used to indicate
+    /// whether the device is "operational" in the most low-level / bare metal way possible (e.g. powered and connected).
+    boolean IsEnabled;
+
+    /// Operation status.
+    /// Note: The operation status is basically a software status, i.e. it should indicate
+    /// the current state of the device (software) during normal operation.
+    M_Common::OperationStatusType OperationStatus;
+  };
+};

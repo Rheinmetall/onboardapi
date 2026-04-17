@@ -1,0 +1,116 @@
+// Copyright (c) 2026 Rheinmetall Electronics GmbH
+//
+// This program and the accompanying materials are made available under the
+// terms of the Eclipse Public License 2.0 which is available at
+// https://www.eclipse.org/legal/epl-2.0.
+//
+// SPDX-License-Identifier: EPL-2.0
+
+#include "CommonTypes.idl"
+#include "KinematicChainTypes.idl"
+
+
+/**
+ * Types used by the Mount Service.
+ */
+module M_MultiMount
+{
+  /// Drift compensation kind context.
+  module DriftCompensationKind
+  {
+    /// Drift compensation kind enumeration.
+    enum Type
+    {
+      /// No drift compensation.
+      None,
+
+      /// Manual values are used for drift compensation.
+      Manual,
+
+      /// The drift compensation is automatically determined by the mount.
+      Auto,
+
+      /// Drift compensation is allowed to be commanded by a client.
+      Allowed,
+
+      /// Drift compensation is not allowed to be commanded by a client.
+      Not_Allowed,
+
+      /// The mount has cancelled a previous drift compensation state.
+      Cancelled
+    };
+  };
+
+  /// Optional DriftCompensationKind.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<DriftCompensationKind::Type, 1> DriftCompensationOptionalType;
+
+
+  /// Contains the Mount settings data.
+  struct MountSettingsType
+  {
+    /// List of supported operation status.
+    M_Common::OperationStatusListType SupportedOperationStatusList;
+
+    /// Indicates if the control mode can be set with CmdControlMode from a Client.
+    boolean IsCmdModeSupported;
+
+    /// Indicates if the source for rate and angle input can be set with ConfigInputSource from a Client.
+    boolean IsConfigInputSourceSupported;
+
+    /// Indicates if the source for target assignment can be set with ConfigAssignmentInputSource from a Client.
+    boolean IsConfigAssignmentInputSourceSupported;
+
+    /// Indicates if automatic drift compensation can be enabled/disabled with CmdAutoDriftCompensation from a Client.
+    boolean IsCmdAutoDriftCompensationSupported;
+
+    /// Indicates if drift compensation can be manually set with CmdManualDriftCompensation from a Client.
+    boolean IsCmdManualDriftCompensationSupported;
+
+    /// Indicates whether external drift compensation can be allowed.
+    boolean IsCmdExternalDriftCompensationAllowedSupported;
+
+    /// Indicates the time that the operating lifetime of the Mount began.
+    M_Common::TimeOptionalType OperatingStartTime;
+
+    /// Additional properties for the Service.
+    /// Note: Properties are defined generically to enable non-essential additional
+    /// information to be provided without impacting the Data Model.
+    M_Common::PropertyListType AdditionalInfo;
+  };
+
+
+  /// Contains the Mount status data.
+  struct MountStatusType
+  {
+    /// Operation status.
+    M_Common::OperationStatusType OperationStatus;
+
+    /// The current client name of client to accept data (angles, rates) inputs from.
+    /// Empty string indicates data is accepted from all clients.
+    string InputSourceClientId;
+
+    /// The current client name of client id from which target assignment notifies shall are processed.
+    /// Empty string indicates data shall be accepted from all clients.
+    /// The following calls should only be handled from the specified client:
+    string AssignmentInputSourceClientId;
+
+    /// Indicates the current drift compensation mode.
+    DriftCompensationOptionalType DriftCompensationMode;
+
+    /// Indicates whether drift compensation is externally allowed.
+    boolean IsExternalDriftCompensationAllowed;
+
+    /// Drift compensation offset rate.
+    M_Common::SphericalPositionRateOptionalType DriftCompensationOffsetRate;
+
+    /// Input sources for normal motion.
+    M_Common::StringListType AvailableInputSources;
+
+    /// Input sources for assignment motion.
+    M_Common::StringListType AvailableAssignmentInputSources;
+
+    /// Indicates whether the mount filters input based on client ID
+    boolean IsClientIdFilterEnabled;
+  };
+};

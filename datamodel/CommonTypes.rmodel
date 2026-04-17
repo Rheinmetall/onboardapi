@@ -1,0 +1,2020 @@
+// Copyright (c) 2026 Rheinmetall Electronics GmbH
+//
+// This program and the accompanying materials are made available under the
+// terms of the Eclipse Public License 2.0 which is available at
+// https://www.eclipse.org/legal/epl-2.0.
+//
+// SPDX-License-Identifier: EPL-2.0
+
+#ifndef _COMMON_TYPES_IDL_
+#define _COMMON_TYPES_IDL_
+
+
+/**
+ * Types used to represent commonly used data.
+ */
+module M_Common
+{
+  /// ID represented as a string.
+  /// Note: This should normally contain a UUID string.
+  /// For example: {A64E8BD7-FA0F-4073-82E0-ADDD47980B56}
+  typedef string ObjectIdType;
+
+  /// Optional ObjectId.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<ObjectIdType, 1> ObjectIdOptionalType;
+
+  /// List of PropertyType.
+  typedef sequence<ObjectIdType> ObjectIdListType;
+
+  /// Generic optional double.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<double, 1> DoubleOptionalType;
+
+  /// List of double.
+  typedef sequence<double> DoubleListType;
+
+  /// List of DoubleListType.
+  typedef sequence<DoubleListType> DoubleMatrixType;
+
+  /// Generic optional long.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<long, 1> LongOptionalType;
+
+  /// Generic optional unsigned long.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<unsigned long, 1> ULongOptionalType;
+
+  /// List of unsigned long.
+  typedef sequence<unsigned long> ULongListType;
+
+  /// List of unsigned long long.
+  typedef sequence<unsigned long long> ULongLongListType;
+
+  /// Generic optional long long.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<long long, 1> LongLongOptionalType;
+
+  /// Generic optional unsigned long long.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<unsigned long long, 1> ULongLongOptionalType;
+
+  /// Generic optional unsigned short.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<unsigned short, 1> UShortOptionalType;
+
+  /// Generic optional boolean.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<boolean, 1> BooleanOptionalType;
+
+  /// A byte buffer modeled as a sequence of characters.
+  typedef sequence<octet> ByteSeqType;
+
+  /// Optional byte type.
+  typedef sequence<octet, 1> ByteOptionalType;
+
+  /// Generic optional string.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<string, 1> StringOptionalType;
+
+  /// List of strings.
+  typedef sequence<string> StringListType;
+
+  /// Bounded string (limited size).
+  typedef string<255> BoundedStringType;
+
+  /// Generic optional bounded string.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<BoundedStringType, 1> BoundedStringOptionalType;
+
+
+  /// Proportional [-].
+  typedef double ProportionalType;
+
+  /// Optional ProportionalType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<ProportionalType, 1> ProportionalOptionalType;
+
+  /// List of ProportionalType.
+  typedef sequence<ProportionalType> ProportionalListType;
+
+
+  /// Percentage [%].
+  typedef double PercentType;
+
+  /// Optional PercentType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<PercentType, 1> PercentOptionalType;
+
+  /// List of PercentType.
+  typedef sequence<PercentType> PercentListType;
+
+
+  /// Time [s].
+  typedef double TimeSecondsType;
+
+  /// Optional TimeSecondsType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<TimeSecondsType, 1> TimeSecondsOptionalType;
+
+  /// List of TimeSecondsType.
+  typedef sequence<TimeSecondsType> TimeSecondsListType;
+
+
+  /// Mass [kg].
+  typedef double MassKilogramsType;
+
+  /// Optional MassKilogramsType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<MassKilogramsType, 1> MassKilogramsOptionalType;
+
+
+  /// Moment of inertia [kg m^2].
+  typedef double MomentOfInertiaKilogramMetresSquaredType;
+
+
+  /// Temperature [K].
+  /// Range: >= 0 K
+  typedef double TemperatureKelvinsType;
+
+  /// Optional TemperatureKelvinsType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<TemperatureKelvinsType, 1> TemperatureKelvinsOptionalType;
+
+  /// List of TemperatureKelvinsType.
+  typedef sequence<TemperatureKelvinsType> TemperatureKelvinsListType;
+
+
+  /// Pressure [Pa].
+  typedef double PressurePascalsType;
+
+  /// Optional PressurePascalsType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<PressurePascalsType, 1> PressurePascalsOptionalType;
+
+
+  /// Power [W].
+  /// Range: >= 0 W
+  typedef double PowerWattsType;
+
+  /// Optional PowerWattsType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<PowerWattsType, 1> PowerWattsOptionalType;
+
+
+  /// Frequency [Hz].
+  /// Range: >= 0 Hz
+  typedef double FrequencyHertzType;
+
+  /// Optional FrequencyHertzType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<FrequencyHertzType, 1> FrequencyHertzOptionalType;
+
+
+  /// Amplitude [dB].
+  typedef double AmplitudeDecibelsType;
+
+  /// Optional AmplitudeDecibelsType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<AmplitudeDecibelsType, 1> AmplitudeDecibelsOptionalType;
+
+
+  /// Amplitude [-].
+  typedef double AmplitudeScaledType;
+
+  /// Optional AmplitudeScaledType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<AmplitudeScaledType, 1> AmplitudeScaledOptionalType;
+
+
+  /// Power level [dBW].
+  typedef double PowerLevelDecibelWattsType;
+
+  /// Optional PowerLevelDecibelWattsType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<PowerLevelDecibelWattsType, 1> PowerLevelDecibelWattsOptionalType;
+
+
+  /// Magnetic flux density (induction) [T].
+  typedef double MagneticFluxDensityTeslasType;
+
+  /// Optional MagneticFluxDensityTeslasType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<MagneticFluxDensityTeslasType, 1> MagneticFluxDensityTeslasOptionalType;
+
+
+  /// Voltage [V].
+  typedef double VoltageVoltsType;
+
+  /// Optional VoltageVoltsType.
+  typedef sequence<VoltageVoltsType, 1> VoltageVoltsOptionalType;
+
+  /// List of VoltageVoltsType.
+  typedef sequence<VoltageVoltsType> VoltageVoltsListType;
+
+
+  /// Current [A].
+  typedef double CurrentAmperesType;
+
+  /// Optional CurrentAmperesType.
+  typedef sequence<CurrentAmperesType, 1> CurrentAmperesOptionalType;
+
+  /// List of CurrentAmperesType.
+  typedef sequence<CurrentAmperesType> CurrentAmperesListType;
+
+
+  /// Rate of fire [RPM] (rounds per minute).
+  /// Range: >= 0 RPM
+  typedef double RateOfFireRpmType;
+
+  /// Optional RateOfFireRpmType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<RateOfFireRpmType, 1> RateOfFireRpmOptionalType;
+
+
+  /// Distance [m].
+  typedef double DistanceMetersType;
+
+  /// Optional DistanceMetersType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<DistanceMetersType, 1> DistanceMetersOptionalType;
+
+
+  /// Angle [rad].
+  typedef double AngleRadiansType;
+
+  /// Optional AngleRadiansType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<AngleRadiansType, 1> AngleRadiansOptionalType;
+
+
+  /// Angle [deg].
+  typedef double AngleDegreesType;
+
+  /// Optional AngleDegreesType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<AngleDegreesType, 1> AngleDegreesOptionalType;
+
+  /// List of AngleDegreesType.
+  typedef sequence<AngleDegreesType> AngleDegreesListType;
+
+
+  /// Angular rate [deg/s].
+  /// Range: >= 0 degrees per second
+  typedef double AngleRateDegreesPerSecType;
+
+  /// Optional AngleRateDegreesPerSecType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<AngleRateDegreesPerSecType, 1> AngleRateDegreesPerSecOptionalType;
+
+
+  /// Angular rate acceleration [deg/s^2].
+  /// Specifies the speed increase that occurs during 1 second.
+  typedef double AngularAccelerationDegreesPerSecPerSecType;
+
+  /// Optional AngularAccelerationDegreesPerSecPerSecType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<AngularAccelerationDegreesPerSecPerSecType, 1> AngularAccelerationDegreesPerSecPerSecOptionalType;
+
+
+  /// Speed [m/s].
+  typedef double SpeedMetersPerSecType;
+
+  /// Optional SpeedMetersPerSecType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<SpeedMetersPerSecType, 1> SpeedMetersPerSecOptionalType;
+
+
+  /// Acceleration [m/s^2].
+  /// Specifies the speed increase that occurs during 1 second.
+  typedef double AccelerationMetersPerSecPerSecType;
+
+  /// Optional AccelerationMetersPerSecPerSecType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<AccelerationMetersPerSecPerSecType, 1> AccelerationMetersPerSecPerSecOptionalType;
+
+
+  /// Bitrate [kb/s].
+  typedef unsigned long BitrateKiloBitsPerSecType;
+
+  /// Optional BitrateKiloBitsPerSecType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<BitrateKiloBitsPerSecType, 1> BitrateKiloBitsPerSecOptionalType;
+
+
+  /**
+   * Type of sensor detection as an integer value.
+   * Note: This is defined as an integer instead of an enumeration to enable
+   * new types to be used without impacting the Data Model.
+   */
+  typedef unsigned long DetectionType;
+
+
+  /**
+   * Type of sensor as an integer value.
+   * Note: This is defined as an integer instead of an enumeration to enable
+   * new types to be used without impacting the Data Model.
+   */
+  typedef unsigned long SensorType;
+
+  /// Optional SensorType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<SensorType, 1> SensorOptionalType;
+
+
+  /**
+   * Identity code.
+   */
+  typedef unsigned long IdentityType;
+
+  /// Optional IdentityType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<IdentityType, 1> IdentityOptionalType;
+
+
+  /**
+   * Threat level.
+   */
+  typedef long ThreatLevelType;
+
+  /// Optional ThreatLevelType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<ThreatLevelType, 1> ThreatLevelOptionalType;
+
+
+  /**
+   * Contains object classification data.
+   * Note: This type is usually provided in a list to give information
+   * about several possible classifications along with their respective confidences.
+   */
+  struct ObjectClassificationType
+  {
+    /// Object category as integer code.
+    unsigned long Category;
+
+    /// Identifies the classification abstraction layer.
+    string AbstractionLayer;
+
+    /// Indicates with which certainty a specific classification has been estimated.
+    PercentOptionalType Confidence;
+
+    /// Priority of the classified object.
+    DoubleOptionalType Priority;
+  };
+
+  /// Optional ObjectClassificationType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<ObjectClassificationType, 1> ObjectClassificationOptionalType;
+
+  /// List of ObjectClassificationType.
+  typedef sequence<ObjectClassificationType> ObjectClassificationListType;
+
+
+  /// General status context.
+  module GeneralStatus
+  {
+    /// General status enumeration.
+    enum Type
+    {
+      /// Not supported
+      Not_Supported,
+
+      /// Enabled
+      Enabled,
+
+      /// Disabled
+      Disabled
+    };
+  };
+
+  /// Optional General status.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<GeneralStatus::Type, 1> GeneralStatusOptionalType;
+
+
+  /// Property access type context.
+  module PropertyAccessKind
+  {
+    /// Value access type enumeration.
+    enum Type
+    {
+      /// Unknown / not applicable.
+      Undefined,
+
+      /// Access is read-only.
+      Read_Only,
+
+      /// Access is write-only.
+      Write_Only,
+
+      /// Access is read and write.
+      Read_Write
+    };
+  };
+
+
+  /**
+   * Contains generic property information as a name/value pair.
+   * Note: Properties are defined generically to enable additional information
+   * to be used without impacting the Data Model.
+   */
+  struct PropertyType
+  {
+    /// The name of the property.
+    string Name;
+
+    /// The value of the property represented as a text (string).
+    string StrValue;
+
+    /// The value of the property represented as a double (floating point number).
+    DoubleOptionalType DoubleValue;
+
+    /// The value of the property represented as a long (number).
+    LongOptionalType LongValue;
+
+    /// Property access mode of the value.
+    PropertyAccessKind::Type AccessMode;
+  };
+
+  /// Optional PropertyType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<PropertyType, 1> PropertyOptionalType;
+
+  /// List of PropertyType.
+  typedef sequence<PropertyType> PropertyListType;
+
+
+  /// Operation mode state context.
+  module OperationModeStateKind
+  {
+    /// Operation mode state enumeration.
+    enum Type
+    {
+      /// Unknown mode state.
+      Undefined,
+
+      /// Off.
+      Off,
+
+      /// On.
+      On,
+
+      /// Standby.
+      Standby,
+
+      /// Initialising.
+      Init,
+
+      /// Shutting down.
+      Shutdown,
+
+      /// Normal operation.
+      Normal,
+
+      /// Manual operation.
+      Manual,
+
+      /// Automatic operation.
+      Auto,
+
+      /// Calibrating.
+      Calibrating,
+
+      /// Maintenance.
+      Maintenance,
+
+      /// Simulation
+      Simulation
+    };
+  };
+
+  /// Optional OperationModeStateKind.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<OperationModeStateKind::Type, 1> OperationModeStateOptionalType;
+
+
+  /// Mode transition context.
+  module ModeTransitionKind
+  {
+    /// Mode transition enumeration.
+    enum Type
+    {
+      /// Unknown mode transition state.
+      Undefined,
+
+      /// Mode transition currently being performed.
+      /// Note: This implies that the according operation mode indicates the target of the transition.
+      In_Progress,
+
+      /// Indicated mode reached.
+      Complete,
+
+      /// Mode transition intermediate failure.
+      Error
+    };
+  };
+
+  /// Optional ModeTransitionKind.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<ModeTransitionKind::Type, 1> ModeTransitionOptionalType;
+
+
+  /**
+   * Contains a generic operation mode as different representations to choose from.
+   * Note: Both sides of an interface using this structure should mutually agree upon the representation to use.
+   */
+  struct OperationModeType
+  {
+    /// Identifies the (sub)mode to report or set.
+    /// Note: This field can be used to distinguish certain (sub)modes that can be assumed in parallel.
+    /// For example, a camera's shutter mode could be manual and its aperture mode automatic.
+    string Name;
+
+    /// Operation mode expressed as enumerated value.
+    OperationModeStateOptionalType EnumeratedValue;
+
+    /// Operation mode expressed as signed integer value.
+    LongOptionalType IntegerValue;
+
+    /// Operation mode expressed as textual value.
+    StringOptionalType TextualValue;
+
+    /// Indicates the immediate state of a mode transition.
+    ModeTransitionOptionalType TransitionState;
+
+    /// Generic additional properties.
+    PropertyListType AdditionalInfo;
+  };
+
+  /// Optional OperationModeType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<OperationModeType, 1> OperationModeOptionalType;
+
+  /// List of OperationModeType.
+  typedef sequence<OperationModeType> OperationModeListType;
+
+
+  /// Operation fault state context.
+  module OperationFaultStateKind
+  {
+    /// Operation fault enumeration.
+    enum Type
+    {
+      /// Unknown fault state.
+      Undefined,
+
+      /// No failure.
+      None,
+
+      /// Failure which occurred during initialisation process.
+      Init_Failure,
+
+      /// Warning which allows normal operation.
+      Warning,
+
+      /// Failure which causes a moderate degradation of functionality.
+      Failure,
+
+      /// Critical failure which causes a severe degradation of functionality.
+      Critical,
+
+      /// Fatal failure which causes control loss over at least parts of essential functionality.
+      Fatal
+    };
+  };
+
+  /// Optional OperationFaultStateKind.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<OperationFaultStateKind::Type, 1> OperationFaultStateOptionalType;
+
+
+  /**
+   * Contains, as name/value pair, a generic operation fault as different representations to choose from.
+   * Note: Both sides of an interface using this structure should mutually agree upon the representation to use.
+   */
+  struct OperationFaultType
+  {
+    /// Identifies the faulty part / fault to report.
+    string Name;
+
+    /// Fault expressed as enumerated value.
+    OperationFaultStateOptionalType EnumeratedValue;
+
+    /// Fault expressed as signed integer value.
+    LongOptionalType IntegerValue;
+
+    /// Fault expressed as textual value.
+    StringOptionalType TextualValue;
+  };
+
+  /// List of OperationFaultType.
+  typedef sequence<OperationFaultType> OperationFaultListType;
+
+
+  /**
+   * Information about the transition of an operation mode.
+   */
+  struct ModeTransitionInfoType
+  {
+    /// The last state.
+    OperationModeOptionalType LastState;
+    
+    /// The requested state.
+    OperationModeOptionalType RequestedState;
+
+    /// Errors during mode transition.
+    OperationFaultListType Errors;
+  };
+
+  /// Optional ModeTransitionInfoType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<ModeTransitionInfoType, 1> ModeTransitionInfoOptionalType;
+
+
+  /**
+   * Contains a generic operation status.
+   */
+  struct OperationStatusType
+  {
+    /// System operation mode.
+    OperationModeOptionalType Mode;
+
+    /// Informations about the transition of the system operation mode.
+    ModeTransitionInfoOptionalType ModeTransitionInfo;
+
+    /// List of permitted mode transitions, depending on the current mode.
+    OperationModeListType PermittedModeTransitionList;
+
+    /// List of submodes.
+    OperationModeListType SubmodeList;
+
+    /// Operation faults.
+    OperationFaultListType Faults;
+  };
+
+  /// Optional OperationStatusType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<OperationStatusType, 1> OperationStatusOptionalType;
+
+  /// List of OperationStatusType.
+  typedef sequence<OperationStatusType> OperationStatusListType;
+
+
+  /// Storage type context.
+  module StorageKind
+  {
+    /// Storage type enumeration.
+    enum Type
+    {
+      /// Unknown / service default.
+      Undefined,
+
+      /// Not persistent.
+      Not_Persistent,
+
+      /// Persistent.
+      Persistent
+    };
+  };
+
+
+  /// Context for optical sensor mode.
+  module OpticalSensorMode
+  {
+    /// Enum for optical sensor mode.
+    enum Type
+    {
+      /// Infrared.
+      Infrared,
+
+      /// Daylight.
+      Daylight
+    };
+  };
+
+  /// List of OpticalSensorMode::Type.
+  typedef sequence<OpticalSensorMode::Type> OpticalSensorModeListType;
+
+
+  /// Context for zoom factor.
+  module ZoomFactor
+  {
+    /// Enum for zoom factor.
+    enum Type
+    {
+      /// x0.25 zoom
+      Zoom_0_25x,
+
+      /// x0.5 zoom
+      Zoom_0_5x,
+
+      /// x1 zoom (Native)
+      Zoom_1x,
+
+      /// x2 zoom
+      Zoom_2x
+    };
+  };
+
+  /// List of ZoomFactor::Type.
+  typedef sequence<ZoomFactor::Type> ZoomFactorListType;
+
+
+  /**
+   * Time that has elapsed since a given reference.
+   */
+  struct TimeType
+  {
+    /// Seconds that has elapsed since a given reference.
+    long long Seconds;
+
+    /// Nanoseconds from the start of the interval identified in the Seconds attribute.
+    long Nanoseconds;
+  };
+
+  /// Optional TimeType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<TimeType, 1> TimeOptionalType;
+
+
+  /// Time that has elapsed since Jan 1, 1970 00:00:00 UNIX epoch.
+  typedef TimeType UnixTimeType;
+
+  /// Optional UnixTimeType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<UnixTimeType, 1> UnixTimeOptionalType;
+
+
+  /**
+   * Coordinated Universal Time (UTC) representation of a date and time.
+   */
+  struct UtcType
+  {
+    /// UTC string representation according to ISO 8601 (e.g. 2011-12-03T10:15:30+01:00).
+    /// Note: This standardised representation is self-contained, absolute
+    /// and also includes leap seconds, time zone and daylight saving time.
+    StringOptionalType UtcString;
+
+    /// Time passed since Jan 1, 1970 00:00:00 UNIX epoch.
+    /// Note: For UTC, this value is always positive.
+    UnixTimeOptionalType UnixTime;
+
+    /// UTC offset for UnixTime to account for time zone and daylight saving time [min].
+    LongOptionalType UtcOffsetMinutes;
+
+    /// Timestamp during UTC transmission which can be used for synchronisation.
+    TimeOptionalType TimeStamp;
+  };
+
+  /// Optional UtcType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<UtcType, 1> UtcOptionalType;
+
+
+  /**
+   * Time duration.
+   */
+  struct DurationType
+  {
+    /// String representation of a time duration according to ISO 8601 (e.g. P1DT12h).
+    /// Note: This standardised representation is self-contained.
+    StringOptionalType DurationString;
+
+    /// Time duration as seconds and nanoseconds.
+    TimeOptionalType DurationNumeric;
+  };
+
+  /// Optional DurationType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<DurationType, 1> DurationOptionalType;
+
+
+  /**
+   * Time interval defined by an absolute start and stop time.
+   */
+  struct TimeIntervalType
+  {
+    /// The absolute start time of the interval (seconds + nanoseconds since UTC epoch).
+    TimeType StartTime;
+
+    /// The absolute stop time of the interval (seconds + nanoseconds since UTC epoch).
+    TimeType StopTime;
+  };
+
+  /// Optional TimeIntervalType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<TimeIntervalType, 1> TimeIntervalOptionalType;
+
+  /// List of TimeIntervalType.
+  typedef sequence<TimeIntervalType> TimeIntervalListType;
+
+
+  /**
+   * Contains the three Cartesian coordinates that define an axis vector.
+   * Note: This should always be normalised.
+   */
+  struct AxisDirectionType
+  {
+    /// x-component.
+    double X;
+
+    /// y-component.
+    double Y;
+
+    /// z-component.
+    double Z;
+  };
+
+  /// Optional AxisDirectionType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<AxisDirectionType, 1> AxisDirectionOptionalType;
+
+
+  /**
+   * Encodes a rotation by an axis and angle or by a quaternion.
+   */
+  struct AxisScalarType
+  {
+    /// Vector part.
+    AxisDirectionType Vector;
+
+    /// Scalar part.
+    double Scalar;
+  };
+
+  /// Optional AxisScalarType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<AxisScalarType, 1> AxisScalarOptionalType;
+
+
+  /**
+   * Magnetic flux density field vector.
+   */
+  struct MagneticFluxDensityType
+  {
+    /// Magnetic flux density along x-axis [T].
+    MagneticFluxDensityTeslasType X;
+
+    /// Magnetic flux density along y-axis [T].
+    MagneticFluxDensityTeslasType Y;
+
+    /// Magnetic flux density along z-axis [T].
+    MagneticFluxDensityTeslasType Z;
+  };
+
+  /// Optional MagneticFluxDensityType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<MagneticFluxDensityType, 1> MagneticFluxDensityOptionalType;
+
+
+  /**
+   * Contains measurement uncertainty as different representations to choose from.
+   * Note: Both sides of an interface using this structure should mutually agree upon a representation to use.
+   */
+  struct UncertaintyType
+  {
+    /// Standard deviation vector.
+    DoubleListType StandardDeviation;
+
+    /// Estimated standard error vector of the mean.
+    DoubleListType EstimatedStandardError;
+
+    /// Variance-covariance matrix.
+    DoubleMatrixType Covariance;
+
+    /// Confidence region.
+    DoubleMatrixType ConfidenceRegion;
+
+    /// Confidence level.
+    DoubleListType ConfidenceLevel;
+  };
+
+  /// Optional UncertaintyType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<UncertaintyType, 1> UncertaintyOptionalType;
+
+
+  /**
+   * Position in Cartesian coordinates.
+   */
+  struct CartesianPositionType
+  {
+    /// Distance along x-axis [m] - forward.
+    DistanceMetersType X;
+
+    /// Distance along y-axis [m] - right.
+    DistanceMetersType Y;
+
+    /// Distance along z-axis [m] - down.
+    DistanceMetersType Z;
+  };
+
+  /// Optional CartesianPositionType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<CartesianPositionType, 1> CartesianPositionOptionalType;
+
+  /// List of CartesianPositionType.
+  typedef sequence<CartesianPositionType> CartesianPositionListType;
+
+
+  /**
+   * Position in spherical coordinates.
+   */
+  struct SphericalPositionType
+  {
+    /// Azimuth angle [deg].
+    AngleDegreesType Azimuth;
+
+    /// Elevation angle [deg].
+    AngleDegreesType Elevation;
+
+    /// Range [deg].
+    DistanceMetersOptionalType Range;
+  };
+
+  /// Optional SphericalPositionType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<SphericalPositionType, 1> SphericalPositionOptionalType;
+
+  /// List of SphericalPositionType.
+  typedef sequence<SphericalPositionType> SphericalPositionListType;
+
+
+  /**
+   * Position in ellipsoidal coordinates, as used by World Geodetic System 1984 (WGS84).
+   */
+  struct EllipsoidalPositionType
+  {
+    /// The latitude of the position [deg].
+    AngleDegreesType Latitude;
+
+    /// The longitude of the position [deg].
+    AngleDegreesType Longitude;
+
+    /// The altitude of the position [m].
+    DistanceMetersOptionalType Altitude;
+  };
+
+  /// Optional EllipsoidalPositionType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<EllipsoidalPositionType, 1> EllipsoidalPositionOptionalType;
+
+  /// List of EllipsoidalPositionType.
+  typedef sequence<EllipsoidalPositionType> EllipsoidalPositionListType;
+
+
+  /**
+   * Contains position in different formats to choose from.
+   * Note: Both sides of an interface using this structure should agree upon the mutual format to use.
+   */
+  struct PositionType
+  {
+    /// Cartesian representation.
+    CartesianPositionOptionalType Cartesian;
+
+    /// Spherical representation.
+    SphericalPositionOptionalType Spherical;
+
+    /// Ellipsoidal representation.
+    EllipsoidalPositionOptionalType Ellipsoidal;
+
+    /// Indicates in which coordinate frame the vector is resolved.
+    string CoordinateFrame;
+
+    /// Measurement uncertainty.
+    UncertaintyOptionalType Uncertainty;
+
+    /// The time when the data was valid.
+    TimeOptionalType Timestamp;
+
+    /// Storage type of the values.
+    StorageKind::Type StorageMode;
+
+    /// Generic additional properties.
+    PropertyListType AdditionalInfo;
+  };
+
+  /// Optional PositionType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<PositionType, 1> PositionOptionalType;
+
+  /// List of PositionType.
+  typedef sequence<PositionType> PositionListType;
+
+
+  /**
+   * Attitude represented as Euler angles.
+   * Note: Both sides of an interface using this structure should mutually agree upon the rotation order to use.
+   */
+  struct EulerAttitudeType
+  {
+    /// Roll angle [deg].
+    AngleDegreesOptionalType Roll;
+
+    /// Pitch angle [deg].
+    AngleDegreesOptionalType Pitch;
+
+    /// Yaw angle [deg].
+    AngleDegreesOptionalType Yaw;
+  };
+
+  /// Optional EulerAttitudeType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<EulerAttitudeType, 1> EulerAttitudeOptionalType;
+
+
+  /**
+   * Attitude in different formats to choose from.
+   * Note: Both sides of an interface using this structure should agree upon the mutual format to use.
+   */
+  struct AttitudeType
+  {
+    /// Euler angle representation.
+    EulerAttitudeOptionalType Euler;
+
+    /// Axis-angle or quaternion representation.
+    AxisScalarOptionalType AxisScalar;
+
+    /// Indicates in which coordinate frame the vector is resolved.
+    string CoordinateFrame;
+
+    /// Measurement uncertainty.
+    UncertaintyOptionalType Uncertainty;
+
+    /// The time when the data was valid.
+    TimeOptionalType Timestamp;
+
+    /// Storage type of the values.
+    StorageKind::Type StorageMode;
+
+    /// Generic additional properties.
+    PropertyListType AdditionalInfo;
+  };
+
+  /// Optional AttitudeType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<AttitudeType, 1> AttitudeOptionalType;
+
+  /// List of AttitudeType
+  typedef sequence<AttitudeType> AttitudeListType;
+
+
+  /**
+   * Cartesian velocity.
+   */
+  struct CartesianLinearVelocityType
+  {
+    /// Velocity along x-axis [m/s].
+    SpeedMetersPerSecType X;
+
+    /// Velocity along y-axis [m/s].
+    SpeedMetersPerSecType Y;
+
+    /// Velocity along z-axis [m/s].
+    SpeedMetersPerSecType Z;
+  };
+
+  /// Optional CartesianLinearVelocityType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<CartesianLinearVelocityType, 1> CartesianLinearVelocityOptionalType;
+
+
+  /**
+   * Spherical velocity as direction and magnitude.
+   */
+  struct SphericalLinearVelocityType
+  {
+    /// Azimuth [deg].
+    AngleDegreesOptionalType Azimuth;
+
+    /// Elevation [deg].
+    AngleDegreesOptionalType Elevation;
+
+    /// Speed [m/s].
+    SpeedMetersPerSecType Speed;
+  };
+
+  /// Optional SphericalLinearVelocityType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<SphericalLinearVelocityType, 1> SphericalLinearVelocityOptionalType;
+
+
+  /**
+   * Spherical velocity as component-wise rates of change of spherical position.
+   */
+  struct SphericalPositionRateType
+  {
+    /// Azimuth rate of change [deg/s].
+    AngleRateDegreesPerSecType AzimuthRate;
+
+    /// Elevation rate of change [deg/s].
+    AngleRateDegreesPerSecType ElevationRate;
+
+    /// Range rate of change [m/s].
+    SpeedMetersPerSecOptionalType RangeRate;
+  };
+
+  /// Optional SphericalPositionRateType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<SphericalPositionRateType, 1> SphericalPositionRateOptionalType;
+
+
+  /**
+   * Ellipsoidal velocity as component-wise rates of change of ellipsoidal position.
+   */
+  struct EllipsoidalPositionRateType
+  {
+    /// Latitude rate of change [deg/s].
+    AngleRateDegreesPerSecType LatitudeRate;
+
+    /// Longitude rate of change [deg/s].
+    AngleRateDegreesPerSecType LongitudeRate;
+
+    /// Altitude rate of change [m/s].
+    SpeedMetersPerSecOptionalType AltitudeRate;
+  };
+
+  /// Optional EllipsoidalPositionRateType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<EllipsoidalPositionRateType, 1> EllipsoidalPositionRateOptionalType;
+
+
+  /**
+    * Contains linear velocity in different formats to choose from.
+    * Note: Both sides of an interface using this structure should agree upon the mutual format to use.
+    */
+  struct LinearVelocityType
+  {
+    /// Cartesian representation.
+    CartesianLinearVelocityOptionalType Cartesian;
+
+    /// Spherical representation.
+    SphericalLinearVelocityOptionalType Spherical;
+
+    /// Spherical position rate representation.
+    SphericalPositionRateOptionalType SphericalPositionRate;
+
+    /// Ellipsoidal position rate representation.
+    EllipsoidalPositionRateOptionalType EllipsoidalPositionRate;
+
+    /// Indicates in which coordinate frame the vector is resolved.
+    string CoordinateFrame;
+
+    /// Measurement uncertainty.
+    UncertaintyOptionalType Uncertainty;
+
+    /// The time when the data was valid.
+    TimeOptionalType Timestamp;
+
+    /// Storage type of the values.
+    StorageKind::Type StorageMode;
+
+    /// Generic additional properties.
+    PropertyListType AdditionalInfo;
+  };
+
+  /// Optional LinearVelocityType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<LinearVelocityType, 1> LinearVelocityOptionalType;
+
+  /// List of LinearVelocityType.
+  typedef sequence<LinearVelocityType> LinearVelocityListType;
+
+
+  /**
+   * Angular velocity for each of the three axes (clockwise).
+   */
+  struct CartesianAngularVelocityType
+  {
+    /// Angular velocity about the x-axis [deg/s].
+    AngleRateDegreesPerSecOptionalType X;
+
+    /// Angular velocity about the y-axis [deg/s].
+    AngleRateDegreesPerSecOptionalType Y;
+
+    /// Angular velocity about the z-axis [deg/s].
+    AngleRateDegreesPerSecOptionalType Z;
+  };
+
+  /// Optional CartesianAngularVelocityType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<CartesianAngularVelocityType, 1> CartesianAngularVelocityOptionalType;
+
+
+  /**
+    * Contains angular velocity.
+    */
+  struct AngularVelocityType
+  {
+    /// Cartesian representation.
+    CartesianAngularVelocityOptionalType Cartesian;
+
+    /// Indicates in which coordinate frame the vector is resolved.
+    string CoordinateFrame;
+
+    /// Measurement uncertainty.
+    UncertaintyOptionalType Uncertainty;
+
+    /// The time when the data was valid.
+    TimeOptionalType Timestamp;
+
+    /// Storage type of the values.
+    StorageKind::Type StorageMode;
+
+    /// Generic additional properties.
+    PropertyListType AdditionalInfo;
+  };
+
+  /// Optional AngularVelocityType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<AngularVelocityType, 1> AngularVelocityOptionalType;
+
+  /// List of AngularVelocityType
+  typedef sequence<AngularVelocityType> AngularVelocityListType;
+
+
+  /**
+   * Linear acceleration in each of the three linear axes.
+   */
+  struct CartesianLinearAccelerationType
+  {
+    /// Acceleration along x-axis [m/s^2].
+    AccelerationMetersPerSecPerSecType X;
+
+    /// Acceleration along y-axis [m/s^2].
+    AccelerationMetersPerSecPerSecType Y;
+
+    /// Acceleration along z-axis [m/s^2].
+    AccelerationMetersPerSecPerSecType Z;
+  };
+
+  /// Optional CartesianLinearAccelerationType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<CartesianLinearAccelerationType, 1> CartesianLinearAccelerationOptionalType;
+
+
+  /**
+    * Contains linear acceleration.
+    */
+  struct LinearAccelerationType
+  {
+    /// Cartesian representation.
+    CartesianLinearAccelerationOptionalType Cartesian;
+
+    /// Indicates in which coordinate frame the vector is resolved.
+    string CoordinateFrame;
+
+    /// Measurement uncertainty.
+    UncertaintyOptionalType Uncertainty;
+
+    /// The time when the data was valid.
+    TimeOptionalType Timestamp;
+
+    /// Storage type of the values.
+    StorageKind::Type StorageMode;
+
+    /// Generic additional properties.
+    PropertyListType AdditionalInfo;
+  };
+
+  /// Optional LinearAccelerationType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<LinearAccelerationType, 1> LinearAccelerationOptionalType;
+
+  /// List of LinearAccelerationType
+  typedef sequence<LinearAccelerationType> LinearAccelerationListType;
+
+
+  /**
+   * Angular acceleration for each of the three axes (clockwise).
+   */
+  struct CartesianAngularAccelerationType
+  {
+    /// Angular acceleration about the x-axis [deg/s^2].
+    AngularAccelerationDegreesPerSecPerSecOptionalType X;
+
+    /// Angular acceleration about the y-axis [deg/s^2].
+    AngularAccelerationDegreesPerSecPerSecOptionalType Y;
+
+    /// Angular acceleration about the z-axis [deg/s^2].
+    AngularAccelerationDegreesPerSecPerSecOptionalType Z;
+  };
+
+  /// Optional CartesianAngularAccelerationType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<CartesianAngularAccelerationType, 1> CartesianAngularAccelerationOptionalType;
+
+
+  /**
+    * Contains angular acceleration.
+    */
+  struct AngularAccelerationType
+  {
+    /// Cartesian representation.
+    CartesianAngularAccelerationOptionalType Cartesian;
+
+    /// Indicates in which coordinate frame the vector is resolved.
+    string CoordinateFrame;
+
+    /// Measurement uncertainty.
+    UncertaintyOptionalType Uncertainty;
+
+    /// The time when the data was valid.
+    TimeOptionalType Timestamp;
+
+    /// Storage type of the values.
+    StorageKind::Type StorageMode;
+
+    /// Generic additional properties.
+    PropertyListType AdditionalInfo;
+  };
+
+  /// Optional AngularAccelerationType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<AngularAccelerationType, 1> AngularAccelerationOptionalType;
+
+  /// List of AngualarAccelerationType
+  typedef sequence<AngularAccelerationType> AngularAccelerationListType;
+
+
+  /**
+   * Contains the transformation data between two specified coordinate frames.
+   */
+  struct CoordinateTransformationType
+  {
+    /// Identifier of the frame to transform to.
+    /// Note: For mounted equipment, this corresponds to the parent frame.
+    string Target;
+
+    /// Identifier of the frame to transform from.
+    /// Note: For mounted equipment, this corresponds to the own frame.
+    StringOptionalType Source;
+
+    /// Transformation matrix from source to target.
+    DoubleMatrixType TransformationFromSourceToTarget;
+
+    /// Position of source w.r.t. target.
+    CartesianPositionOptionalType SourcePositionRelativeToTarget;
+
+    /// Attitude of source w.r.t. target.
+    EulerAttitudeOptionalType SourceAttitudeRelativeToTarget;
+
+    /// The time when the data was valid.
+    TimeOptionalType Timestamp;
+
+    /// Storage type of the values.
+    StorageKind::Type StorageMode;
+
+    /// Generic additional properties.
+    PropertyListType AdditionalInfo;
+  };
+
+  /// List of CoordinateTransformationType.
+  typedef sequence<CoordinateTransformationType> CoordinateTransformationListType;
+
+
+  /**
+    * Contains multiple positions, e.g. to form a polygon, in different formats to choose from.
+    * Note: Both sides of an interface using this structure should agree upon the mutual format to use.
+    */
+  struct MultiPositionType
+  {
+    /// Cartesian representation.
+    CartesianPositionListType Cartesian;
+
+    /// Spherical representation.
+    SphericalPositionListType Spherical;
+
+    /// Ellipsoidal representation.
+    EllipsoidalPositionListType Ellipsoidal;
+
+    /// Coordinate frame.
+    string CoordinateFrame;
+
+    /// Storage type of the values.
+    StorageKind::Type StorageMode;
+
+    /// Generic additional properties.
+    PropertyListType AdditionalInfo;
+  };
+
+  /// Optional MultiPositionType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<MultiPositionType, 1> MultiPositionOptionalType;
+
+  /// List of MultiPositionType.
+  typedef sequence<MultiPositionType> MultiPositionListType;
+
+
+  /// Kinds of image context.
+  module ImageKind
+  {
+    /// Kinds of image enumeration.
+    enum Type
+    {
+      /// Binary - Raw data without container. Each px is represented by one bit.
+      Bin,
+
+      /// Greyscale - Raw data without container. Each px is represented by one byte.
+      Raw8,
+
+      /// BMP - Bitmap
+      Bmp,
+
+      /// PNG - Portable Network Graphics
+      Png,
+
+      /// JPEG - Joint Picture Experts Group
+      Jpeg,
+
+      /// SVG - Scalable Vector Graphics
+      Svg
+    };
+  };
+
+
+  /// Contains info on two-dimensional coordinates defined by pixels.
+  struct PixelPoint2DType
+  {
+    /// Pixel value of the vertical x position for the point of interest.
+    unsigned long X;
+
+    /// Pixel value of the horizontal y position for the point of interest.
+    unsigned long Y;
+  };
+
+  /// Optional PixelPoint2DType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<PixelPoint2DType, 1> PixelPoint2DOptionalType;
+
+  /// List of PixelPoint2DType.
+  typedef sequence<PixelPoint2DType> PixelPoint2DListType;
+
+
+  /// Contains information on an offset defined in pixels.
+  struct PixelOffsetType
+  {
+    /// Pixel value of the horizontal offset.
+    long X;
+
+    /// Pixel value of the vertical offset.
+    long Y;
+  };
+
+  /// Optional PixelOffsetType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<PixelOffsetType, 1> PixelOffsetOptionalType;
+
+  /// List of PixelOffsetType.
+  typedef sequence<PixelOffsetType> PixelOffsetListType;
+
+
+  /// Contains pixel width and height for a rectangle.
+  struct PixelRectSizeType
+  {
+    /// Pixel value of the width.
+    unsigned long Width;
+
+    /// Pixel value of the height.
+    unsigned long Height;
+  };
+
+  /// Optional PixelRectSizeType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<PixelRectSizeType, 1> PixelRectSizeOptionalType;
+
+
+  /// Contains information on a rectangular region of pixels.
+  struct PixelRegionType
+  {
+    /// Pixel offset of the region.
+    PixelOffsetType Offset;
+
+    /// Pixel width and height of the region.
+    PixelRectSizeType Size;
+  };
+
+  /// Optional PixelRegionType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<PixelRegionType, 1> PixelRegionOptionalType;
+
+
+  /// Contains information on an offset defined in degrees.
+  struct DegreeOffsetType
+  {
+    /// Degree value of the horizontal offset.
+    AngleDegreesType Azimuth;
+
+    /// Degree value of the vertical offset.
+    AngleDegreesType Elevation;
+  };
+
+  /// Optional DegreeOffsetType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<DegreeOffsetType, 1> DegreeOffsetOptionalType;
+
+  /// List of DegreeOffsetType.
+  typedef sequence<DegreeOffsetType> DegreeOffsetListType;
+
+
+  /// Contains width and height for a rectangle in degrees.
+  struct DegreeRectSizeType
+  {
+    /// Degree value of the width.
+    AngleDegreesType Width;
+
+    /// Degree value of the height.
+    AngleDegreesType Height;
+  };
+
+  /// Optional PixelRectSizeType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<DegreeRectSizeType, 1> DegreeRectSizeOptionalType;
+
+
+  /// Contains information on a rectangular region in degrees.
+  struct DegreeRegionType
+  {
+    /// Degree offset of the region.
+    DegreeOffsetType Offset;
+
+    /// Degree width and height of the region.
+    DegreeRectSizeType Size;
+  };
+
+  /// Optional DegreeRegionType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<DegreeRegionType, 1> DegreeRegionOptionalType;
+
+
+  /**
+   * Contains a general image region expressed as pixel or angular value.
+   */
+  struct ImageRegionType
+  {
+    /// Image region [px].
+    PixelRegionOptionalType RegionPixels;
+
+    /// Image region [deg].
+    DegreeRegionOptionalType RegionDegrees;
+
+    /// Rotation angle of the region [deg].
+    AngleDegreesOptionalType RotationAngle;
+  };
+
+
+  /**
+   * Contains data for an image encoded in a specified format.
+   */
+  struct ImageType
+  {
+    /// Indicates the format of the image represented in the data byte sequence.
+    ImageKind::Type Format;
+
+    /// Indicates the size of the image. Only needed for raw formats.
+    PixelRectSizeOptionalType Size;
+
+    /// Data sequence for image.
+    ByteSeqType Data;
+  };
+
+  /// Optional ImageType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<ImageType, 1> ImageOptionalType;
+
+
+  /// Colour scheme context.
+  module ColourScheme
+  {
+    /// Colour scheme enumeration.
+    enum Type
+    {
+      /// Black and white.
+      Black_White,
+
+      /// Grayscale.
+      Grayscale,
+
+      /// Red/green/blue.
+      RGB,
+
+      /// Hue/saturation/lightness.
+      HSL,
+
+      /// Hue/saturation/value.
+      HSV
+    };
+  };
+
+  /// Optional ColourScheme.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<ColourScheme::Type, 1> ColourSchemeOptionalType;
+
+
+  /**
+   * Contains various parameters to control displayed colour.
+   */
+  struct ColourStyleType
+  {
+    /// Colour scheme.
+    ColourSchemeOptionalType ColourScheme;
+
+    /// Colour code.
+    /// For example, for RGB, the code is calculated by combining the colour codes for red, green and blue:
+    /// RGB = (red * 65536) + (green * 256) + blue
+    ULongOptionalType ColourCode;
+
+    /// Opacity level [%].
+    PercentOptionalType Opacity;
+
+    /// Contrast level [%].
+    PercentOptionalType Contrast;
+
+    /// Brightness level [%].
+    PercentOptionalType Brightness;
+  };
+
+  /// Optional ColourStyleType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<ColourStyleType, 1> ColourStyleOptionalType;
+
+
+  /**
+   * Contains Cartesian dimensions.
+   */
+  struct CartesianDimensionsType
+  {
+    /// Width [m].
+    DistanceMetersOptionalType Width;
+
+    /// Height [m].
+    DistanceMetersOptionalType Height;
+
+    /// Length [m].
+    DistanceMetersOptionalType Length;
+  };
+
+  /// Optional CartesianDimensionsType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<CartesianDimensionsType, 1> CartesianDimensionsOptionalType;
+
+
+  /**
+   * Contains spherical dimensions.
+   */
+  struct SphericalDimensionsType
+  {
+    /// Width [deg].
+    AngleDegreesOptionalType Width;
+
+    /// Height [deg].
+    AngleDegreesOptionalType Height;
+
+    /// Length [m].
+    DistanceMetersOptionalType Length;
+  };
+
+  /// Optional SphericalDimensionsType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<SphericalDimensionsType, 1> SphericalDimensionsOptionalType;
+
+
+  /**
+   * Contains information about dimensions of e.g. a detected object in various formats to choose from.
+   * Note: Both sides of an interface using this structure should mutually agree upon the format to use.
+   */
+  struct ObjectDimensionsType
+  {
+    /// Cartesian representation.
+    CartesianDimensionsOptionalType Cartesian;
+
+    /// Spherical representation.
+    SphericalDimensionsOptionalType Spherical;
+
+    /// Pixel representation.
+    PixelRectSizeOptionalType Pixels;
+
+    /// Rotation angle [deg].
+    AngleDegreesOptionalType RotationAngle;
+
+    /// Uncertainty.
+    UncertaintyOptionalType Uncertainty;
+  };
+
+  /// Optional ObjectDimensionsType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<ObjectDimensionsType, 1> ObjectDimensionsOptionalType;
+
+
+  /// Availability status context.
+  module Availability
+  {
+    /// Availability status enumeration.
+    enum Type
+    {
+      /// Unknown or Not Supported/Not Applicable
+      Unknown,
+
+      /// Available
+      Available,
+
+      /// Available with Reduced Performance
+      Reduced_Performance,
+
+      /// Not Available
+      Not_Available
+    };
+  };
+
+
+  /// Horizontal direction context.
+  module HorizontalDirection
+  {
+    /// Horizontal direction enumeration.
+    enum Type
+    {
+      /// No horizontal deflection.
+      None,
+
+      /// The horizontal right direction.
+      Right,
+
+      /// The horizontal left direction.
+      Left
+    };
+  };
+
+  /// Optional HorizontalDirection.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<HorizontalDirection::Type, 1> HorizontalDirectionOptionalType;
+
+
+  /// Vertical direction context.
+  module VerticalDirection
+  {
+    /// Vertical direction enumeration.
+    enum Type
+    {
+      /// No vertical deflection.
+      None,
+
+      /// The vertical upward direction.
+      Up,
+
+      /// The vertical downward direction.
+      Down
+    };
+  };
+
+  /// Optional VerticalDirection.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<VerticalDirection::Type, 1> VerticalDirectionOptionalType;
+
+
+  /// Selected Value Kind context
+  module SelectedValueKind
+  {
+    /// Selected Value Kind enumeration
+    enum Type
+    {
+      /// Undefined value
+      Undefined,
+
+      /// Default/Fallback value
+      Fallback,
+
+      /// Manual value
+      Manual,
+
+      /// Automatic value (e.g. Sensor)
+      Auto
+    };
+  };
+
+
+  /**
+   * Contains optional default, manual and automatic temperature values and a flag to determine
+   * what value is activly used.
+   * Note: The ActiveSelection has to define which of the available values is active.
+   */
+  struct TemperatureKelvinsSelectionType
+  {
+    /// Default Temperature [K].
+    TemperatureKelvinsOptionalType DefaultValue;
+
+    /// Manual Temperature [K].
+    TemperatureKelvinsOptionalType ManualValue;
+
+    /// Automatic Temperature [K].
+    TemperatureKelvinsOptionalType AutoValue;
+
+    /// Active Temperature Value Selection
+    SelectedValueKind::Type ActiveSelection;
+  };
+
+  /// Optional TemperatureKelvinsSelectionType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<TemperatureKelvinsSelectionType, 1> TemperatureKelvinsSelectionOptionalType;
+
+
+  /**
+   * Contains optional default, manual and automatic pressure values and a flag to determine
+   * what value is activly used.
+   * Note: The ActiveSelection has to define which of the available values is active.
+   */
+  struct PressurePascalsSelectionType
+  {
+    /// Default Pressure [Pa].
+    PressurePascalsOptionalType DefaultValue;
+
+    /// Manual Pressure [Pa].
+    PressurePascalsOptionalType ManualValue;
+
+    /// Automatic Pressure [Pa].
+    PressurePascalsOptionalType AutoValue;
+
+    /// Active Pressure Value Selection
+    SelectedValueKind::Type ActiveSelection;
+  };
+
+  /// Optional PressurePascalsSelectionType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<PressurePascalsSelectionType, 1> PressurePascalsSelectionOptionalType;
+
+
+  /**
+   * Contains optional default, manual and automatic percentage values and a flag to determine
+   * what value is activly used.
+   * Note: The ActiveSelection has to define which of the available values is active.
+   */
+  struct PercentSelectionType
+  {
+    /// Default Percentage [%].
+    PercentOptionalType DefaultValue;
+
+    /// Manual Percentage [%].
+    PercentOptionalType ManualValue;
+
+    /// Automatic Percentage [%].
+    PercentOptionalType AutoValue;
+
+    /// Active Percentage Value Selection
+    SelectedValueKind::Type ActiveSelection;
+  };
+
+  /// Optional PercentSelectionType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<PercentSelectionType, 1> PercentSelectionOptionalType;
+
+
+  /**
+   * Contains optional default, manual and automatic linear velocities and a flag to determine
+   * what value is activly used.
+   * Note: The ActiveSelection has to define which of the available values is active.
+   */
+  struct LinearVelocitySelectionType
+  {
+    /// Default LinearVelocity.
+    LinearVelocityOptionalType DefaultValue;
+
+    /// Manual LinearVelocity.
+    LinearVelocityOptionalType ManualValue;
+
+    /// Automatic LinearVelocity.
+    LinearVelocityOptionalType AutoValue;
+
+    /// Active LinearVelocity Value Selection
+    SelectedValueKind::Type ActiveSelection;
+  };
+
+  /// Optional LinearVelocitySelectionType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<LinearVelocitySelectionType, 1> LinearVelocitySelectionOptionalType;
+
+
+  /**
+   * Contains optional default, manual and automatic distance meter values and a flag to determine
+   * what value is activly used.
+   * Note: The ActiveSelection has to define which of the available values is active.
+   */
+  struct DistanceMetersSelectionType
+  {
+    /// Indication of the sensor
+    StringOptionalType SourceId;
+
+    /// Default Distance [m].
+    DistanceMetersOptionalType DefaultValue;
+
+    /// Manual Distance [m].
+    DistanceMetersOptionalType ManualValue;
+
+    /// Automatic Distance [m].
+    DistanceMetersOptionalType AutoValue;
+
+    /// Active Distance Value Selection
+    SelectedValueKind::Type ActiveSelection;
+  };
+
+  /// Optional DistanceMetersSelectionType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<DistanceMetersSelectionType, 1> DistanceMetersSelectionOptionalType;
+
+
+  /**
+   * Contains optional default, manual and automatic euler attitude values and a flag to determine
+   * what value is activly used.
+   * Note: The ActiveSelection has to define which of the available values is active.
+   */
+  struct EulerAttitudeSelectionType
+  {
+    /// Default EulerAttitude.
+    EulerAttitudeOptionalType DefaultValue;
+
+    /// Manual EulerAttitude.
+    EulerAttitudeOptionalType ManualValue;
+
+    /// Automatic EulerAttitude.
+    EulerAttitudeOptionalType AutoValue;
+
+    /// Active Temperature Value Selection
+    SelectedValueKind::Type ActiveSelection;
+  };
+
+  /// Optional EulerAttitudeSelectionType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<EulerAttitudeSelectionType, 1> EulerAttitudeSelectionOptionalType;
+
+
+  /**
+   * Contains optional default, manual and automatic deg/s values and a flag to determine
+   * what value is activly used.
+   * Note: The ActiveSelection has to define which of the available values is active.
+   */
+  struct AngleRateDegreesPerSecSelectionType
+  {
+    /// Default AngleRateDegreesPerSec.
+    AngleRateDegreesPerSecOptionalType DefaultValue;
+
+    /// Manual AngleRateDegreesPerSec.
+    AngleRateDegreesPerSecOptionalType ManualValue;
+
+    /// Automatic AngleRateDegreesPerSec.
+    AngleRateDegreesPerSecOptionalType AutoValue;
+
+    /// Active Temperature Value Selection
+    SelectedValueKind::Type ActiveSelection;
+  };
+
+  /// Optional AngleRateDegreesPerSecSelectionType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<AngleRateDegreesPerSecSelectionType, 1> AngleRateDegreesPerSecSelectionOptionalType;
+
+  /**
+   * Contains optional default, manual and automatic deg/s values and a flag to determine
+   * what value is activly used.
+   * Note: The ActiveSelection has to define which of the available values is active.
+   */
+  struct SphericalPositionRateSelectionType
+  {
+    SphericalPositionRateOptionalType DefaultValue;
+
+    SphericalPositionRateOptionalType ManualValue;
+
+    SphericalPositionRateOptionalType AutoValue;
+
+    /// Active Value Selection
+    SelectedValueKind::Type ActiveSelection;
+  };
+
+  /// Optional SphericalPositionRateSelectionType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<SphericalPositionRateSelectionType, 1> SphericalPositionRateSelectionOptionalType;
+
+  struct EncryptionType
+  {
+    /// The used encryption algorithm.
+    string Algorithm;
+  
+    /// Encryption token.
+    ByteSeqType Token;
+
+    /// Additional Authenticated Data (AAD).
+    ByteSeqType Aad;
+
+    /// Initialization Vector (IV).
+    /// Commonly used in block ciphers.
+    ByteSeqType Iv;
+
+    /// Message Authentication Code (MAC).
+    /// Typically used in message authentication schemes.
+    ByteSeqType Mac;
+
+    /// Number used once.
+    /// Commonly used in stream ciphers.
+    ByteSeqType Nounce;
+  };
+
+  typedef sequence<EncryptionType, 1> EncryptionOptionalType;
+};
+
+#endif

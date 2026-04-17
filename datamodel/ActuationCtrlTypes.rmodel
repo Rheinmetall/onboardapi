@@ -1,0 +1,179 @@
+// Copyright (c) 2026 Rheinmetall Electronics GmbH
+//
+// This program and the accompanying materials are made available under the
+// terms of the Eclipse Public License 2.0 which is available at
+// https://www.eclipse.org/legal/epl-2.0.
+//
+// SPDX-License-Identifier: EPL-2.0
+
+#include "CommonTypes.idl"
+
+
+/**
+ * Types used by the actuation control service and client.
+ */
+module M_ActuationCtrl
+{
+  /// Actuation category context.
+  module ActuationCategoryKind
+  {
+    /// Actuation category enumeration.
+    enum Type
+    {
+      /// Undefined or generic actuation component type.
+      Undefined,
+
+      /// Generic discrete-state actuator which is commanded by discrete states or operation modes.
+      Mode_Commanded,
+
+      /// (Mechanical) actuator.
+      Actuator,
+
+      /// Generic engine.
+      Engine,
+
+      /// Motor which is voltage/current-controlled.
+      Electric_Motor,
+
+      /// Thrust-generating engine.
+      Thrust_Engine,
+
+      /// Brake.
+      Brake,
+
+      /// Valve.
+      Valve,
+
+      /// Pump.
+      Pump,
+
+      /// Light/laser source.
+      Light
+    };
+  };
+
+
+  /**
+   * Contains pulse width definition data.
+   */
+  struct PulseWidthType
+  {
+    /// Time interval during which the pulse is in low state.
+    M_Common::TimeSecondsType LowInterval;
+
+    /// Time interval during which the pulse is in high state.
+    M_Common::TimeSecondsType HighInterval;
+  };
+
+  /// Optional PulseWidthType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<PulseWidthType, 1> PulseWidthOptionalType;
+
+
+  /**
+   * Contains different actuation input types to choose from.
+   * Note: Both sides of an interface using this type should mutually agree upon the subtype to use.
+   * This could be made dependent upon the actuation component type.
+   */
+  struct ActuationCommandType
+  {
+    /// Operation mode.
+    M_Common::OperationModeOptionalType OperationModeCommand;
+
+    /// Scaled command [%].
+    M_Common::PercentOptionalType ScaledCommand;
+
+    /// Commanded angle [deg].
+    M_Common::AngleDegreesOptionalType AngleCommand;
+
+    /// Commanded angular speed [deg/s].
+    M_Common::AngleRateDegreesPerSecOptionalType SpeedCommand;
+
+    /// Commanded voltage [V].
+    M_Common::VoltageVoltsOptionalType VoltageCommand;
+
+    /// Pulse width.
+    PulseWidthOptionalType PulseWidth;
+  };
+
+
+  /**
+   * Contains different actuation output types to choose from.
+   * Note: Both sides of an interface using this type should mutually agree upon the subtype to use.
+   * This could be made dependent upon the actuation component type.
+   */
+  struct ActuationStateType
+  {
+    /// Operation status (operation mode and operation fault).
+    M_Common::OperationStatusOptionalType OperationStatus;
+
+    /// Measured scaled state [%].
+    M_Common::PercentOptionalType Scaled;
+
+    /// Measured angle [deg].
+    M_Common::AngleDegreesOptionalType Angle;
+
+    /// Measured angular speed [deg/s].
+    M_Common::AngleRateDegreesPerSecOptionalType Speed;
+
+    /// Measured current [A].
+    M_Common::CurrentAmperesOptionalType Current;
+
+    /// Pulse width.
+    PulseWidthOptionalType PulseWidth;
+  };
+
+  /// Optional ActuationStateType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<ActuationStateType, 1> ActuationStateOptionalType;
+
+
+  /**
+   * Contains the status of one actuation component.
+   */
+  struct ActuationStatusType
+  {
+    /// Current state.
+    ActuationStateType CurrentState;
+
+    /// Reference state.
+    ActuationStateOptionalType ReferenceState;
+  };
+
+
+  /**
+   * Contains parameters of an actuation component.
+   */
+  struct ActuationComponentType
+  {
+    /// Identifies the actuation component.
+    string Id;
+
+    /// Indicates the actuation category.
+    ActuationCategoryKind::Type ActuationCategory;
+
+    /// Minimum limit.
+    ActuationStateOptionalType MinimumLimit;
+
+    /// Maximum limit.
+    ActuationStateOptionalType MaximumLimit;
+  };
+
+  /// List of ActuationComponentType.
+  typedef sequence<ActuationComponentType> ActuationComponentListType;
+
+
+  /**
+   * Contains settings of the actuation control service.
+   */
+  struct ActuationCtrlSettingsType
+  {
+    /// Complete list of all actuation components managed by the service.
+    ActuationComponentListType ActuationComponentList;
+
+    /// Additional properties of the service.
+    /// Note: Properties are defined generically to enable non-essential additional
+    /// information to be provided without impacting the data model.
+    M_Common::PropertyListType AdditionalInfo;
+  };
+};

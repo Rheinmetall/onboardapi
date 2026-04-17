@@ -1,0 +1,302 @@
+// Copyright (c) 2026 Rheinmetall Electronics GmbH
+//
+// This program and the accompanying materials are made available under the
+// terms of the Eclipse Public License 2.0 which is available at
+// https://www.eclipse.org/legal/epl-2.0.
+//
+// SPDX-License-Identifier: EPL-2.0
+
+#include "CommonTypes.idl"
+
+
+/**
+ * Types used by the Alert Service/Client.
+ */
+module M_Alert
+{
+  /// Id represented as a string.
+  /// Note: This should normally contain a UUID string.
+  /// For example: {A64E8BD7-FA0F-4073-82E0-ADDD47980B56}
+  typedef string AlertIdType;
+
+  /// List of AlertIdType.
+  typedef sequence<AlertIdType> AlertIdListType;
+
+
+  /// The context for categories of Alarms e.g. Warning, Caution, Advisory.
+  module AlarmCategoryKind
+  {
+    /// The enumeration for categories of Alarms e.g. Warning, Caution, Advisory.
+    enum Type
+    {
+      /// Critical Warning
+      /// A critical warning is the highest category of alarms. A critical warning indicates a safety
+      /// critical condition that poses a immediate thread to the life of the crew (e.g. a fire within
+      /// the crew compartment)
+      Critical_Warning,
+      /// Warning
+      /// A warning indicates a safety condition and / or loss of a sub-system(s) that the vehicle
+      /// crew must be made immediately aware of. (The warnings may be sub-categorised.)
+      Warning,
+      /// Caution
+      /// A caution indicates a loss of functionality for which the vehicle crew must be informed. (It
+      /// may result in the need to amend the mission plan, some degradation in subsystem
+      /// performance or the need for unscheduled maintenance.)
+      Caution,
+      /// Advisory
+      /// An advisory is the lowest category of alarm. An advisory indicates that an event has
+      /// occurred but it does not impact on the performance of the vehicle platform. (It may result
+      /// in the need for maintenance activity after mission completion.)
+      Advisory
+    };
+  };
+
+
+  /// The context for status of Alarms e.g. Active, Inactive, Unknown
+  module AlarmStatusKind
+  {
+    /// The enumeration for statuses of Alarms, e.g. Active, Inactive, Unknown
+    enum Type
+    {
+      /// Unknown
+      /// An unknown states indicates that the alarm is known but its state is unknown.
+      Unknown,
+      /// Inactive
+      /// An inactive status indicates that the alarm is inactive since it has been corrected,
+      /// overridden or resolved and is neither acknowledged or unacknowledged.
+      Inactive,
+      /// Active
+      /// An active status indicates that the alarm is active, has not been corrected, overridden
+      /// or resolved and is either in the state of acknowledged or unacknowledged.
+      Active
+    };
+  };
+
+
+  /**
+   * Description of the audio tone to be applied for an Alarm.
+   */
+  struct AudioToneInfoType
+  {
+    /// The frequency of the Alarm tone [Hz].
+    M_Common::FrequencyHertzType ToneFrequency;
+    /// The modulation type of the Alarm tone.
+    // TODO: Add an example here, did not find how it is to be used in NGVA
+    string ToneModulationType;
+    /// The repetition rate of the Alarm tone [Hz].
+    M_Common::FrequencyHertzType ToneRepetitionFrequency;
+    /// The volume of the Alarm tone [W].
+    M_Common::PowerWattsType ToneMaxVolume;
+  };
+
+  /// Optional AudioToneInfoType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<AudioToneInfoType, 1> AudioToneInfoOptionalType;
+
+
+  /**
+   * Contains information used to identify an Alarm Condition.
+   */
+  struct AlarmConditionInfoType
+  {
+    /// The name of the subsystem for which the Alarm condition is raised.
+    /// Example: Subsystem = Engine
+    string SubsystemName;
+    /// The name of the subsystem component for which the Alarm condition is raised.
+    /// Example: Subsystem = Engine, Component = Oil
+    string ComponentName;
+    /// The measured parameter of the subsystem component for which the Alarm condition is raised.
+    /// Example: Subsystem = Engine, Component = Oil, Measure = Pressure
+    string Measure;
+    /// The nature of the measured parameter for which the Alarm condition is raised.
+    /// Example: Subsystem = Engine, Component = Oil, Measure = Pressure, Nature = Low
+    string Nature;
+    /// An optional textual description of the condition.
+    /// Note: This is not part of the key values identfying the Condition. It is used
+    /// to provide a textual description of the Alarm.
+    string AlarmDescription;
+  };
+
+
+  /**
+   * Contains information for the status of an Alarm Condition.
+   */
+  struct AlarmConditionStatusType
+  {
+    /// Information about the Alarm Condition.
+    AlarmConditionInfoType ConditionInfo;
+    /// The category of the Alarm Condition.
+    AlarmCategoryKind::Type Category;
+    /// The category of the Alarm Condition.
+    string CategoryName;
+    /// A name that describes the the Alarm Condition.
+    string ConditionName;
+    /// Indicates that there is more than one instance of this Alarm Condition in existence.
+    /// Note: There may be more than one instance of a resource e.g 3 engines or 5 cameras.
+    /// Therefore there may be an identical Alarm Condition for each instance of the resource.
+    boolean HasMultipleInstances;
+    /// Indicates if the Alarm Condition is currently overridden (true) or not (false).
+    boolean IsOverridden;
+  };
+
+  /// List of AlarmConditionStatusType.
+  typedef sequence<AlarmConditionStatusType> AlarmConditionStatusListType;
+
+
+  /**
+   * Contains information of Threat Alert types.
+   */
+  struct ThreatConditionInfoType
+  {
+    /// Type of threat.
+    string TypeOfThreat;
+    /// Status of the threat.
+    string ThreatStatus;
+    /// Threat description/type (if appropriate).
+    string ThreatDescription;
+  };
+
+  /// List of ThreatConditionInfoType.
+  typedef sequence<ThreatConditionInfoType> ThreatConditionInfoListType;
+
+
+  /**
+   * Information of settings for Alarms of a specified category.
+   */
+  struct AlarmCategoryInfoType
+  {
+    /// Reports the abbreviation for the Alarm category.
+    string Abbreviation;
+    /// Indicates if an Alarm is auto acknowledged.
+    boolean IsAutoAcknowledged;
+    /// Reports the Alarm time-out in seconds, this applies to Caution, where Alarms are automatically acknowledged after 10 secs
+    unsigned long AutoAcknowledgeTimeout;
+    /// Indicates if an Alarm is hidden at auto acknowledge.
+    boolean IsHiddenOnAcknowledge;
+    /// Indicates if an Alarm should be returned to the unacknowledged state after a timeout period if the Alarm is still active.
+    boolean IsRepeated;
+    /// Reports the repeat time out schedule in seconds:
+    /// -Caution Alarms are repeated 2 hours after event if still valid
+    /// -Advisory Alarms are repeated 24 hours after event if still valid
+    unsigned long RepeatTimeout;
+    /// The audio tone to be applied to a specific Alarm category.
+    AudioToneInfoOptionalType NotifyingTone;
+    /// Relevant Crew roles.
+    /// Crew roles for which this Alert category is relevant.
+    M_Common::StringListType RelevantCrewRoles;
+  };
+
+
+  /**
+   * Settings data for Alert Service.
+   */
+  struct AlertSettingsType
+  {
+    /// Settings for Alarm Conditions of Warning category.
+    AlarmCategoryInfoType AlarmCategoryWarning;
+    /// Settings for Alarm Conditions of Advisory category.
+    AlarmCategoryInfoType AlarmCategoryAdvisory;
+    /// Settings for Alarm Conditions of Caution category.
+    AlarmCategoryInfoType AlarmCategoryCaution;
+    /// Settings for Threat Alerts.
+    AudioToneInfoOptionalType ThreatNotifyingTone;
+  };
+
+
+  /**
+   * Status data for Alerts.
+   */
+  struct AlertStatusType
+  {
+    /// List of status for all possible Alarm Conditions that can be raised.
+    AlarmConditionStatusListType AlarmConditionStatusList;
+    /// List of status for all possible Threat Alerts that can be raised.
+    ThreatConditionInfoListType ThreatConditionStatusList;
+    /// The number of currently active Alarms of category Warning.
+    unsigned long NumberOfActiveWarningAlarms;
+    /// The number of currently active Alarms of category Advisory.
+    unsigned long NumberOfActiveAdvisoryAlarms;
+    /// The number of currently active Alarms of category Caution.
+    unsigned long NumberOfActiveCautionAlarms;
+    /// The number of currently active Threat Alerts.
+    unsigned long NumberOfActiveThreatAlerts;
+  };
+
+
+  /**
+   * Contains information for an Alarm log entry.
+   */
+  struct AlarmLogType
+  {
+    /// Indicates if the Alarm is active, inactive or unknown
+    AlarmStatusKind::Type Status;
+    /// Indicates if the Alarm is suppressed (true) i.e. the alarm condition is currently overridden, or not (false).
+    boolean IsSuppressed;   // TODO: Or use name "IsOverridden"?
+    /// Indicates if the Alarm is currently Acknowledged (true) or not (false).
+    /// Acknowledged Alarms have moderated the audio and / or the visual features of the
+    /// alarm and leaves the alarm in the active alarm list.
+    boolean IsAcknowledged;
+    /// Indicates that the Alarm has been auto acknowledged (true) or manually acknowledged (false).
+    /// Note: This is only relevant if the Alarm has been acknowledged.
+    boolean IsAutoAcknowledged;
+    /// Condition that caused the Alarm.
+    AlarmConditionInfoType Condition;
+    /// The category of the Alarm Condition.
+    AlarmCategoryKind::Type Category;
+    /// Indicates the time that the Alarm was raised.
+    M_Common::TimeType TimeRaised;
+    /// Indicates the time that the Alarm was acknowledged.
+    /// Note: This is only relevant if the Alarm has been acknowledged.
+    M_Common::TimeOptionalType TimeAcknowledged;
+  };
+
+
+  /**
+   * Contains information for an Alarm annunciation (text message) to be displayed below status bar.
+   */
+  struct AlarmAnnunciationType
+  {
+    /// The id of the Alarm log entry.
+    AlertIdType AlarmId;
+    /// Information about the Alarm Condition.
+    AlarmConditionInfoType ConditionInfo;
+    /// The category of the Alarm Condition.
+    AlarmCategoryKind::Type Category;
+    /// The audio tone to be applied to a specific Alarm category.
+    AudioToneInfoOptionalType NotifyingTone;
+    /// Indicates the time that the Alarm was raised.
+    M_Common::TimeType TimeRaised;
+  };
+
+
+  /**
+   * Contains information for a Threat Alert log entry.
+   */
+  struct ThreatLogType
+  {
+    /// Information about the Threat Alert.
+    ThreatConditionInfoType ThreatInfo;
+    /// Reference to the corresponding point, sector, area object.
+    M_Common::ObjectIdOptionalType ObjectId;  // TODO: Or do we attach the whole Object data here instead of a reference?
+    /// Location of threat.
+    M_Common::PositionOptionalType LocationAtTimeOfDetection;
+    /// Time of the threat detection.
+    M_Common::TimeType TimeOfDetection;
+  };
+
+
+  /**
+   * Contains information for a Threat Alert annunciation (text message) to be displayed in the HMI.
+   */
+  struct ThreatAnnunciationType
+  {
+    /// The id of the Threat Alert log entry.
+    AlertIdType ThreatAlertId;
+    /// Information about the Threat Alert.
+    ThreatConditionInfoType ThreatInfo;
+    /// The audio tone to be applied to the Threat Alert.
+    AudioToneInfoOptionalType NotifyingTone;
+    /// Time of the threat detection.
+    M_Common::TimeType TimeOfDetection;
+  };
+};

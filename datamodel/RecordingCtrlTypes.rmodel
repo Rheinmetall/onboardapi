@@ -1,0 +1,78 @@
+// Copyright (c) 2026 Rheinmetall Electronics GmbH
+//
+// This program and the accompanying materials are made available under the
+// terms of the Eclipse Public License 2.0 which is available at
+// https://www.eclipse.org/legal/epl-2.0.
+//
+// SPDX-License-Identifier: EPL-2.0
+
+#include "CommonTypes.idl"
+
+
+/**
+ * Interfaces and types used by the Recording Control Service and Client.
+ */
+module M_RecordingCtrl
+{
+  struct VideoChannelType
+  {
+    /// Video Channel Id
+    string Id;
+  
+    /// Video Channel name
+    string Name;
+
+    /// Optional: The encryption info.
+    M_Common::EncryptionOptionalType EncryptionInfo;
+  };
+
+  typedef sequence<VideoChannelType> VideoChannelListType;
+
+  /// Contains static settings data for the Recording Control Service.
+  struct RecordingSettingsType
+  {
+    /// Indicates if the Service supports starting and stopping recording stream via CmdStartRecording and
+    /// CmdStopRecording (true) or not (false).
+    boolean IsStartStopRecordingSupported;
+    /// Indicates if the Service supports video cutout capture via CmdCaptureVideoCutout (true) or not (false).
+    boolean IsCaptureVideoCutoutSupported;
+    /// List of configured Video Channel which can be used for recordings.
+    /// Note: These are the names which can be provided to CmdStartRecording and CmdCaptureVideoCutout.
+    VideoChannelListType SupportedRecordingChannels;
+    /// Indicates if the Service supports still image capture (true) or not (false).
+    boolean IsCaptureImageSupported;
+    /// List of configured Video Channel which can be used for image capture.
+    /// Note: These are the names which can be provided to CmdCaptureImage.
+    VideoChannelListType SupportedImageCaptureChannels;
+  };
+
+
+  /// Contains information about a stored video cutout.
+  struct VideoCutoutInfoType
+  {
+    /// The video channel identifying the video source of the cutout.
+    string VideoChannelId;
+    /// The absolute time the cutout was started.
+    M_Common::TimeType StartTime;
+    /// The absolute time the cutout was stopped.
+    M_Common::TimeType StopTime;
+    /// Textual description for the cutout.
+    string Description;
+  };
+
+  /// List of VideoCutoutInfoType.
+  typedef sequence<VideoCutoutInfoType> VideoCutoutInfoListType;
+
+
+  /// Contains current status data for the Recording Control Service.
+  struct RecordingStatusType
+  {
+    /// List of stored video cutouts.
+    /// Each cutout is identified by the absolute start and stop time as well as the source video channel.
+    VideoCutoutInfoListType VideoCutoutList;
+    /// List of video channel ids currently being actively recorded.
+    M_Common::StringListType InProgressRecordingsList;
+    /// The number of stored captured images.
+    M_Common::ULongOptionalType NumberOfCapturedImages;
+  };
+};

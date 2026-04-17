@@ -1,0 +1,47 @@
+// Copyright (c) 2026 Rheinmetall Electronics GmbH
+//
+// This program and the accompanying materials are made available under the
+// terms of the Eclipse Public License 2.0 which is available at
+// https://www.eclipse.org/legal/epl-2.0.
+//
+// SPDX-License-Identifier: EPL-2.0
+
+#ifndef _OVERLAY_CTRL_TYPES_IDL_
+#define _OVERLAY_CTRL_TYPES_IDL_
+
+
+#include "CommonTypes.idl"
+
+
+/**
+ * Types used by the Overlay Ctrl Client and Service.
+ */
+module M_OverlayCtrl
+{
+  /**
+   * Contains settings for an Overlay Control Service.
+   */
+  struct OverlayCtrlSettingsType
+  {
+    /// Indicates if Overlays can be enabled/disabled from a Client with CmdEnableOverlay.
+    boolean IsEnableOverlaySupported;
+
+    /// List of names for the supported Overlays.
+    M_Common::StringListType SupportedOverlaysList;
+  };
+
+
+  /**
+   * Contains the status of an overlay control service.
+   */
+  struct OverlayCtrlStatusType
+  {
+    /// Indicates if the overlay is enabled (true) or disabled (false).
+    boolean IsEnabled;
+
+    /// Overlay colour style.
+    M_Common::ColourStyleOptionalType ColourStyle;
+  };
+};
+
+#endif

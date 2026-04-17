@@ -1,0 +1,386 @@
+// Copyright (c) 2026 Rheinmetall Electronics GmbH
+//
+// This program and the accompanying materials are made available under the
+// terms of the Eclipse Public License 2.0 which is available at
+// https://www.eclipse.org/legal/epl-2.0.
+//
+// SPDX-License-Identifier: EPL-2.0
+
+#include "CommonTypes.idl"
+#include "CameraTypes.idl"
+
+
+/**
+ * A Camera service is used to control the various image controls of a camera.
+ *
+@startuml "Camera Information"
+title Camera Information
+hide footbox
+
+== Startup ==
+Client <- Service: ReportCameraSettings(Settings)
+note over Service
+    On startup the Service always reports
+    the static settings information
+end note
+Client <- Service: ReportCameraStatus(Status, IsRemoved=false)
+note over Service
+    Service always reports the initial
+    status with the IsRemoved flag set
+    to false
+end note
+...
+
+== Status update ==
+Client -> Service: CmdSetZoomLevel(Level)
+Client <- Service: ReportCameraStatus(Status, IsRemoved=false)
+note over Service
+    Service reports the updated
+    status
+end note
+...
+
+== Shutdown ==
+Client <- Service: ReportCameraStatus(Status, IsRemoved=true)
+note over Service
+    On service shutdown the previously reported
+    status is automatically removed. This is
+    used as an indication that the Service
+    is no longer running
+end note
+
+@enduml
+ */
+module M_Camera
+{
+  /// Interface version number.
+  const string Version = "14.1.0";
+
+
+  /**
+   * Camera Service interface.
+   * Contains operations that a client can command the Camera Service to perform.
+   */
+  interface IService
+  {
+    /// Set the camera operation mode.
+    void ConfigOperationMode
+    (
+      /// Mode to set.
+      in M_Common::OperationModeType Mode
+    );
+
+    /// Enable or disable auto focus.
+    void ConfigAutoFocus
+    (
+      /// Auto-focus state.
+      in AutoFocusKind::Type State
+    );
+
+    /// Set focus level.
+    void ConfigFocusLevel
+    (
+      /// Level in percent.
+      /// An absolute value between 0 and 100 where 0 represents the minimum zoom value (MinZoomFovDegrees) and
+      /// 100 represents the maximum zoom value (MaxZoomFovDegrees) as defined by the reported settings.
+      /// Note: 100 is the narrowest Field of View, 0 is the widest Field of View.
+      in M_Common::PercentType Level
+    );
+
+    /// Increase or decrease focus by the given number of steps (of a predefined size).
+    /// Note: A small focus indicates that a near object is focused, a large focus indicates that a distant object is focused.
+    void CmdSetFocusByStep
+    (
+      /// The number of steps to increase (positive numbers) or decrease (negative numbers).
+      in long Steps
+    );
+
+    /// Enable or disable 2x digital zoom.
+    void ConfigDigitalZoom
+    (
+      /// Enable or disable (True = Enable, False = Disable)
+      in boolean Enable
+    );
+
+    /// Set zoom level.
+    void ConfigZoomLevel
+    (
+      /// Level in percent.
+      in M_Common::PercentType Level
+    );
+
+    /// Increase or decrease zoom by the given number of steps (of a predefined size).
+    void CmdSetZoomByStep
+    (
+      /// The number of steps to increase (positive numbers) or decrease (negative numbers).
+      in long Steps
+    );
+
+    /// Set Field of View (Zoom) to a predefined level.
+    void ConfigPredefinedZoomFov
+    (
+      /// Predefined FoV levels.
+      in unsigned short PredefinedLevel
+    );
+
+    /// Increase or decrease field of view by the given number of steps (of a predefined size).
+    void CmdSetPredefinedZoomFovByStep
+    (
+      /// The number of steps to increase (positive numbers) or decrease (negative numbers).
+      in long Steps
+    );
+
+    /// Enable or disable auto brightness.
+    void ConfigAutoBrightness
+    (
+      /// Enable or disable (True = Enable, False = Disable)
+      in boolean Enable
+    );
+
+    /// Set brightness level.
+    void ConfigBrightnessLevel
+    (
+      /// Level in percent.
+      in M_Common::PercentType Level
+    );
+
+    /// Increase or decrease brightness by the given number of steps (of a predefined size).
+    void CmdSetBrightnessByStep
+    (
+      /// The number of steps to increase (positive numbers) or decrease (negative numbers).
+      in long Steps
+    );
+
+    /// Enable or disable auto contrast.
+    void ConfigAutoContrast
+    (
+      /// Enable or disable (True = Enable, False = Disable)
+      in boolean Enable
+    );
+
+    /// Set contrast level.
+    void ConfigContrastLevel
+    (
+      /// Level in percent.
+      in M_Common::PercentType Level
+    );
+
+    /// Increase or decrease contrast by the given number of steps (of a predefined size).
+    void CmdSetContrastByStep
+    (
+      /// The number of steps to increase (positive numbers) or decrease (negative numbers).
+      in long Steps
+    );
+
+    /// Set high dynamic range mode.
+    void ConfigHdrMode
+    (
+      /// HDR sub-mode.
+      in long Mode
+    );
+
+    /// Set polarity for IR-Camera.
+    void ConfigPolarity
+    (
+      /// Polarity (Hot-is-White, Hot-is-Black, Hot-is-Red)
+      in PolarityHotColor::Type HotIs
+    );
+
+    /// Set economy or normal mode for IR-Camera.
+    void ConfigEconomyMode
+    (
+      /// Operating mode (True = Economy, False = Normal)
+      in boolean Enable
+    );
+
+    /// Enable or disable cooler for IR-Camera.
+    void ConfigCooler
+    (
+      /// Enable or disable (True = Enable, False = Disable)
+      in boolean Enable
+    );
+
+    /// Enable or disable auto gain.
+    void ConfigAutoGain
+    (
+      /// Enable or disable (True = Enable, False = Disable)
+      in boolean Enable
+    );
+
+    /// Set gain level.
+    void ConfigGainLevel
+    (
+      /// Level in percent.
+      in M_Common::PercentType Level
+    );
+
+    /// Increase or decrease gain by the given number of steps (of a predefined size).
+    void CmdSetGainByStep
+    (
+      /// The number of steps to increase (positive numbers) or decrease (negative numbers).
+      in long Steps
+    );
+
+    /// Exposure time (e.g. shutter speed) in fractions of a second.
+    void ConfigExposureTime
+    (
+      /// Exposure time (e.g. shutter speed) fractions of a second.
+      /// Examples:
+      ///  A value of 1 = One second
+      ///  A value of 2 = Half a second
+      ///  A value of 3 = Third of a second
+      ///  A value of 75 = 1/75 of a second
+      ///  A value of 10000 = 1/10000 of a second
+      ///
+      /// Note: As reference the NGVA currently supports the following values:
+      /// 1, 2, 3, 6, 12, 25, 50, 75, 100, 120, 150, 215, 300, 425, 600, 1000, 1250, 1750, 2500, 3500, 6000, 10000
+      in unsigned short ShutterSpeedPerSec
+    );
+
+    /// Enable or disable auto exposure.
+    void ConfigAutoExposure
+    (
+      /// Enable or disable (True = Enable, False = Disable)
+      in boolean Enable
+    );
+
+    /// Set lens aperture.
+    void ConfigAperture
+    (
+      /// Aperture [-].
+      in M_Common::ProportionalType Aperture
+    );
+
+    /// Set the Region of Interest as a cropped part of the Video.
+    void CmdSetRegionOfInterest
+    (
+      /// Rectangle defining the Region of Interest.
+      in M_Common::PixelRegionType Rectangle
+    );
+
+    /// Clear the currently set Region of Interest.
+    void CmdClearRegionOfInterest();
+
+    /// Set external (true) or internal (false) trigger mode.
+    void ConfigExternalTriggerMode
+    (
+      /// Enable or disable (True = Enable, False = Disable)
+      in boolean Enable
+    );
+
+    /// Start/enable (true) or stop/disable (false) image frame grabbing.
+    void ConfigGrabbing
+    (
+      /// Start/stop grabbing image frame grabbing.
+      /// True  = Start
+      /// False = Stop
+      in boolean Enable
+    );
+
+    /// Calibrate the non-uniformity compensation (NUC) coefficients for an IR camera.
+    void CmdCalibrateNuc
+    (
+      /// Indicates whether NUC calibration should be started (true) or aborted (false).
+      in boolean IsCalibrating
+    );
+
+    /// Activate/deactivate the automatic non-uniformity compensation (NUC) coefficients for an IR camera.
+    void ConfigAutoCalibrateNuc
+    (
+      /// Indicates whether automatic NUC calibration should be active (true) or inactive (false).
+      in boolean IsActive
+    );
+
+    /// Set alpha blending level.
+    /// Can be used to combine two images together for cameras which support this.
+    void ConfigAlphaBlendingLevel
+    (
+      /// Level in percent.
+      in M_Common::PercentType Level    // TODO: Does this represent the level of TV or IR image?
+    );
+
+    /// Enable or disable false colour processing with the specified algorithm.
+    void CmdSetFalseColour
+    (
+      /// Enable or disable (True = Enable, False = Disable)
+      in boolean Enable,
+
+      /// Algorithm name.
+      in string Name
+    );
+
+    /// Enable or disable infrared dynamic mode.
+    void ConfigInfraredDynamicMode
+    (
+      /// Enable or disable (True = Enable, False = Disable)
+      in boolean Enable
+    );
+
+    /// Select a preset with predefined Camera configuration values.
+    /// Note: Selecting a preset will overwrite any current values that have been set on the camera
+    /// with the values which belong to the specified preset.
+    void ConfigSelectCameraPreset
+    (
+      /// Name pf preset.
+      in string Name
+    );
+
+    /// Start engine to increase or decrease focus.
+    void CmdStartFocusEngine
+    (
+      /// Increase or decrease.
+      in ScaleDirection::Type Direction
+    );
+
+    /// Stop focus engine.
+    void CmdStopFocusEngine();
+
+    /// Start engine to increase or decrease zoom (FoV motor).
+    void CmdStartZoomEngine
+    (
+      /// Increase or decrease.
+      in ScaleDirection::Type Direction
+    );
+
+    /// Stop zoom engine (FoV motor).
+    void CmdStopZoomEngine();
+
+    /// Freeze current camera image.
+    void CmdFreezeImage();
+  };
+
+
+  /**
+   * Camera Client interface.
+   * Contains callback operations from the Camera Service to the Client.
+   */
+  interface IClient
+  {
+    /// Report with static camera settings.
+    /// This should be provided at startup and in the event of degraded functionality,
+    /// e.g. due to an internal failure.
+    void ReportCameraSettings
+    (
+      /// Camera settings data.
+      in CameraSettingsType Settings
+    );
+
+    /// Report with the current camera status.
+    /// This will be continually updated every time a value is changed.
+    void ReportCameraStatus
+    (
+      /// Current status data for Camera.
+      in CameraStatusType Status,
+      /// Indicates if the status is no longer available.
+      /// Note: This will always be set to True when a Service has been shutdown.
+      /// After this has been set to True the status will no longer be available to late joiners.
+      in boolean IsRemoved
+    );
+
+    /// Send safety code(s) of the current frame.
+    void EventSafetyCode
+    (
+      in SafetyCodeListType SafetyCodeList
+    );
+  };
+};

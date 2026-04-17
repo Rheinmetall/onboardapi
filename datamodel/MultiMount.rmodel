@@ -1,0 +1,287 @@
+// Copyright (c) 2026 Rheinmetall Electronics GmbH
+//
+// This program and the accompanying materials are made available under the
+// terms of the Eclipse Public License 2.0 which is available at
+// https://www.eclipse.org/legal/epl-2.0.
+//
+// SPDX-License-Identifier: EPL-2.0
+
+#include "CommonTypes.idl"
+#include "MultiMountTypes.idl"
+#include "KinematicChain.idl"
+
+
+/**
+ * Interfaces used by the Mount Service and Client.
+ *
+@startuml "MultiMount Overview"
+
+top to bottom direction
+
+state Mode {
+    Deselect : Mount is in parking pos and not operational
+    Stab: tbc
+    Unstab: tbc
+    HorizontalStab: tbc
+    SlavedToLeading: it is slaved to non-TMS device
+    MotorOff: tbc
+    Lock: tbc
+    Assignment: Controlled by TMS assignment
+}
+
+state SubModeCtrlState {
+    Angle: Controlled by TMS Angle
+    Angle: Rates are ignored until commanded position is reached!
+    Rate: Controlled by TMS Rate
+    Unspecified: Unspecified control state
+    VideoTracker: Controlled by VideoTracker
+    VideoTrackerCoasting: Controlled by VideoTracker but VT is in coasting
+}
+
+note right of SubModeCtrlState
+    "xxxState" in Submode name reflects
+    that it cannot be commanded directly,
+    just read-only state
+end note
+
+'Only used for layout purposes
+Mode --[hidden]> SubModeCtrlState
+
+@enduml
+ *
+ * The following conventions may apply for the given operations:
+ * - IService::CmdMode:
+ *   - Mode.Name = "Mode", Mode.TextualValue[0] = "Stab"
+ *   - Mode.Name = "Mode", Mode.TextualValue[0] = "Unstab"
+ *   - Mode.Name = "Mode", Mode.TextualValue[0] = "Deselect"
+ *   - Mode.Name = "Mode", Mode.TextualValue[0] = "MotorOff"
+ *   - Mode.Name = "Mode", Mode.TextualValue[0] = "Lock"
+ *   - Mode.Name = "Mode", Mode.TextualValue[0] = "Assignment"
+ *   - Mode.Name = "Mode", Mode.TextualValue[0] = "SlavedToLeading"
+ *   - Mode.Name = "HorizontalAiming", Mode.EnumeratedValue[0] = On or Off
+ *   - Mode.Name = "RateAid", Mode.EnumeratedValue[0] = On or Off
+ * - IClient::ReportMountStatus with Status.OperationStatus.Mode:
+ *   - Status.OperationStatus.Mode = "Mode", Status.OperationStatus.TextualValue is given by diagram above.
+ * - IClient::ReportMountStatus with Status.OperationStatus.Mode.SubmodeList:
+ *   - Status.OperationStatus.SubmodeList[x].Name = "CtrlState", Status.OperationStatus.SubmodeList[x].TextualValue[0] is given by diagram above.
+ *   - Status.OperationStatus.SubmodeList[x].Name = "PositionState", Status.OperationStatus.SubmodeList[x].TextualValue[0] = "PositioningOff" or "PositionReached" or "PositionNotReached"
+ *   - Status.OperationStatus.SubmodeList[x].Name = "RateAid", Status.OperationStatus.SubmodeList[x].EnumeratedValue[0] = On or Off
+ *   - Status.OperationStatus.SubmodeList[x].Name = "HorizontalAiming", Status.OperationStatus.SubmodeList[x].EnumeratedValue[0] = On or Off
+ * - AxisId in IService::NotifyAxisRotations, IService::ConfigAxisRotationConstraints, IService::ConfigStoreAxisRotations and IClient::ReportAxisRotations:
+ *   - Azimuth
+ *   - Elevation
+ *   - AzimuthNorth
+ *   - ElevationHorizon
+ *   - AzimuthRelative (typical for commands only, e.g. rate on top of coasting rate)
+ *   - ElevationRelative (typical for commands only, e.g. rate on top of coasting rate)
+ *   - AzimuthInertial (typical for report, alternative is M_CoordinateFrame)
+ *   - ElevationInertial (typical for report, alternative is M_CoordinateFrame)
+ *   - AzimuthPlumb
+ *   - ElevationPlumb
+ *   - CantPlumb
+ *   - AzimuthAssignmentOffset (report only, applicable for scan ctrl)
+ *   - ElevationAssignmentOffset (report only, applicable for scan ctrl)
+ */
+module M_MultiMount
+{
+  /// Interface version number.
+  const string Version = "3.2.0";
+
+
+  /**
+   * Mount Service interface.
+   * Contains operations that a client can command the Mount Service to perform.
+   */
+  interface IService : M_KinematicChain::IService
+  {
+    /**
+     * Determine source for inputs.
+     *
+     * Note: Input data should only be handled by the mount from the configured clients.
+     * Input data from other clients should be ignored.
+     * If a filter is disabled, all inputs are allowed.
+     * If a filter is enabled, all inputs in the according list are allowed (white list).
+     * (Therefore, an enabled filter in combination with an empty list inhibits all input.)
+     */
+    void ConfigInputSource
+    (
+      /// Indicates whether the mount should filter client ID input.
+      in boolean IsClientIdFilterEnabled,
+
+      /// List of client IDs from which to accept data via NotifyAxisRotation().
+      in M_Common::StringListType ClientIds
+    );
+
+    /**
+     * Determine source for assignment inputs.
+     *
+     * Note: Input data should only be handled by the mount from the configured clients.
+     * Input data from other clients should be ignored.
+     * If a filter is disabled, all inputs are allowed.
+     * If a filter is enabled, all inputs in the according list are allowed (white list).
+     * (Therefore, an enabled filter in combination with an empty list inhibits all input.)
+     */
+    void ConfigAssignmentInputSource
+    (
+      /// Indicates whether the mount should filter assignment client ID input.
+      in boolean IsAssignmentClientIdFilterEnabled,
+
+      /// List of client IDs from which to accept data via NotifyAssignment().
+      in M_Common::StringListType AssignmentClientIds
+    );
+
+    /**
+     * Configure the internal device that shall be slaved to the MultiMount.
+     * If value is not present, no slaving device shall be used.
+     */
+    void ConfigSlavedDevice
+    (
+      /// Device to slave over an internal interface.
+      /// Not present means that no slaving device shall be used.
+      in M_Common::LongOptionalType DeviceId
+    );
+
+    /**
+     * Configure the internal device that the MultiMount shall be slaved to.
+     * If value is not present, no leading device shall be used to slave to.
+     *
+     * Note: This should be stored and used when in "Slaved_To_Leading_Device"
+     * Control Mode.
+     */
+    void ConfigLeadingDevice
+    (
+      /// Device to be slaved to over an internal interface.
+      /// Not present means that no leading device shall be used to slave to.
+      in M_Common::LongOptionalType DeviceId
+    );
+
+    /**
+     * Command to set mode of control and stabilisation for a Mount platform.
+     *
+     * Note: The Mount will use stored data from previously provided config calls when required
+     * as parameters for the specified Mode.
+     */
+    void CmdMode
+    (
+      /// Mode of control and stabilisation for a Mount platform.
+      in M_Common::OperationModeType Mode
+    );
+
+    /**
+     * Command to the Mount service to enable or disable automatic drift compensation correction.
+     * This is used to correct a drifting Mount platform. It uses offset values automatically
+     * determined by the Mount platform.
+     */
+    void CmdAutoDriftCompensation
+    (
+      /// Indicates if drift compensation should be enabled (true) or disabled (false).
+      /// True  = Enable drift compensation
+      /// False = Disable drift compensation
+      in boolean IsEnabled
+    );
+
+    /**
+     * Command to manually set the specified drift compensation offset.
+     * This is used to set the offset values to correct a drifting Mount.
+     */
+    void CmdManualDriftCompensation
+    (
+      /// Axis rotations specifying the offset
+      in M_KinematicChain::AxisRotationListType AxisRotations,
+
+      /// Indicates if the provided axis rotations are relative to the currently used Drift compensation (true)
+      /// or absolute rate value replacing currently used Drift compensation.
+      /// True = Relative to the currently used Drift compensation
+      /// False = Absolute rate value replacing currently used Drift compensation
+      in boolean IsRelative
+    );
+
+    /**
+     * Command to allow external sources to set drift compensation.
+     */
+    void CmdAllowExternalDriftCompensation
+    (
+      /// Indicates whether external drift compensation is allowed.
+      in boolean IsAllowed
+    );
+
+    /**
+     * Designate the mount to a position for an assignment.
+     * The mount will follow the object automatically between updates by using the provided object velocity.
+     *
+     * Note: This operation shall be called only if the InputSourceClientId matches with the
+     * MountStatusType.InputSourceClientId of ReportMountStatus().
+     */
+    void NotifyAssignment
+    (
+      /// The client name of the calling instance associated with the assignment
+      in string InputSourceClientId,
+
+      /// Assignment position.
+      in M_Common::PositionType Position,
+
+      /// Assignment velocity.
+      in M_Common::LinearVelocityOptionalType Velocity,
+
+      /// Axis rotation to set additional motion constraints for the mount axis.
+      in M_KinematicChain::AxisRotationType AxisRotation
+    );
+  };
+
+
+  /**
+   * Mount Client interface.
+   * Contains callback operations from the Mount Service to the Client.
+   */
+  interface IClient : M_KinematicChain::IClient
+  {
+    /**
+     * Report with static Mount settings.
+     * This should be provided at startup and in the event of degraded functionality,
+     * e.g. due to an internal failure.
+     */
+    void ReportMountSettings
+    (
+      /// Mount settings data.
+      in MountSettingsType Settings
+    );
+
+    /**
+     * Report with current Mount status.
+     * This should always be called with the latest status updates since
+     * the last report can be read by late joiners.
+     */
+    void ReportMountStatus
+    (
+      /// Current status data for Mount.
+      in MountStatusType Status,
+
+      /// Indicates if the status is no longer available.
+      /// Note: This will always be set to true when a service has been shut down.
+      /// After this has been set to true, the status will no longer be available to late joiners.
+      in boolean IsRemoved
+    );
+
+    /**
+     * Report of current assignment position
+     * This should always be called with the latest status updates since
+     * the last report can be read by late joiners.
+     */
+    void ReportAssignmentPosition
+    (
+      /// Current assignment position
+      in M_Common::PositionType AssignmentPosition
+    );
+
+    /**
+     * Report of current assignment velocity
+     * This should always be called with the latest status updates since
+     * the last report can be read by late joiners.
+     */
+    void ReportAssignmentVelocity
+    (
+      /// Current assignment velocity.
+      in M_Common::LinearVelocityOptionalType AssignmentVelocity
+    );
+  };
+};

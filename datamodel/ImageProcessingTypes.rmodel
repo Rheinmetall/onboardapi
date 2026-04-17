@@ -1,0 +1,181 @@
+// Copyright (c) 2026 Rheinmetall Electronics GmbH
+//
+// This program and the accompanying materials are made available under the
+// terms of the Eclipse Public License 2.0 which is available at
+// https://www.eclipse.org/legal/epl-2.0.
+//
+// SPDX-License-Identifier: EPL-2.0
+
+#include "CommonTypes.idl"
+
+
+/**
+ * Types used by the image processing service and client.
+ */
+module M_ImageProcessing
+{
+  /**
+   * Interpolation context.
+   */
+  module InterpolationKind
+  {
+    /// Interpolation enumeration.
+    enum Type
+    {
+      /// Nearest neighbour interpolation.
+      Nearest_Neighbour,
+
+      /// Bilinear interpolation.
+      Bilinear,
+
+      /// Bicubic interpolation.
+      Bicubic,
+
+      /// B-spline interpolation.
+      Spline,
+
+      /// Lanczos interpolation.
+      Lanczos,
+
+      /// Discrete wavelet interpolation.
+      Wavelet
+    };
+  };
+
+  /// Optional InterpolationKind.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<InterpolationKind::Type, 1> InterpolationOptionalType;
+
+
+  /**
+   * Flip direction context.
+   */
+  module FlipDirectionKind
+  {
+    /// Flip direction enumeration.
+    enum Type
+    {
+      /// Not flipped.
+      None,
+
+      /// Horizontally flipped.
+      Horizontal,
+
+      /// Vertically flipped.
+      Vertical,
+
+      /// Both horizontally and vertically flipped.
+      Horizontal_Vertical
+    };
+  };
+
+  /// Optional FlipDirectionKind.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<FlipDirectionKind::Type, 1> FlipDirectionOptionalType;
+
+
+  /**
+   * Frame drop context.
+   */
+  module FrameDropKind
+  {
+    /// Frame drop enumeration.
+    enum Type
+    {
+      /// Pass every nth specified frame.
+      PassEveryNthFrame,
+
+      /// Drop every nth specified frame.
+      DropEveryNthFrame,
+
+      /// Drop a specified random percentage.
+      DropRandomPercentage
+    };
+  };
+
+  /// List of FrameDropKind.
+  typedef sequence<FrameDropKind::Type> FrameDropListType;
+
+
+  /**
+   * Settings for frame dropping.
+   */
+  struct FrameDropType
+  {
+    /// Selects the method to use for frame dropping.
+    /// Note: This is especially useful in case no numerical value or more than one
+    /// numerical value is/are set.
+    FrameDropKind::Type Mode;
+
+    /// Specifies every how many frames to pass a frame.
+    M_Common::LongOptionalType EveryNthFrameToPass;
+
+    /// Specifies every how many frame to drop a frame.
+    M_Common::LongOptionalType EveryNthFrameToDrop;
+
+    /// Random percentage for dropping frames.
+    M_Common::PercentOptionalType RandomFrameDropPercentage;
+  };
+
+  /// Optional FrameDropType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<FrameDropType, 1> FrameDropOptionalType;
+
+
+  /**
+   * General information about an image.
+   */
+  struct ImageInfoType
+  {
+    /// Image region (position and dimensions).
+    M_Common::ImageRegionType Region;
+
+    /// Rotation angle [deg].
+    M_Common::AngleDegreesOptionalType RotationAngle;
+
+    /// Flip state.
+    FlipDirectionOptionalType FlipDirection;
+
+    /// Interpolation method used for certain image processing operations.
+    InterpolationOptionalType Interpolation;
+  };
+
+
+  /**
+   * Settings of an image processing device.
+   */
+  struct ImageProcessingSettingsType
+  {
+    /// Indicates which frame dropping methods are supported.
+    /// Note: Empty implies that frame dropping is not supported.
+    FrameDropListType SupportedFrameDropModes;
+
+    /// Indicates whether region setting is supported.
+    boolean IsCmdSetRegionSupported;
+
+    /// Indicates whether scaling is supported.
+    boolean IsCmdScaleSupported;
+
+    /// Indicates whether rotating is supported.
+    boolean IsCmdRotateSupported;
+
+    /// Indicates whether flipping is supported.
+    boolean IsCmdFlipSupported;
+  };
+
+
+  /**
+   * Status of an image processing device.
+   */
+  struct ImageProcessingStatusType
+  {
+    /// Input image size.
+    M_Common::PixelRectSizeType InputImageSize;
+
+    /// Output image properties.
+    ImageInfoType OutputImageInfo;
+
+    /// Frame drop method used.
+    FrameDropOptionalType FrameDropMethod;
+  };
+};

@@ -1,0 +1,208 @@
+// Copyright (c) 2026 Rheinmetall Electronics GmbH
+//
+// This program and the accompanying materials are made available under the
+// terms of the Eclipse Public License 2.0 which is available at
+// https://www.eclipse.org/legal/epl-2.0.
+//
+// SPDX-License-Identifier: EPL-2.0
+
+#include "CommonTypes.idl"
+#include "HidJoystickTypes.idl"
+
+
+/**
+ * Interfaces used to handle Joysticks.
+ * A HID Joystick service is used to represent inputs from a Joystick.
+ *
+@startuml "HID Joystick Information"
+title HID Joystick Information
+hide footbox
+
+== Startup ==
+Client <- Service: ReportJoystickSettings(Settings)
+note over Service
+    On startup the Service always reports
+    the static settings information
+end note
+...
+
+== Button clicked ==
+Client <- Service: EventButton(ButtonIndex, ButtonName, IsSelected=true)
+note over Service
+    Service generates a button pressed event
+end note
+Client <- Service: EventButton(ButtonIndex, ButtonName, IsSelected=false)
+note over Service
+    Service generates a button released event
+end note
+...
+
+== Axis movement ==
+Client <- Service: ReportAxis(KeyAxisIndex=0, Value)
+Client <- Service: ReportAxis(KeyAxisIndex=1, Value)
+note over Service
+    Service reports current Joystick status
+    for each axis, e.g. X and Y-axis
+end note
+...
+
+== Increment encoder activation ==
+Client <- Service: EventIncrement(KeyIndex, Steps)
+note over Service
+    Service generates an increment
+end note
+
+@enduml
+ */
+module M_HidJoystick
+{
+  /// Interface version number.
+  const string Version = "6.1.0";
+
+
+  /**
+   * Service interface.
+   * Contains operations that a client can command the Joystick Service to perform.
+   */
+  interface IService
+  {
+    /**
+     * Command to check if service is alive.
+     * If the service is not available, then an exception will be thrown.
+     */
+    void CmdIsJoystickAlive();
+
+    /**
+     * Parametrises joystick input scaling, i.e. how quickly a mount follows
+     * a joystick input (linearly, quadratically, ...).
+     */
+    void ConfigJoystickCurve
+    (
+      /// Identifies the axis.
+      in unsigned long KeyAxisIndex,
+
+      /// Input scaling characteristics.
+      in string Curve,
+
+      /// Indicates if the payload is no longer available
+      /// Note: This will always be set to true when the instance has been shut down
+      /// After this has been set to true, the payload will no longer be available to late joiners.
+      in boolean IsRemoved
+    );
+  };
+
+
+  /**
+   * Client interface.
+   * Contains operations reported by a Joystick Service.
+   */
+  interface IClient
+  {
+    /**
+     * Triggered every time a Joystick button is selected or unselected.
+     */
+    void EventButton
+    (
+      /// Index identifying the button.
+      in unsigned long ButtonIndex,
+
+      /// Name of the button.
+      in string ButtonName,
+
+      /// Indicates if the button has been selected (true) or unselected (false).
+      in boolean IsSelected
+    );
+
+    /**
+     * Triggered every time a increment encoder is activated.
+     */
+    void EventIncrement
+    (
+      /// Index identifying the increment.
+      in unsigned long Index,
+
+      /// The current number of steps value.
+      in long Steps
+    );
+
+    /**
+     * Contains the static settings for a Joystick.
+     * This should be provided at startup and in the event of degraded functionality,
+     * e.g. due to an internal failure.
+     */
+    void ReportJoystickSettings
+    (
+      /// Joystick settings data.
+      in JoystickSettingsType Settings
+    );
+
+    /**
+     * Reports the current axis position every time a joystick axis is moved.
+     */
+    void ReportAxis
+    (
+      /// Index identifying the axis.
+      in unsigned long KeyAxisIndex,
+
+      /// The current axis value.
+      /// Range: -1.0 - +1.0
+      in double Value,
+
+      /// Indicates if the status is no longer available.
+      /// Note: This will always be set to true when a service has been shut down.
+      /// After this has been set to true, the status will no longer be available to late joiners.
+      in boolean IsRemoved
+    );
+
+    /**
+     * Reports the specified input value.
+     */
+    void ReportInputValue
+    (
+      /// Identifies the value input index.
+      in unsigned long KeyValueInputIndex,
+
+      /// Value.
+      in M_Common::PropertyType Value,
+
+      /// Indicates if the status is no longer available.
+      /// Note: This will always be set to true when a service has been shut down.
+      /// After this has been set to true, the status will no longer be available to late joiners.
+      in boolean IsRemoved
+    );
+
+    /**
+     * Reports the specified menu's status.
+     */
+    void ReportMenuStatus
+    (
+      /// Identifies the menu index.
+      in unsigned long KeyMenuIndex,
+
+      /// Indicates whether the menu is active.
+      in boolean IsActive,
+
+      /// Indicates if the status is no longer available.
+      /// Note: This will always be set to true when a service has been shut down.
+      /// After this has been set to true, the status will no longer be available to late joiners.
+      in boolean IsRemoved
+    );
+
+    /**
+     * Contains the joystick input curve.
+     */
+    void ReportJoystickCurve
+    (
+      /// Identifies the axis.
+      in unsigned long KeyAxisIndex,
+
+      /// Input scaling characteristics.
+      in string Curve,
+
+      /// Indicates if the status is no longer available.
+      /// Note: This will always be set to true when a service has been shut down.
+      /// After this has been set to true, the status will no longer be available to late joiners.
+      in boolean IsRemoved
+    );
+  };
+};

@@ -1,0 +1,112 @@
+// Copyright (c) 2026 Rheinmetall Electronics GmbH
+//
+// This program and the accompanying materials are made available under the
+// terms of the Eclipse Public License 2.0 which is available at
+// https://www.eclipse.org/legal/epl-2.0.
+//
+// SPDX-License-Identifier: EPL-2.0
+
+#include "CommonTypes.idl"
+
+
+/**
+ * Types used by the Sector Selection Service.
+ */
+module M_SectorSelection
+{
+  /**
+   * Sector (Fan).
+   * Contains coordinates for a truncated ring sector, bounded by the rays emanating from
+   * an origin position and having a specified central angle.
+   */
+  struct SectorType
+  {
+    /// The one-dimensional linear distance in meters representing the distance from the origin to
+    /// the inner ring.
+    /// Note: A sector starting at the origin will have a minimum azimuth range of 0.
+    M_Common::DistanceMetersType MinAzimuthRange;
+
+    /// The one-dimensional linear distance in meters representing the distance from the origin to
+    /// the outer ring.
+    /// Note: If not present, then the sector goes on forever.
+    M_Common::DistanceMetersOptionalType MaxAzimuthRange;
+
+    /// The center of the sector rotational measurement in degrees clockwise from the measured platform.
+    M_Common::AngleDegreesType Azimuth;
+
+    /// The rotational measurement in degrees clockwise between the left and right sides of the sector.
+    /// To calculate the corresponding sector angles:
+    /// Start = Azimuth - AzimuthSize/2
+    /// Stop = Azimuth + AzimuthSize/2
+    /// Range: 0 - 360 degrees
+    M_Common::AngleDegreesType AzimuthSize;
+
+    /// The rotational measurement in degrees between the own vehicle pitch and the top
+    /// side of the sector.
+    /// Note: If not present, then the elevation angle of the sector is unknown.
+    M_Common::AngleDegreesOptionalType Elevation;
+
+    /// The rotational measurement in degrees between the top and bottom sides of the sector.
+    /// This is the size of the angle centered around the orientation elevation.
+    /// To calculate the corresponding sector angles:
+    /// Start = Elevation - ElevationSize/2
+    /// Stop = Elevation + ElevationSize/2
+    /// Range: 0 - 360 degrees
+    /// Note: If not present, then the elevation size of the sector is unknown.
+    M_Common::AngleDegreesOptionalType ElevationSize;
+
+    /// Indicates to what source the spherical coordinates are relative to.
+    /// This could for example be the service name for a specific Mount.
+    string CoordinateFrame;
+  };
+
+
+  /// Contains information about a sector with a specified id.
+  struct SectorDefinitionType
+  {
+    /// Identifies the sector.
+    unsigned long Id;
+    /// Descriptive name of the sector.
+    /// Empty string indicates the sector does not have any name.
+    string Name;
+    /// Positional information defining the sector from the origin.
+    SectorType Sector;
+  };
+
+  /// List of SectorDefinitionType.
+  typedef sequence<SectorDefinitionType> SectorDefinitionListType;
+
+
+  /// Contains information about a sector with a specified id.
+  struct SelectionInfoType
+  {
+    /// Identifies the sector.
+    unsigned long Id;
+    /// Indicates if the sector has been selected (true) or not (false).
+    boolean IsSelected;
+    /// Indicates if the Client can select the sector (true) or not (false).
+    boolean IsSelectable;
+  };
+
+  /// List of SelectionInfoType.
+  typedef sequence<SelectionInfoType> SelectionInfoListType;
+
+
+  /// Contains the Sector Selection Service settings data.
+  struct SectorSelectionSettingsType
+  {
+    /// Indicates if CmdSelectSector can be called to select sector from Clients (true) or not (false).
+    boolean IsCmdSelectSectorSupported;
+  };
+
+
+  /// Contains the Sector Selection Service status data.
+  struct SectorSelectionStatusType
+  {
+    /// List of status for each available sector.
+    SelectionInfoListType SelectionList;
+    /// Indicates if multiple sectors can be selected (true) or not (false).
+    /// If false then Clients can only provide one element as parameter when calling CmdSelectSector.
+    boolean IsMultipleSectorSelectionAllowed;
+  };
+};

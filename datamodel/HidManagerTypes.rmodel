@@ -1,0 +1,197 @@
+// Copyright (c) 2026 Rheinmetall Electronics GmbH
+//
+// This program and the accompanying materials are made available under the
+// terms of the Eclipse Public License 2.0 which is available at
+// https://www.eclipse.org/legal/epl-2.0.
+//
+// SPDX-License-Identifier: EPL-2.0
+
+#ifndef _HID_MANAGER_TYPES_IDL_
+#define _HID_MANAGER_TYPES_IDL_
+
+
+#include "CommonTypes.idl"
+
+
+/**
+ * Data types used by the HID Manager.
+ */
+module M_HidManager
+{
+  /**
+   * Contains information about a requested axis.
+   */
+  struct RequestedAxisType
+  {
+    /// The ID that is used by the client to represent the axis.
+    unsigned long RequestedId;
+
+    /// A description of the axis as envisioned by the app creator (e.g. "X axis", "Left foot pedal").
+    string Description;
+  };
+
+  /// List of RequestedAxisType.
+  typedef sequence<RequestedAxisType> RequestedAxisListType;
+
+
+  /**
+   * Contains information about an assigned axis.
+   */
+  struct AssignedAxisType
+  {
+    /// The ID used by the client to represent the axis.
+    unsigned long RequestedId;
+
+    /// The corresponding index from the Joystick.
+    unsigned long AxisIndex;
+
+    /// Joystick/Input device service name.
+    string ServiceName;
+  };
+
+  /// List of AssignedAxisType.
+  typedef sequence<AssignedAxisType> AssignedAxisListType;
+
+
+  /**
+   * Contains information about a requested value input.
+   */
+  struct RequestedValueInputType
+  {
+    /// The ID that is used by the client to represent the value input.
+    unsigned long RequestedId;
+
+    /// Description of the value input.
+    string Description;
+
+    /// Description of the type of value input.
+    string ValueInputType;
+  };
+
+  /// List of RequestedValueInputType.
+  typedef sequence<RequestedValueInputType> RequestedValueInputListType;
+
+
+  /**
+   * Contains information about an assigned value input.
+   */
+  struct AssignedValueInputType
+  {
+    /// The ID used by the client to represent the value input.
+    unsigned long RequestedId;
+
+    /// The corresponding index from the joystick.
+    unsigned long ValueInputIndex;
+
+    /// Joystick / input device service name.
+    string ServiceName;
+
+    /// Description of the type of value input.
+    string ValueInputType;
+  };
+
+  /// List of AssignedValueInputType.
+  typedef sequence<AssignedValueInputType> AssignedValueInputListType;
+
+
+  /**
+   * Contains information about a requested button.
+   */
+  struct RequestedButtonType
+  {
+    /// The ID that is used by the client to represent the button.
+    unsigned long RequestedId;
+
+    /// A description of the button as envisioned by the app creator (e.g. "Right shoulder button", "Shift Key", "Key A").
+    string Description;
+
+    /// Description of what type of button should be leveraged for this space.
+    string ButtonType;
+  };
+
+  /// List of RequestedButtonType.
+  typedef sequence<RequestedButtonType> RequestedButtonListType;
+
+
+  /**
+   * Contains information about an assigned button.
+   */
+  struct AssignedButtonType
+  {
+    /// The ID used by the client to represent the button.
+    unsigned long RequestedId;
+
+    /// The corresponding index from the joystick.
+    unsigned long ButtonIndex;
+
+    /// Description of the type of button.
+    string ButtonType;
+
+    /// Joystick / input device service name.
+    string ServiceName;
+  };
+
+  /// List of AssignedButtonType.
+  typedef sequence<AssignedButtonType> AssignedButtonListType;
+
+
+  /**
+   * Contains information about a requested Menu.
+   */
+  struct RequestedMenuType
+  {
+    /// The ID that is used by the client to represent the menu.
+    unsigned long RequestedId;
+
+    /// Identifies the children menus of this menu.
+    M_Common::ULongListType ChildIds;
+
+    /// Description of the menu.
+    string Description;
+
+    /// Description of what type of button should be leveraged for this space.
+    string MenuType;
+
+    /// List of requested value inputs.
+    RequestedValueInputListType ValueInputList;
+
+    /// List of requested buttons.
+    RequestedButtonListType ButtonList;
+  };
+
+  /// List of RequestedMenuType.
+  typedef sequence<RequestedMenuType> RequestedMenuListType;
+
+
+  /**
+   * Contains information about an assigned button group.
+   */
+  struct AssignedMenuType
+  {
+    /// The ID used by the client to represent the menu.
+    unsigned long RequestedId;
+
+    /// Identifies the children menus of this menu.
+    M_Common::ULongListType ChildIds;
+
+    /// The ID of the menu.
+    unsigned long MenuId;
+
+    /// Menu type.
+    string MenuType;
+
+    /// Joystick / input device service name.
+    string ServiceName;
+
+    /// List of assigned value inputs.
+    AssignedValueInputListType ValueInputList;
+
+    /// List of assigned buttons.
+    AssignedButtonListType ButtonList;
+  };
+
+  /// List of AssignedMenuType.
+  typedef sequence<AssignedMenuType> AssignedMenuListType;
+};
+
+#endif

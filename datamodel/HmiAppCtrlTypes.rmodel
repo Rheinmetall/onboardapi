@@ -1,0 +1,220 @@
+// Copyright (c) 2026 Rheinmetall Electronics GmbH
+//
+// This program and the accompanying materials are made available under the
+// terms of the Eclipse Public License 2.0 which is available at
+// https://www.eclipse.org/legal/epl-2.0.
+//
+// SPDX-License-Identifier: EPL-2.0
+
+#ifndef _HMI_APP_CTRL_TYPES_IDL_
+#define _HMI_APP_CTRL_TYPES_IDL_
+
+
+#include "CommonTypes.idl"
+
+
+/**
+ * Data types used by the HMI application control service.
+ */
+module M_HmiAppCtrl
+{
+  /// Functional area context.
+  module FunctionalAreaKind
+  {
+    /// Functional area enumeration.
+    enum Type
+    {
+      /// Situational awareness.
+      SA,
+
+      /// Weapons.
+      WPN,
+
+      /// Defensive systems.
+      DEF,
+
+      /// Systems.
+      SYS,
+
+      /// Driver.
+      DRV,
+
+      /// Special-to-role.
+      STR,
+
+      /// Communication.
+      COM,
+
+      /// Battlefield Management System.
+      BMS
+    };
+  };
+
+  /// View Focus context
+  module ViewFocusKind
+  {
+    /// ViewFocus enumeration
+    enum Type
+    {
+      /// Ignore focus
+      /// Note: Indicates that the window focus flag shall be ignored.
+      IGNORE_FOCUS,
+
+      /// Remove focus
+      /// Note: Indicates that the window shall not have focus.
+      REMOVE_FOCUS,
+
+      /// Set focus
+      /// Note: Indicates that the window shall have focus for mouse and keyboard input.
+      SET_FOCUS
+    };
+  };
+
+  /// Always-on-top context
+  module ViewAlwaysOnTopKind
+  {
+    /// Always-on-top enumeration
+    enum Type
+    {
+      /// Ignore Always-on-top
+      /// Note: Indicates that the Always-on-top flag should be ignored and the default remains.
+      IGNORE_ALWAYS_ON_TOP,
+
+      /// Remove Always-on-top
+      /// Note: Indicates that the Always-on-top flag should be removed.
+      REMOVE_ALWAYS_ON_TOP,
+
+      /// Set Always-on-top
+      /// Note: Indicates that the Always-on-top flag should be activated.
+      SET_ALWAYS_ON_TOP
+    };
+  };
+
+  /// Optional FunctionalAreaKind.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<FunctionalAreaKind::Type, 1> FunctionalAreaOptionalType;
+
+
+  /// Contains restart on failure configuration.
+  struct RestartOnFailureType
+  {
+    /// Restart the app on failure when set to `true`.
+    boolean Enabled;
+
+    /// Delay in milliseconds (ms) between the restarts.
+    long DelayInMilliseconds;
+  };
+
+  /// Optional RestartOnFailureType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<RestartOnFailureType, 1> RestartOnFailureOptionalType;
+
+
+  /// Contains information for an app.
+  struct ApplicationDescriptionType
+  {
+    /// Identifies the app.
+    string AppId;
+
+    /// Indicates if the app is enabled (true) or disabled (false).
+    /// Note: A disbled app is ignored / not started automatically.
+    boolean Enabled;
+
+    /// The command used to execute the app.
+    string Command;
+
+    /// List of parameters given to the app.
+    M_Common::StringListType Parameters;
+
+    /// The working directory of the app.
+    M_Common::StringOptionalType WorkingDirectory;
+
+    /// Name of the application.
+    M_Common::StringOptionalType Name;
+
+    /// Associated functional area.
+    FunctionalAreaOptionalType AssociatedFunctionalArea;
+
+    /// Restart on failure.
+    RestartOnFailureOptionalType RestartOnFailure;
+
+    /// List of environment variables of the app.
+    M_Common::PropertyListType EnvironmentVariables;
+
+    /// Additional informations.
+    /// Note: Properties are defined generically to enable non-essential additional
+    /// information to be provided without impacting the Data Model.
+    M_Common::PropertyListType AdditionalInfo;
+  };
+
+  /// List of ApplicationDescriptionType.
+  typedef sequence<ApplicationDescriptionType> ApplicationDescriptionListType;
+
+
+  /// Contains status information for an app.
+  struct ApplicationStateType
+  {
+    /// Indicates if the app is installed (true) or not (false).
+    boolean IsInstalled;
+
+    /// Indicates if the app is running (true) or not (false).
+    boolean IsRunning;
+
+    /// Indicates if the app is active (true) or not (false).
+    M_Common::BooleanOptionalType IsActive;
+  };
+
+
+  /// Contains rules for a view.
+  struct ViewRuleType
+  {
+    /// The priority of the view (higher value is a higher priority).
+    /// Default priority is 0.
+    long Priority;
+
+    /// Indicates if the rule is enabled (true) or disabled (false).
+    /// Note: A disabled rule is ignored by the Service.
+    boolean Enabled;
+
+    /// The name of the region (such as the window name).
+    string UiRegionName;
+
+    /// Always-on-top setting
+    ViewAlwaysOnTopKind::Type UiRegionAlwaysOnTop;
+
+    /// Indicates if the title bar of the window should be hidden
+    M_Common::BooleanOptionalType UiTitleBar;
+
+    /// The left position of the region in pixels.
+    M_Common::LongOptionalType UiRegionLeft;
+
+    /// The top position of the region in pixels.
+    M_Common::LongOptionalType UiRegionTop;
+
+    /// The right position of the region in pixels.
+    M_Common::LongOptionalType UiRegionRight;
+
+    /// The bottom position of the region in pixels.
+    M_Common::LongOptionalType UiRegionBottom;
+
+    /// Focus setting.
+    ViewFocusKind::Type UiFocus;
+  };
+
+  /// List of ViewRuleType.
+  typedef sequence<ViewRuleType> ViewRuleListType;
+
+
+  /// Contains information for a view.
+  struct ViewDescriptionType
+  {
+    /// Indicates if the view is enabled (true) or disabled (false).
+    /// Note: A disabled view is ignored by the Service.
+    boolean Enabled;
+
+    /// List of rules for the view.
+    ViewRuleListType ViewRules;
+  };
+};
+
+#endif

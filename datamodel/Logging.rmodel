@@ -1,0 +1,86 @@
+// Copyright (c) 2026 Rheinmetall Electronics GmbH
+//
+// This program and the accompanying materials are made available under the
+// terms of the Eclipse Public License 2.0 which is available at
+// https://www.eclipse.org/legal/epl-2.0.
+//
+// SPDX-License-Identifier: EPL-2.0
+
+#include "LoggingTypes.idl"
+
+
+/**
+ * A logging service represents a resource or application. It can be used to
+ * send or request log messages and change the runtime log level.
+ */
+module M_Logging
+{
+  /// Interface version number.
+  const string Version = "1.1.0";
+
+
+  /**
+   * Logging service interface.
+   * Contains operations that a client can command the logging service to perform.
+   */
+  interface IService
+  {
+
+    /**
+     * Change the log settings during runtime.
+     */
+    void CmdSetLogSettings
+    (
+      /// The new settings which shall be applied.
+      in LogSettingsType Settings
+    );
+
+    /**
+     * Instruct the service to provide the requested log messages.
+     */
+    void RequestLogMessages
+    (
+      /// The specified request.
+      in LogMessageRequestType RequestSpecification
+    );
+  };
+
+
+  /**
+   * Logger client interface.
+   * Contains callback operations from the logger service to the client.
+   */
+  interface IClient
+  {
+    /// Send log messages.
+    void EventLogMessages
+    (
+      /// Log messages.
+      in LogMessageListType Messages
+    );
+
+    /// Report the current settings of the logger.
+    void ReportLogSettings
+    (
+      /// Current log settings.
+      in LogSettingsType Settings,
+
+      /// Indicates if the Setting is no longer available.
+      /// Note: This will always be set to true when a service has been shut down.
+      /// After this has been set to true, the status will no longer be available to late joiners.
+      in boolean IsRemoved
+    );
+
+    /**
+     * Response to a log message request.
+     */
+    void ResponseLogMessages
+    (
+      /// Identifies the request.
+      in LogMessageRequestType RequestSpecification,
+
+      /// The requested log messages.
+      in LogMessageListType Messages
+    );
+  };
+};

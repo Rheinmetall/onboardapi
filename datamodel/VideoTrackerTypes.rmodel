@@ -1,0 +1,259 @@
+// Copyright (c) 2026 Rheinmetall Electronics GmbH
+//
+// This program and the accompanying materials are made available under the
+// terms of the Eclipse Public License 2.0 which is available at
+// https://www.eclipse.org/legal/epl-2.0.
+//
+// SPDX-License-Identifier: EPL-2.0
+
+#ifndef _VIDEO_TRACKER_TYPES_IDL_
+#define _VIDEO_TRACKER_TYPES_IDL_
+
+
+#include "CommonTypes.idl"
+
+
+/**
+ * Types used by the Tracker Service.
+ */
+module M_VideoTracker
+{
+  /// Tracking status (of a single track) context.
+  module TrackingState
+  {
+    /// Tracking status (of a single track) enumeration.
+    enum Type
+    {
+      /// The tracking is activated, but the object is not tracked yet.
+      Init,
+      /// The object is tracked on the basis of image processing data.
+      Tracking,
+      /// The object trajectory is extrapolated due to occlusion.
+      Coasting,
+      /// The object trajectory is extrapolated due to forced coasting command from client.
+      Forced_Coasting,
+      /// The track was aborted by command. This is sent as last report before removal of track object.
+      Deleted,
+      /// The track was lost, e.g. after coasting timeout. This is sent as last report before removal of track object.
+      Lost
+    };
+  };
+
+
+  /// Line-of-Sight (LOS) control status context.
+  module VtLosCtrlState
+  {
+    /// Line-of-Sight (LOS) control status enumeration.
+    enum Type
+    {
+      /// The object is not selected for LOS tracking.
+      None,
+      /// The object is selected for LOS tracking by Lead-On command, but mount does not follow yet.
+      Init_Leading,
+      /// The object is selected for LOS tracking by Lead-On command and mount follows LOS-Control output rate.
+      Leading
+    };
+  };
+
+
+  /// Type of tracked object context.
+  module ObjectTrackSource
+  {
+    /// Type of tracked object enumeration.
+    enum Type
+    {
+      /// Object is identified by Automatic Track Recognition (ATR).
+      Automatic_Track_Recognition,
+      /// The object is locked-on manually, e.g. by commands CmdLotLockOnTrack and CmdLosCtrlLeadOn.
+      Lock_On_Track,
+      /// The object represents a detected object that is not tracked
+      Detection
+    };
+  };
+
+
+  /// Lock-On Tracking mode context.
+  module LotMode
+  {
+    /// Lock-On Tracking mode enumeration.
+    enum Type
+    {
+      /// Default Lock-On Track (LoT) algorithm. Can be used in most cases.
+      Auto,
+      /// Used to track the scene within the init gate.
+      /// This can be used with low-dynamic objects with weak signature, e.g. ship on horizon at large distance.
+      /// Automatic gate control is not available in this mode.
+      Scene
+    };
+  };
+
+  /// Optional LotMode.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<LotMode::Type, 1> LotModeOptionalType;
+
+  /**
+   * Contains information about the current angle and absolut speed of a given camera orientation axis.
+   * Note: An axis should normally be rotated by only one of the possible angle or speed values.
+   */
+  struct CameraOrientationType
+  {
+    /// Identifies the axis.
+    string AxisId;
+
+    /// Angle [deg].
+    M_Common::AngleDegreesType Angle;
+
+    /// Absolute speed [deg/s].
+    M_Common::AngleRateDegreesPerSecType AbsoluteSpeed;
+  };
+
+  /// List of CameraOrientationType.
+  typedef sequence<CameraOrientationType> CameraOrientationListType;
+
+  /**
+   * Contains information about an object tracked by a VideoTracker.
+   * Either tracked by Automatic Track Recognition (ATR) or Lock-On Track (LoT).
+   */
+  struct VtObjectType
+  {
+    /// Tracking state of the object.
+    TrackingState::Type State;
+    /// Source of object track (ATR/LoT).
+    ObjectTrackSource::Type Source;
+    /// Rectangle defining the bounding box of the object in pixels.
+    M_Common::PixelRegionType BoundingBox;
+    /// Image dimensions
+    M_Common::ImageRegionType ImageDimensions;
+    /// Estimated distance in meters.
+    M_Common::DistanceMetersOptionalType EstimatedDistance;
+    /// Image frame horizontal velocity in pixels/sec.
+    M_Common::DoubleOptionalType PixelVelocityX;
+    /// Image frame vertical velocity in pixels/sec.
+    M_Common::DoubleOptionalType PixelVelocityY;
+    /// Sensor sources for this tracked object.
+    /// It is filled with the name(s) of the respective camera service.
+    M_Common::StringListType VideoChannelSources;
+    /// Currently applied camera orientation
+    CameraOrientationListType CurrentOrientation;
+    /// Current gate control mode.
+    /// Note: Only relevant for LoT objects.
+    M_Common::GeneralStatus::Type ManualGateControl;
+    /// Indicates if/how object is followed by VT-LOS-Control.
+    VtLosCtrlState::Type LosCtrlState;
+    /// Indicates whether the object is the preselected for object-related commands that depend on this flag.<br>
+    /// By default, the nearest object to the image centre is selected. Leading tracks are never selected.<br>
+    boolean IsSelected;
+    /// Additional properties relating to the tracked object.
+    /// Note: Properties are defined generically to enable non-essential additional
+    /// information to be provided without impacting the Data Model.
+    M_Common::PropertyListType AdditionalInfo;
+    /// Frame number for which the data was valid.
+    unsigned long long FrameNumber;
+    /// Time when the data was valid.
+    M_Common::TimeType TimeStamp;
+    /// Snapshot of the tracked object.
+    M_Common::ImageOptionalType Snapshot;
+  };
+
+  /// Optional VtObjectType.
+  typedef sequence<VtObjectType, 1> VtObjectOptionalType;
+
+
+  /**
+   * Contains processing status information to monitor the load of a VideoTracker.
+   */
+  struct VtProcessingStatType
+  {
+    /// Averaged processing time in seconds for one image cycle.
+    double ProcessingTimeSec;
+    /// Averaged number of dropped frames between processing cycles.
+    unsigned long FrameDrops;
+    /// Time when the data was valid.
+    M_Common::TimeType TimeStamp;
+  };
+
+
+  /**
+   * Contains video tracker LOS control status data.
+   */
+  struct LosCtrlStatusType
+  {
+    /// Name of client from which rate inputs are accepted
+    string HelpRateInputSourceClientId;
+    /// Indicates if AutoLeadOn is active.
+    M_Common::GeneralStatus::Type AutoLeadOnState;
+  };
+
+
+  /**
+   * Contains video tracker LoT status data.
+   */
+  struct LotStatusType
+  {
+    /// Dimensions of currently processed input images.
+    M_Common::ImageRegionType ImageDimensions;
+    /// Default init gate (initial object size assumption) used for LoT acquisition.
+    M_Common::PixelRectSizeOptionalType LotDefaultInitGate;
+    /// Maximum search area around Lock-On position for object acquisition.
+    M_Common::PixelRectSizeOptionalType LotDefaultSearchArea;
+  };
+
+
+  /// Tracking state context.
+  module MountTrackingState
+  {
+    /// Drift compensation kind enumeration.
+    enum Type
+    {
+      /// LoS is not controlled by VideoTracker.
+      No_Tracking,
+      /// If applicable mount should report centring process after lead-on.
+      Centering,
+      /// Once centring is finished mount reports that is centred on LoS by VideoTracker.
+      Centered,
+      /// Memory track by coasting of VideoTracker.
+      Memory_Track_Video_Tracker,
+      /// Memory track by mount.
+      Memory_Track_Mount
+    };
+  };
+
+
+  /**
+   * Contains video tracker ATR settings data.
+   */
+  struct AtrSettingsType
+  {
+    /// Indicates if the ConfigAtrMinMaxObjectSize operation is supported by the Service.
+    boolean IsConfigAtrMinMaxObjectSizeSupported;
+    /// Indicates if the CmdAtrTeachIn operation is supported by the Service.
+    boolean IsCmdAtrTeachInSupported;
+    /// Additional properties for the Service.
+    /// Note: Properties are defined generically to enable non-essential additional
+    /// information to be provided without impacting the Data Model.
+    M_Common::PropertyListType AdditionalInfo;
+  };
+
+
+  /**
+   * Contains video tracker ATR status data.
+   */
+  struct AtrStatusType
+  {
+    /// Indicates if ATR is currently processing the video to find ATR tracks.
+    boolean AtrActive;
+    /// Indicates if ATR is enabled.
+    M_Common::GeneralStatus::Type AtrState;
+    /// Dimensions of currently processed input images.
+    M_Common::ImageRegionType ImageDimensions;
+    /// Minimum height and width in pixels for ATR objects.
+    M_Common::PixelRectSizeOptionalType AtrMinObjectSize;
+    /// Maximum height and width in pixels for ATR objects.
+    M_Common::PixelRectSizeOptionalType AtrMaxObjectSize;
+    /// Indicates if teach-in is running (true) or not (false).
+    /// Note: Not present means not supported or unknown.
+    M_Common::BooleanOptionalType IsAtrTeachInActive;
+  };
+};
+
+#endif

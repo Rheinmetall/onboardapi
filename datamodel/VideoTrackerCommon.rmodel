@@ -1,0 +1,277 @@
+// Copyright (c) 2026 Rheinmetall Electronics GmbH
+//
+// This program and the accompanying materials are made available under the
+// terms of the Eclipse Public License 2.0 which is available at
+// https://www.eclipse.org/legal/epl-2.0.
+//
+// SPDX-License-Identifier: EPL-2.0
+
+#include "CommonTypes.idl"
+#include "VideoTrackerTypes.idl"
+#include "Sensor.idl"
+
+
+/**
+ * Interfaces used by the Multi-Mode Tracker Service and Client.
+ *
+@startuml "Multi-Mode Tracker Overview"
+
+package "In- and outputs of MMT(z)" {
+
+    node "IService" {
+
+        [M_VideoTrackerCommon] <-down-> VtCmdReports: General VideoTracker\ncommands and reports\n\n Inherited: \n\nCmdDeleteAllTracks\nCmdDeleteTracks\n\nReportSensorStatus\nReportSensorSettings\nReportSensorTrack
+        [M_VideoTrackerLosCtrl] <-up-> VtCmdReports: Line-of-Sight tracking\ncommands and reports
+        [M_VideoTrackerLot] <-up-> VtCmdReports: Manual-selected object tracking\ncommands and reports
+        [M_VideoTrackerAtr] <-up-> VtCmdReports: Automatic object detection and tracking\ncommands and reports
+        [M_BuiltInTest] -down-> ReportCBitStatus: KeyCBitName\nStatus
+        [M_Device] -down-> ReportDeviceStatus: IsEnabled
+		[M_Device] -down-> VtCmdReports: CmdShutdownDevice
+        [M_Device] -down-> ReportDeviceSettings: DeviceName\nDescription\nHardwarePartNumber\nSwVersion
+
+        note top of [M_BuiltInTest]
+        Monitored Modules :
+        VideoInput
+        ImageProcessingLoad
+        end note
+
+
+    }
+
+    node "ICient" {
+        [M_Camera] <-up- ReportCameraStatus : PolarityHotIs\nZoomState.Fov.Size\nIsPredefinedZoomFovChangeInProgress\nIsZoomLevelChangeInProgress
+        [M_Camera] <-up- ReportCameraSettings: IsCalibrateNucSupported\nIsPolaritySupported\nIsCoolerSupported
+
+        [M_VideoManager] <-up- ReportVideoStatus: VideoChannelName
+        [M_CoordinateFrame] <-down- ReportAttitude: KeyId\nAttitude.Euler
+        [M_MultiMount] <-down- ReportAxisRotations: AxisId\nAngle\nAbsoluteSpeed\n
+
+        [M_CoordinateFrame] <-down- ReportLinearVelocity: KeyId\nLinearVelocity.Cartesian
+        [M_CoordinateFrame] <-down- ReportAngularVelocity: KeyId\nAngularVelocity.Cartesian
+        [M_ObjectManager] <-down- ReportMultiPoint
+
+        note top of [M_Camera]
+        The number of clients is
+        arbitrary. A camera is
+        considered to be active,
+        when the reported
+        VideoChannelName of
+        VideoManager service matches
+        the Camera service name.
+        end note
+
+        note bottom of [M_Camera]
+        By default, MMT executes
+        forced coasting while
+        zoom change is in progress.
+        end note
+
+        note top of [M_MultiMount]
+        Used to input LoS rate.
+        Default AxisIds expected:
+        "Azimuth" and "Elevation"
+        end note
+
+        note bottom of [M_VideoManager]
+        VideoChannelName has
+        to match the respective
+        Camera Service name.
+        end note
+
+        note top of [M_CoordinateFrame]
+        Attitude is needed to set offset to image center
+        as reference point for LosCtrl. The originating
+        service name has match following pattern:
+        <CameraServiceName>Alignment
+        Default KeyId expected: "AimingMarkOffset_Current"
+
+        Angular velocity can be used to input LoS rate.
+        Default KeyId expected: "GyroRates"
+
+        Angular velocity can be used to input turning rates
+        of vehicle.
+        Default KeyId expected: "Navigation"
+
+        Linear velocity can be used to input velocity
+        of vehicle.
+        Default KeyId expected: "Navigation"
+        end note
+
+        note top of [M_ObjectManager]
+        VideoTracker gets polygons
+        for ATR masks from ObjectManager
+        service.
+        end note
+    }
+}
+
+@enduml
+ */
+module M_VideoTrackerCommon
+{
+  /// Interface version number.
+  const string Version = "9.2.0";
+
+
+  /**
+   * VideoTracker Service interface.
+   * Contains operations that a client can command the VideoTracker Service to perform.
+   *
+@startuml "Multi-Mode Tracker IService Overview"
+
+package "In- and outputs of MMT(z)@TMS" {
+
+    node "IService" {
+
+        [M_VideoTrackerCommon] <-down-> VtCmdReports: General VideoTracker\ncommands and reports\n\n Inherited: \n\nCmdDeleteAllTracks\nCmdDeleteTracks\n\nReportSensorStatus\nReportSensorSettings\nReportSensorTrack
+        [M_VideoTrackerLosCtrl] <-up-> VtCmdReports: Line-of-Sight tracking\ncommands and reports
+        [M_VideoTrackerLot] <-up-> VtCmdReports: Manual-selected object tracking\ncommands and reports
+        [M_VideoTrackerAtr] <-up-> VtCmdReports: Automatic object detection and tracking\ncommands and reports
+        [M_BuiltInTest] -down-> ReportCBitStatus: KeyCBitName\nStatus
+        [M_Device] -down-> ReportDeviceStatus: IsEnabled
+		[M_Device] -down-> VtCmdReports: CmdShutdownDevice
+        [M_Device] -down-> ReportDeviceSettings: DeviceName\nDescription\nHardwarePartNumber\nSwVersion
+
+        note top of [M_BuiltInTest]
+        Monitored Modules :
+        VideoInput
+        ImageProcessingLoad
+        end note
+
+
+    }
+
+    node "ICient" {
+        [M_Camera] <-up- ReportCameraStatus : PolarityHotIs\nZoomFovRegion\nIsPredefinedZoomFovChangeInProgress\nIsZoomLevelChangeInProgress
+        [M_Camera] <-up- ReportCameraSettings: IsCalibrateNucSupported\nIsPolaritySupported\nIsCoolerSupported
+
+        [M_VideoManager] <-up- ReportVideoStatus: VideoChannelName
+        [M_CoordinateFrame] <-down- ReportAttitude: KeyId\nAttitude
+        [M_Mount] <-down- ReportAxisRotation: KeyId\nAngle\nSpeed\n
+
+        [M_Navigation] <-down- ReportLinearVelocity
+        [M_Navigation] <-down- ReportAngularVelocity
+        [M_ObjectManager] <-down- ReportMultiPoint
+
+        note top of [M_Camera]
+        The number of clients is
+        arbitrary. A camera is
+        considered to be active,
+        when the reported
+        VideoChannelName of
+        VideoManager Service matches
+        the Camera Service name.
+        end note
+
+        note bottom of [M_Camera]
+        By default, MMT executes
+        forced coasting while
+        zoom change is in progress.
+        end note
+
+        note top of [M_Mount]
+        Optionally LosCtrl output
+        rates can be sent directly
+        to a Mount Service.
+        Default KeyIds expected:
+        "Azimuth" and "Elevation"
+        end note
+
+        note bottom of [M_VideoManager]
+        VideoChannelName has
+        to match the respective
+        Camera Service name.
+        end note
+
+        note top of [M_CoordinateFrame]
+        Needed to set offset to image center
+        as reference point for LosCtrl.
+        KeyId has to
+        match the respective
+        Camera Service Name.
+        end note
+
+        note top of [M_Navigation]
+        Platform movement
+        input for algorithms.
+        end note
+
+        note top of [M_ObjectManager]
+        VideoTracker gets polygons
+        for ATR masks from ObjectManager
+        service.
+        Default coordinate frame expected:
+        "Camera"
+        end note
+    }
+}
+
+@enduml
+   *
+   */
+  interface IService : M_Sensor::IService
+  {
+    /// Let VideoTracker load a set of preconfigured parameters.
+    /// E.g. project- or scenario-specific parameters.
+    void CmdLoadParameterSet
+    (
+      /// Name of parameter set to be loaded.
+      in M_Common::BoundedStringType ParameterSetName
+    );
+
+    /// Track object selection.
+    /// Use case: Select ATR objects for Lock/Lead-On by cursor keys or touch/mouse.
+    /// If all values are empty, the selection is removed. If Position is filled, Horizontal and Vertical are ignored.
+    /// Position where the selection applies w.r.t. image center.
+    void CmdSelectObject
+    (
+      /// Select next object in given direction.
+      in M_Common::HorizontalDirectionOptionalType Horizontal,
+
+      /// Select next object in given direction.
+      in M_Common::VerticalDirectionOptionalType Vertical,
+
+      /// Position where the selection applies.
+      in M_Common::SphericalPositionOptionalType Position
+    );
+
+    /// Inform VideoTracker about external object information for an object that is already tracked. (A-priori).
+    void ConfigVtTrackInfo
+    (
+      /// Identifier of an existing currently tracked object.
+      in M_Common::ObjectIdType KeyId,
+
+      /// A-priori object information
+      in M_Sensor::SensorDetectionType Detection,
+
+      /// Indicates if info has been removed.
+      in boolean IsRemoved
+    );
+  };
+
+
+  /**
+   * VideoTracker Client interface.
+   * Contains callback operations from the VideoTracker Service to the Client.
+   */
+  interface IClient : M_Sensor::IClient
+  {
+// TODO: Add void ReportVtSettings(in VtSettingsType Settings);
+
+    /// Report current processing statistics to monitor the load of the VideoTracker.
+    /// If load gets too high, e.g. due to lots of clutter, realtime processing fails (frame drops).
+    /// Countermeasures like setting masks and lowering of sensitivity should be applied then.<br>
+    /// Note: Each processing chain of the VideoTracker can report information about its load and state.
+    void ReportVtProcessingStat
+    (
+      /// Identifies the specific processing chain.
+      in unsigned long KeyProcChainId,
+
+      /// Information about VideoTracker load and state.
+      in M_VideoTracker::VtProcessingStatType Statistics,
+
+      /// Indicates if a processing chain has been removed.
+      in boolean IsRemoved
+    );
+  };
+};

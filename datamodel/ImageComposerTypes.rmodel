@@ -1,0 +1,62 @@
+// Copyright (c) 2026 Rheinmetall Electronics GmbH
+//
+// This program and the accompanying materials are made available under the
+// terms of the Eclipse Public License 2.0 which is available at
+// https://www.eclipse.org/legal/epl-2.0.
+//
+// SPDX-License-Identifier: EPL-2.0
+
+#include "CommonTypes.idl"
+
+
+/**
+ * Interfaces used by the ImageComposer Service and Client.
+ */
+module M_ImageComposer
+{
+  /// Contains the data for a viewport.
+  struct ViewportType
+  {
+    /// Name of source channel.
+    string SourceChannel;
+    /// Size of source area in pixels.
+    M_Common::PixelRegionType SourceRectangle;
+    /// Size of target area in pixels.
+    M_Common::PixelRegionType TargetRectangle;
+    /// Z-Level (Depth) of the viewport in relation to other viewports.
+    unsigned long TargetZLevel;
+    /// Transparency of target [-].
+    M_Common::ProportionalOptionalType TargetAlpha;
+  };
+
+  /// List of ViewportType.
+  typedef sequence<ViewportType> ViewportListType;
+
+
+  /// Contains the Image Composer service settings data.
+  struct ImageComposerSettingsType
+  {
+    /// Indicates if ConfigViewports can be called from a Client.
+    boolean IsConfigViewportsSupported;
+    /// Size of the canvas in pixels.
+    M_Common::PixelRectSizeType CanvasSize;
+    /// The color of the background.
+    /// The code is calculated by combining the color codes for Red, Green, Blue and Alpha:
+    /// RGBA = (Red * 16777216) + (Green * 65536) + (Blue * 256) + Alpha
+    unsigned long CanvasBackgroundRgbaColorCode;
+    /// List of names for the available channels to use for the viewports.
+    M_Common::StringListType AvailableSourceChannels;
+    /// Additional properties for the Service.
+    /// Note: Properties are defined generically to enable non-essential additional
+    /// information to be provided without impacting the Data Model.
+    M_Common::PropertyListType AdditionalInfo;
+  };
+
+
+  /// Contains the status data for a channel.
+  struct ImageComposerChannelStatusType
+  {
+    /// Size of the channel.
+    M_Common::PixelRectSizeType Size;
+  };
+};

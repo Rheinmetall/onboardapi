@@ -1,0 +1,262 @@
+// Copyright (c) 2026 Rheinmetall Electronics GmbH
+//
+// This program and the accompanying materials are made available under the
+// terms of the Eclipse Public License 2.0 which is available at
+// https://www.eclipse.org/legal/epl-2.0.
+//
+// SPDX-License-Identifier: EPL-2.0
+
+#include "CommonTypes.idl"
+#include "ScanCtrlTypes.idl"
+
+
+/**
+ * Interfaces used by the Scan Control Service and Client.
+ *
+@startuml "ScanCtrl Information"
+title ScanCtrl Information
+hide footbox
+
+== Startup ==
+Client <- Service: ReportScanCtrlSettings(Settings)
+note over Service
+    On startup the Service always reports
+    the static settings information
+end note
+Client <- Service: ReportScanCtrlStatus(Status, IsRemoved=false)
+note over Service
+    Service always reports the initial
+    status with the IsRemoved flag set
+    to false
+end note
+...
+
+== Command ScanPattern ==
+Client -> Service: CmdScanPattern(KeyName, ScanPattern)
+Client <- Service: ReportScanCtrlStatus(Status, IsRemoved=false)
+note over Service
+    Client commands a new scan pattern.
+    Services reports activated scan pattern.
+end note
+...
+
+== Store ScanPattern ==
+Client -> Service: ConfigStoreScanPattern(KeyName, ScanPattern)
+Client <- Service: ReportStoredScanPattern(KeyName, ScanPattern, IsRemoved=false)
+note over Service
+    Client stores a new scan pattern.
+    Service reports stored scan pattern.
+end note
+...
+
+== Delete ScanPattern ==
+Client -> Service: CmdDeleteScanPattern(KeyName)
+Client <- Service: ReportStoredScanPattern(KeyName, ScanPattern, IsRemoved=true)
+note over Service
+    Client deletes stored scan pattern.
+    Service removes scan pattern.
+end note
+...
+
+== Command Scan Action ==
+Client -> Service: CmdScanAction(Action)
+Client <- Service: ReportScanCtrlStatus(Status, IsRemoved=false)
+note over Service
+    Client commands scan action.
+    Service reports scan action change.
+end note
+...
+
+== Shutdown ==
+Client <- Service: ReportScanCtrlStatus(Status, IsRemoved=true)
+note over Service
+    On service shutdown the previously reported
+    status is automatically removed. This is
+    used as an indication that the Service
+    is no longer running
+end note
+
+@enduml
+ */
+module M_ScanCtrl
+{
+  /// Interface version number.
+  const string Version = "4.2.0";
+
+
+  /**
+   * Scan Control Service interface.
+   * Contains operations that a client can command the Scan Control Service to perform.
+   *
+   * The default use case of this interface is that a scan can be conducted around an assignment position
+   * (e.g. assignment of a mount). All scan pattern positions are w.r.t. to the assigned position (e.g.
+   * scan sector is around assignment position).
+   *
+   * In other use cases, both sides of an interface have to mutually agree upon the reference coordinate
+   * frame for scans.
+
+@startuml "ScanCtrl State Chart"
+hide empty description
+top to bottom direction
+
+skinparam StateBorderColor<<internalState>> dimgray
+skinparam StateBackgroundColor<<internalState>> white
+skinparam StateBorderColor<<ctrlState>> dimgray
+skinparam StateBackgroundColor<<ctrlState>> lightcyan
+skinparam StateBorderColor<<searchState>> dimgray
+skinparam StateBackgroundColor<<searchState>> thistle
+skinparam StateBackgroundColor<<sysBorder>> white
+skinparam StateBorderColor<<sysBorder>> black
+skinparam NoteFontSize<<sysBorder>> 30
+skinparam StateBorderColor<<sysBorder>> black
+
+skinparam StateBorderColor<<connector>> transparent
+skinparam StateBackgroundColor<<connector>> lightblue
+
+legend top left
+<back:thistle><font size=20>ScanCtrlMode
+endlegend
+
+
+
+state SUPERORDINATE_DEVICE_MODE<<ctrlState>>{
+            note "Transitions are taken and states are reported\nregardless of whether the service supports these\nsearch features." as N3
+
+            SUPERORDINATE_DEVICE_MODE : This state represents the superordinate device state in which a scan is performed (e.g. Assignment control state of mount).
+            SUPERORDINATE_DEVICE_MODE : ScanCtrlMode shall be <back:thistle>Off</back> outside this state.
+
+
+            [*] --> OFF
+            SUPERORDINATE_DEVICE_MODE --> INIT : CmdScanAction[Reset]
+            SUPERORDINATE_DEVICE_MODE --> OFF : CmdScanAction[Stop]
+
+
+            state "OFF" as OFF <<searchState>>
+            OFF --> INIT : CmdScanAction[Run]
+
+            state "INIT" as INIT <<searchState>>
+            INIT --> RUNNING : evReachedStartPos
+            state "RUNNING" as RUNNING <<searchState>>
+            RUNNING --> PAUSED : CmdScanAction[Pause]
+
+            state "PAUSED" as PAUSED <<searchState>>
+            PAUSED --> RUNNING : CmdScanAction[Run]
+
+            INIT : <b>Device initializes scan
+            RUNNING : <b>Device scans with given scan pattern
+            PAUSED : <b>Scan is paused.
+            PAUSED : <b>E.g. needed if operator wants to pause and search manually.
+        }
+
+
+
+@enduml
+   */
+  interface IService
+  {
+    /**
+     * Command the pattern to be used for the next or running scan.
+     */
+    void CmdScanPattern
+    (
+      /// Identifies the scan pattern
+      in string PatternName,
+      /// Scan pattern. If pattern is set, it is used even if stored pattern with same name exists.
+      in ScanPatternOptionalType ScanPattern
+    );
+
+    /**
+     * Set scan action.
+     */
+    void CmdScanAction
+    (
+      /// Type of action to perform.
+      in ScanCtrlMode::Type Action
+    );
+
+    /**
+     * Store a specific scan pattern.
+     */
+    void ConfigStoreScanPattern
+    (
+      /// Identifies the scan pattern to be stored.
+      in string KeyPatternName,
+
+      /// The scan pattern to be stored.
+      in ScanPatternType ScanPattern,
+
+      /// Indicates if the payload is no longer available
+      /// Note: This will always be set to true when the instance has been shut down
+      /// After this has been set to true, the payload will no longer be available to late joiners.
+      in boolean IsRemoved
+    );
+
+    /**
+     * Delete a specified scan pattern
+     */
+    void CmdDeleteScanPattern
+    (
+      /// Identifies the scan pattern
+      in string PatternName
+    );
+  };
+
+
+  /**
+   * Scan Control Client interface.
+   * Contains operations reported by the Scan Control Service.
+   */
+  interface IClient
+  {
+    /**
+     * Report static settings for Scan Control Service.
+     */
+    void ReportScanCtrlSettings
+    (
+      /// Scan Control Service settings data.
+      in ScanCtrlSettingsType Settings
+    );
+
+    /**
+     * Report status for Scan Control Service.
+     */
+    void ReportScanCtrlStatus
+    (
+      /// Current status data for Scan Control Service.
+      in ScanCtrlStatusType Status,
+
+      /// Indicates if the status is no longer available.
+      /// Note: This will always be set to true when a service has been shut down.
+      /// After this has been set to true, the status will no longer be available to late joiners.
+      in boolean IsRemoved
+    );
+
+    /**
+     * Report the scan pattern
+     */
+    void ReportStoredScanPattern
+    (
+      /// Identifies the scan pattern
+      in string KeyPatternName,
+
+      /// Scan pattern
+      in ScanPatternType ScanPattern,
+
+      /// Indicates if the scan pattern is no longer available.
+      /// Note: This will always be set to true when a service has been shut down.
+      /// After this has been set to true, the scan pattern will no longer be available to late joiners.
+      in boolean IsRemoved
+    );
+
+    /**
+     * Report of current search position information.
+     * This should always be called with the latest status updates since
+     * the last report can be read by late joiners.
+     */
+    void ReportAssignmentSearchOffset
+    (
+      /// The current offset between assignment position and line of sight.
+      in M_Common::PositionType Offset
+    );
+  };
+};

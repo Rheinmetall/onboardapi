@@ -1,0 +1,185 @@
+// Copyright (c) 2026 Rheinmetall Electronics GmbH
+//
+// This program and the accompanying materials are made available under the
+// terms of the Eclipse Public License 2.0 which is available at
+// https://www.eclipse.org/legal/epl-2.0.
+//
+// SPDX-License-Identifier: EPL-2.0
+
+#include "CommonTypes.idl"
+#include "AlignmentTypes.idl"
+
+
+/**
+ * Interfaces used by the coordinate frame service and client.
+ * The service can be used to manage positions, attitudes and motion across different reference frames.
+ * It also enables aligning a component's line of sight with a target.
+ *
+@startuml "Alignment Overview"
+
+title Alignment
+hide footbox
+
+== Startup ==
+Client <- Service: ReportAlignmentSettings(Settings)
+note over Service
+  On startup, the service always reports
+  the static settings.
+end note
+Client <- Service: ReportAlignmentStatus(Status, IsRemoved=false)
+note over Service
+  Service always reports the initial
+  status with the IsRemoved flag set to false.
+end note
+...
+
+== Perform alignment ==
+Client -> Service: CmdAlignmentState(IsActive=true)
+Client <- Service: ReportAlignmentStatus(Status.IsAlignmentActive=true, IsRemoved=false)
+note over Service
+  Service reports the updated status.
+end note
+
+Client -> Service: Cmd...Alignment(Offset)
+Client <- Service: ReportAlignmentStatus(Status.Offset, IsRemoved=false)
+note over Service
+  Service reports the updated offset.
+end note
+
+Client -> Service: CmdSaveAlignment()
+Client -> Service: CmdAlignmentState(IsActive=false)
+Client <- Service: ReportAlignmentStatus(Status.IsAlignmentActive=false, IsRemoved=false)
+note over Service
+  Service reports the updated status.
+end note
+...
+
+== Clear stored alignment ==
+Client -> Service: CmdClearAlignment()
+Client <- Service: ReportAlignmentStatus(Status.Offset=[], IsRemoved=false)
+note over Service
+  Service reports the updated status.
+end note
+
+== Shutdown ==
+Client <- Service: ReportAlignmentStatus(Status, IsRemoved=true)
+note over Service
+  On service shutdown, the previously reported
+  status is automatically removed. This is
+  used as an indication that the Service
+  is no longer running.
+end note
+
+@enduml
+ */
+module M_Alignment
+{
+  /// Interface version number.
+  const string Version = "5.1.0";
+
+
+  /**
+   * Alignment service interface.
+   * Contains operations that a client can command the alignment service to perform.
+   */
+  interface IService
+  {
+    /// Command state of alignment session.
+    /// Note: On deactivation, all unsaved alignment values will be discarded.
+    void CmdAlignmentState
+    (
+      /// Identifies the device/component to be aligned.
+      in string ComponentId,
+
+      /// Activates (true) or deactivates (false) a alignment session.
+      in boolean IsActive,
+
+      /// Indicates if parallax correction should be used (true) or not (false).
+      in M_Common::BooleanOptionalType ParallaxCorrection
+    );
+
+    /// Command to align laterally, i.e. in azimuth and elevation.
+    /// Note: This operation should be chosen for boresighting.
+    void CmdLateralAlignment
+    (
+      /// Identifies the device/component to be aligned.
+      in string ComponentId,
+
+      /// Offset value to adjust.
+      /// Note: This is an incremental value that sums up with previous values in one alignment session.
+      /// Azimuth/elevation value cannot be smaller(greater) than the minimum(maximum) step size value reported by the settings.
+      in M_Common::SphericalPositionType Offset
+    );
+
+    /// Command to align longitudinally, i.e. in roll.
+    /// Note: This operation should be chosen for plumb travel alignment.
+    void CmdLongitudinalAlignment
+    (
+      /// Identifies the device/component to be aligned.
+      in string ComponentId,
+
+      /// Offset value to adjust [deg].
+      /// Note: This is an incremental value that sums up with previous values in one alignment session.
+      /// Roll value cannot be smaller(greater) than the minimum(maximum) step size value reported by the settings.
+      in M_Common::AngleDegreesType Offset
+    );
+
+    /// Command to save the current alignment values.
+    void CmdSaveAlignment
+    (
+      /// Identifies the device/component to be aligned.
+      in string ComponentId
+    );
+
+    /// Command to clear the current alignment values.
+    void CmdClearAlignment
+    (
+      /// Identifies the device/component to be aligned.
+      in string ComponentId
+    );
+
+    /// Command to allow external alignment.
+    void CmdAllowExternalAlignment
+    (
+      /// Identifies the device/component to be aligned.
+      in string ComponentId,
+
+      /// Indicates whether to allow external alignment.
+      in boolean IsAllowed
+    );
+  };
+
+
+  /**
+   * Alignment client interface.
+   * Contains callback operations from the alignment service to the client.
+   */
+  interface IClient
+  {
+    /**
+     * Report alignment static settings.
+     */
+    void ReportAlignmentSettings
+    (
+      /// Alignment settings.
+      in AlignmentSettingsType Settings
+    );
+
+    /**
+     * Report current alignment status.
+     */
+    void ReportAlignmentStatus
+    (
+      /// Identifies the device/component associated with the alignment status
+      in string KeyComponentId,
+
+      /// Alignment status data.
+      in AlignmentStatusType Status,
+
+      /// Indicates if the status is no longer available.
+      /// Note: This will always be set to true when a service has been shut down.
+      /// After this has been set to true, the status will no longer be available to late joiners.
+      in boolean IsRemoved
+    );
+  };
+};

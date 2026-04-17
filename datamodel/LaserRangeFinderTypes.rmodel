@@ -1,0 +1,195 @@
+// Copyright (c) 2026 Rheinmetall Electronics GmbH
+//
+// This program and the accompanying materials are made available under the
+// terms of the Eclipse Public License 2.0 which is available at
+// https://www.eclipse.org/legal/epl-2.0.
+//
+// SPDX-License-Identifier: EPL-2.0
+
+#ifndef _LASER_RANGE_FINDER_TYPES_IDL_
+#define _LASER_RANGE_FINDER_TYPES_IDL_
+
+
+#include "CommonTypes.idl"
+
+
+/**
+ * Interfaces used to handle Laser Range Finder.
+ */
+module M_LaserRangeFinder
+{
+  /// Laser Range Finder state context.
+  module LrfState
+  {
+    /// Laser Range Finder state enumeration.
+    enum Type
+    {
+      /// Unknown/Not supported.
+      Unknown,
+
+      /// Firing is inhibited (e.g. disabled).
+      Firing_Inhibited,
+
+      /// Firing is enabled (e.g. laser is ON).
+      Firing_Enabled,
+
+      /// Laser is firing in multi pulse mode.
+      Firing_Multi_Pulse_Mode,
+
+      /// Laser is firing in single pulse mode.
+      Firing_Single_Pulse_Mode,
+
+      /// Firing is currently inhibted; Laser will eventually continue operation in Multi Pulse Mode.
+      Firing_Inhibited_Multi_Pulse_Mode
+    };
+  };
+
+
+  /// First or last context.
+  module FirstOrLast
+  {
+    /// First or last enumeration.
+    enum Type
+    {
+      /// Undefined (also used to indicate not supported or unknown).
+      Undefined,
+
+      /// First echo from Laser.
+      First,
+
+      /// Last echo from Laser.
+      Last
+    };
+  };
+
+
+  /// A measure of the strength of a measured signal.
+  module MeasurementStrength
+  {
+    /// A measure of the strength of a measured signal.
+    enum Type
+    {
+      /// None.
+      None,
+
+      /// Strong signal.
+      Strong,
+
+      /// Weak signal.
+      Weak
+    };
+  };
+
+  /// Optional MeasurementStrength.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<MeasurementStrength::Type, 1> MeasurementStrengthOptionalType;
+
+
+  /// Contains range measurement location data.
+  struct RangeMeasurementType
+  {
+    /// Range [m].
+    M_Common::DistanceMetersType Range;
+
+    /// Strength of measurement.
+    /// Not present indicates not supported.
+    MeasurementStrengthOptionalType Strength;
+  };
+
+  /// List of RangeMeasurementType.
+  typedef sequence<RangeMeasurementType> RangeMeasurementListType;
+
+
+  /**
+   * Settings data for Laser Range Finder.
+   */
+  struct LrfSettingsType
+  {
+    /// Minimum range of the sensor.
+    M_Common::DistanceMetersOptionalType MinimumRange;
+
+    /// Maximum range of the sensor.
+    M_Common::DistanceMetersOptionalType MaximumRange;
+
+    /// Indicates if changing the first/last measurement from a Client is supported (true) or not (false).
+    boolean IsSetFirstOrLastMeasurementSupported;
+
+    /// Indicates if Cmd to set user range from a Client is supported (true) or not (false).
+    boolean IsSetUserRangeSupported;
+
+    /// Indicates if Cmd to laser firing from a Client is supported (true) or not (false).
+    boolean IsInhibitLaserFiringSupported;
+
+    /// Indicates if Cmd to fire multi laser from a Client is supported (true) or not (false).
+    boolean IsMultiFireLaserSupported;
+
+    /// Indicates if Cmd to fire single laser from a Client is supported (true) or not (false).
+    boolean IsSingleFireLaserSupported;
+
+    /// Indicates if laser supports multi pulse mode.
+    /// True = Supports multi pulse operation.
+    /// False = Does not support multi pulse operation.
+    boolean IsMultiPulseSupported;
+
+    /// Indicates if laser range finder supports user defined minimum range.
+    /// True = Supports user defined minimum range.
+    /// False = Does not support user defined minimum range.
+    boolean IsUserMinimumRangeSupported;
+
+    /// Indicates if laser range finder supports user defined maximum range.
+    /// True = Supports user defined maximum range.
+    /// False = Does not support user defined maximum range.
+    boolean IsUserMaximumRangeSupported;
+
+    /// The range uncertainty of the measurement.
+    M_Common::UncertaintyType RangeUncertainty;
+
+    /// Defined the maximum number of detections per measurement.
+    /// A value of 0 means unlimited detections.
+    unsigned long MaximumDetectionsPerMeasurement;
+
+    /// Additional properties relating to the Laser Range Finder Service.
+    /// Note: Properties are defined generically to enable non-essential additional
+    /// information to be provided without impacting the Data Model.
+    M_Common::PropertyListType AdditionalInfo;
+  };
+
+
+  /**
+   * Status data for Laser Range Finder.
+   */
+  struct LrfStatusType
+  {
+    /// Current state of the Laser Range Finder.
+    LrfState::Type State;
+
+    /// The user defined minimum range. This range may differ from the device minimum range.
+    /// Note: In case the user defined minimum range is lower than the device minimum range,
+    /// the device minimum range is used.
+    /// Not present indicates that the user minimum range is disabled.
+    M_Common::DistanceMetersOptionalType UserDefinedMinimumRange;
+
+    /// The user defined maximum range. This range may differ from the device maximum range.
+    /// Note: In case the user defined maximum range is higher than the device maximum range,
+    /// the device maximum range is used.
+    /// Not present indicates that the user maximum range is disabled.
+    M_Common::DistanceMetersOptionalType UserDefinedMaximumRange;
+
+    /// Indicate if the first range returned contains the strongest measurement or if
+    /// the last measurement returned is the strongest measurement.
+    FirstOrLast::Type StrongestMeasurement;
+
+    /// Indicates the used frequency in Hz of a multi fire laser.
+    /// Not present indicates not supported or unknown.
+    M_Common::FrequencyHertzOptionalType MultiFireFrequency;
+
+    /// Indicates the total amount of fired laser shots.
+    /// Not present indicates not supported or unknown.
+    M_Common::ULongLongOptionalType LaserFireCountTotal;
+
+    /// List of IDs of components that are inhibiting laser firing.
+    M_Common::StringListType FiringInhibitingComponentIds;
+  };
+};
+
+#endif

@@ -1,0 +1,312 @@
+// Copyright (c) 2026 Rheinmetall Electronics GmbH
+//
+// This program and the accompanying materials are made available under the
+// terms of the Eclipse Public License 2.0 which is available at
+// https://www.eclipse.org/legal/epl-2.0.
+//
+// SPDX-License-Identifier: EPL-2.0
+
+#include "CommonTypes.idl"
+#include "CoordinateFrameTypes.idl"
+
+
+/**
+ * Interfaces used by the coordinate frame service and client.
+ * The service can be used to manage positions, attitudes and motion across different reference frames.
+ * It also enables aligning a component's line of sight with a target.
+ *
+@startuml "Coordinate Overview"
+
+hide footbox
+
+== Startup ==
+Client <- Service: ReportCoordinateFrameSettings(Settings)
+note over Service
+  On startup, the service always reports
+  the static settings information.
+  Here, the service publishes, for each of its supported
+  kinematic data (e.g. position, velocity)
+  its supported frames of reference (e.g. ECEF, NED, local).
+end note
+
+Client <- Service: ReportCoordinateFrameStatus(Status, IsRemoved=false)
+note over Service
+  Service always reports the initial
+  status with the IsRemoved flag set to false.
+end note
+...
+
+== Controlling motion of vehicle/mount ==
+Client -> Service: NotifyPosition(KeyId, Position)
+note over Service
+  In this scenario, the service is used to control
+  the motion of a mechanical device.
+end note
+...
+
+== Service providing kinematic sensor data ==
+Client <- Service: ReportPosition(KeyId, PositionList, IsRemoved=false)
+note over Service
+  In this scenario, the service publishes data from kinematic sensors,
+  such as gyroscopes, accelerometers, GNSS etc.
+end note
+...
+
+== Shutdown ==
+Client <- Service: ReportCoordinateFrameStatus(Status, IsRemoved=true)
+note over Service
+  On service shutdown, the previously reported
+  status is automatically removed. This is
+  used as an indication that the service
+  is no longer running.
+end note
+
+@enduml
+ */
+module M_CoordinateFrame
+{
+  /// Interface version number.
+  const string Version = "5.1.0";
+
+
+  /**
+   * Coordinate frame service interface.
+   * Contains operations that a client can command the coordinate frame service to perform.
+   */
+  interface IService
+  {
+    /**
+     * Notify to set coordinate transformation.
+     */
+    void NotifyCoordinateTransformation
+    (
+      /// Identifies the coordinate frame or axis to move.
+      /// Note: This may also be the service name of another network participant.
+      /// In this case, this relates the data to the device to which the service name belongs.
+      in string KeyId,
+
+      /// Transformation specification.
+      in M_Common::CoordinateTransformationType Transformation
+    );
+
+    /**
+     * Notify to set position.
+     */
+    void NotifyPosition
+    (
+      /// Identifies the coordinate frame or axis to move.
+      /// Note: This may also be the service name of another network participant.
+      /// In this case, this relates the data to the device to which the service name belongs.
+      in string KeyId,
+
+      /// Position.
+      in M_Common::PositionType Position
+    );
+
+    /**
+     * Notify to set attitude.
+     */
+    void NotifyAttitude
+    (
+      /// Identifies the coordinate frame or axis to move.
+      /// Note: This may also be the service name of another network participant.
+      /// In this case, this relates the data to the device to which the service name belongs.
+      in string KeyId,
+
+      /// Attitude.
+      in M_Common::AttitudeType Attitude
+    );
+
+    /**
+     * Notify to set linear velocity.
+     */
+    void NotifyLinearVelocity
+    (
+      /// Identifies the coordinate frame or axis to move.
+      /// Note: This may also be the service name of another network participant.
+      /// In this case, this relates the data to the device to which the service name belongs.
+      in string KeyId,
+
+      /// Linear velocity.
+      in M_Common::LinearVelocityType LinearVelocity
+    );
+
+    /**
+     * Notify to set angular velocity.
+     */
+    void NotifyAngularVelocity
+    (
+      /// Identifies the coordinate frame or axis to move.
+      /// Note: This may also be the service name of another network participant.
+      /// In this case, this relates the data to the device to which the service name belongs.
+      in string KeyId,
+
+      /// Angular velocity.
+      in M_Common::AngularVelocityType AngularVelocity
+    );
+  };
+
+
+  /**
+   * Coordinate frame client interface.
+   * Contains callback operations from the coordinate frame service to the client.
+   */
+  interface IClient
+  {
+    /**
+     * Report coordinate frame static settings.
+     */
+    void ReportCoordinateFrameSettings
+    (
+      /// Coordinate frame settings.
+      in CoordinateFrameSettingsType Settings
+    );
+
+    /**
+     * Report current coordinate frame status.
+     */
+    void ReportCoordinateFrameStatus
+    (
+      /// CoordinateFrame status data.
+      in CoordinateFrameStatusType Status,
+
+      /// Indicates if the status is no longer available.
+      /// Note: This will always be set to true when a service has been shut down.
+      /// After this has been set to true, the status will no longer be available to late joiners.
+      in boolean IsRemoved
+    );
+
+    /**
+     * Report coordinate transformation in different coordinate system.
+     */
+    void ReportCoordinateTransformations
+    (
+      /// Identifies the moving entity associated with the coordinate transformation.
+      /// Note: This may also be the service name of another network participant.
+      /// In this case, this associates the data with the device to which the service name belongs.
+      in string KeyId,
+
+      /// Transformation specification in different coordinate frames.
+      in M_Common::CoordinateTransformationListType TransformationList,
+
+      /// Indicates if the status is no longer available.
+      /// Note: This will always be set to true when a service has been shut down.
+      /// After this has been set to true, the status will no longer be available to late joiners.
+      in boolean IsRemoved
+    );
+
+    /**
+     * Report position in different coordinate frames.
+     */
+    void ReportPositions
+    (
+      /// Identifies the moving entity associated with the position.
+      /// Note: This may also be the service name of another network participant.
+      /// In this case, this associates the data with the device to which the service name belongs.
+      in string KeyId,
+
+      /// Position in different coordinate frames.
+      in M_Common::PositionListType PositionList,
+
+      /// Indicates if the status is no longer available.
+      /// Note: This will always be set to true when a service has been shut down.
+      /// After this has been set to true, the status will no longer be available to late joiners.
+      in boolean IsRemoved
+    );
+
+    /**
+     * Report attitude in different coordinate frames.
+     */
+    void ReportAttitudes
+    (
+      /// Identifies the moving entity associated with the attitude.
+      /// Note: This may also be the service name of another network participant.
+      /// In this case, this associates the data with the device to which the service name belongs.
+      in string KeyId,
+
+      /// Attitude in different coordinate frames.
+      in M_Common::AttitudeListType AttitudeList,
+
+      /// Indicates if the status is no longer available.
+      /// Note: This will always be set to true when a service has been shut down.
+      /// After this has been set to true, the status will no longer be available to late joiners.
+      in boolean IsRemoved
+    );
+
+    /**
+     * Report linear velocity in different coordinate frames.
+     */
+    void ReportLinearVelocities
+    (
+      /// Identifies the moving entity associated with the linear velocity.
+      /// Note: This may also be the service name of another network participant.
+      /// In this case, this associates the data with the device to which the service name belongs.
+      in string KeyId,
+
+      /// Linear velocity in different coordinate frames.
+      in M_Common::LinearVelocityListType LinearVelocityList,
+
+      /// Indicates if the status is no longer available.
+      /// Note: This will always be set to true when a service has been shut down.
+      /// After this has been set to true, the status will no longer be available to late joiners.
+      in boolean IsRemoved
+    );
+
+    /**
+     * Report angular velocity in different coordinate frames.
+     */
+    void ReportAngularVelocities
+    (
+      /// Identifies the moving entity associated with the angular velocity.
+      /// Note: This may also be the service name of another network participant.
+      /// In this case, this associates the data with the device to which the service name belongs.
+      in string KeyId,
+
+      /// Angular velocity in different coordinate frames.
+      in M_Common::AngularVelocityListType AngularVelocityList,
+
+      /// Indicates if the status is no longer available.
+      /// Note: This will always be set to true when a service has been shut down.
+      /// After this has been set to true, the status will no longer be available to late joiners.
+      in boolean IsRemoved
+    );
+
+    /**
+     * Report linear acceleration in different coordinate frames.
+     */
+    void ReportLinearAccelerations
+    (
+      /// Identifies the moving entity associated with the linear acceleration.
+      /// Note: This may also be the service name of another network participant.
+      /// In this case, this associates the data with the device to which the service name belongs.
+      in string KeyId,
+
+      /// Linear acceleration in different coordinate frames.
+      in M_Common::LinearAccelerationListType LinearAccelerationList,
+
+      /// Indicates if the status is no longer available.
+      /// Note: This will always be set to true when a service has been shut down.
+      /// After this has been set to true, the status will no longer be available to late joiners.
+      in boolean IsRemoved
+    );
+
+    /**
+     * Report angular acceleration in different coordinate frames.
+     */
+    void ReportAngularAccelerations
+    (
+      /// Identifies the moving entity associated with the angular acceleration.
+      /// Note: This may also be the service name of another network participant.
+      /// In this case, this associates the data with the device to which the service name belongs.
+      in string KeyId,
+
+      /// Angular acceleration in different coordinate frames.
+      in M_Common::AngularAccelerationListType AngularAccelerationList,
+
+      /// Indicates if the status is no longer available.
+      /// Note: This will always be set to true when a service has been shut down.
+      /// After this has been set to true, the status will no longer be available to late joiners.
+      in boolean IsRemoved
+    );
+  };
+};

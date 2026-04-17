@@ -1,0 +1,164 @@
+// Copyright (c) 2026 Rheinmetall Electronics GmbH
+//
+// This program and the accompanying materials are made available under the
+// terms of the Eclipse Public License 2.0 which is available at
+// https://www.eclipse.org/legal/epl-2.0.
+//
+// SPDX-License-Identifier: EPL-2.0
+
+#include "CommonTypes.idl"
+#include "VideoObjectExportTypes.idl"
+
+
+/**
+ * Interfaces used by the Video Object Export Service and Client.
+ *
+@startuml "Video Object Export Startup"
+
+title Startup
+hide footbox
+
+Client <- Service: ReportVideoObjectSettings(Settings.SupportedVideoChannels=["SAS", "SEOSS1_TV", "SEOSS1_IR"])
+note over Service
+    On startup the Service reports the
+    names of all configured video channels
+end note
+@enduml
+
+
+@startuml "Video Object Export Vehicle Movement"
+title Vehicle Movement
+hide footbox
+
+Client <- Service: ReportKinematicData(Kinematics)
+note over Service
+    Service report the updated vehicle position
+end note
+@enduml
+
+
+@startuml "Video Object Export Mount Movement"
+title Mount Movement
+hide footbox
+
+Client <- Service: ReportMountPosition(KeyMountName="SEOSS", VideoChannelList=["SEOSS1_TV", "SEOSS1_IR"], Azimuth, Elevation)
+note over Service
+    Service report the updated mount position
+    along with the video channel names
+end note
+@enduml
+
+
+@startuml "Video Object Export Camera Field of View Change"
+title Camera Field of View Change
+hide footbox
+
+Client <- Service: ReportCameraZoomFovRegion(VideoChannel="SEOSS1_TV", FovHorizontal, FovVertical)
+note over Service
+    Service reports the updated camera field of view
+    along with the video channel name
+end note
+@enduml
+
+
+@startuml "Video Object Export Marker Object"
+title Marker Object
+hide footbox
+
+== Create/Update Marker ==
+Client <- Service: ReportMarkerObject(KeyId, MarkerObject={..., MarkerPositionList=[\n       {VideoChannel="SAS", Azimuth, Elevation, ...},\n       {VideoChannel="SEOSS1_TV", Azimuth, Elevation, ...},\n       {VideoChannel="SEOSS1_IR", Azimuth, Elevation, ...}], ...}, \nIsRemoved=false)
+note over Service
+    Service reports a marker with data
+    along with the current positions of
+    the marker in each of the specified
+    video channels
+end note
+...
+
+== Delete Marker ==
+Client <- Service: ReportMarkerObject(KeyId, MarkerObject, IsRemoved=true)
+note over Service
+    Service reports a marker with data
+    along with an indication that it has
+    been removed from the system
+end note
+
+@enduml
+ */
+module M_VideoObjectExport
+{
+  /// Interface version number.
+  const string Version = "3.2.0";
+
+
+  /**
+   * Service interface.
+   * Contains operations that a client can command the Video Object Export Service to perform.
+   */
+  interface IService
+  {
+    /// Configure the Service to enable or disable exporting of Objects for recording.
+    void ConfigRecorderExport (
+      /// Indicates if the export function is enabled (true) or disabled (false).
+      in boolean Enable
+    );
+  };
+
+
+  /**
+   * Client interface.
+   * Contains callback operations from the Video Object Export Service to the Client.
+   */
+  interface IClient
+  {
+    /// Static settings for the service reported once on startup.
+    void ReportVideoObjectSettings (
+      /// Configured settings for the Video Object Export Service.
+      in VideoObjectSettingsType Settings
+    );
+
+    /// Report the current Azimuth and Elevation of the Sight System used for a Video Channel.
+    void ReportMountPosition (
+// TODO: How do we handle if the Cameras are installed at an angle/offset?
+      /// Name of Mount which has moved.
+      in string KeyMountName,
+      /// List of Video Channels for which the Mount position applies.
+      in M_Common::StringListType VideoChannelList,
+      /// Azimuth position of Mount (in degrees).
+      in M_Common::AngleDegreesType Azimuth,
+      /// Elevation position of Mount (in degrees).
+      in M_Common::AngleDegreesType Elevation,
+      /// Indicates if the payload is no longer available
+      /// Note: This will always be set to true when the instance has been shut down
+      /// After this has been set to true, the payload will no longer be available to late joiners.
+      in boolean IsRemoved
+    );
+
+    /// Report the current Camera Field of View used for a Video Channel.
+    void ReportCameraZoomFovRegion (
+      /// Name of Video Channel for which the Field of View applies.
+      in string VideoChannel,
+      /// Camera Field of View Horizontal.
+      in M_Common::AngleDegreesType FovHorizontal,
+      /// Camera Field of View Vertical.
+      in M_Common::AngleDegreesType FovVertical
+    );
+
+    /// Report the current Marker data (with positional data for the marker in one or more Video Channels).
+    void ReportMarkerObject (
+      /// Object Id of Marker.
+      in M_Common::ObjectIdType KeyId,
+      /// Data for Marker object.
+      in MarkerObjectType MarkerObject,
+      /// Indicates if Marker has been removed (true) and no longer exists, otherwise false
+      in boolean IsRemoved
+    );
+
+    /// Reports kinematic information relating to own vehicle/platform.
+    void ReportKinematicData (
+      /// Kinematic information relating to own vehicle/platform.
+      /// Contains information such as position, velocity, heading, etc for own vehicle/platform.
+      in KinematicInfoType Kinematics
+    );
+  };
+};

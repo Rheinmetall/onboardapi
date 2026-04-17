@@ -1,0 +1,675 @@
+// Copyright (c) 2026 Rheinmetall Electronics GmbH
+//
+// This program and the accompanying materials are made available under the
+// terms of the Eclipse Public License 2.0 which is available at
+// https://www.eclipse.org/legal/epl-2.0.
+//
+// SPDX-License-Identifier: EPL-2.0
+
+#include "CommonTypes.idl"
+#include "MountTypes.idl"
+
+
+/**
+ * Interfaces used by the Mount Service and Client.
+ */
+module M_Mount
+{
+  /// Interface version number.
+  const string Version = "14.1.0";
+
+
+  /**
+   * Mount Service interface.
+   * Contains operations that a client can command the Mount Service to perform.
+   *
+@startuml "Mount State Chart"
+hide empty description
+top to bottom direction
+
+skinparam StateBorderColor<<internalState>> dimgray
+skinparam StateBackgroundColor<<internalState>> white
+skinparam StateBorderColor<<ctrlState>> dimgray
+skinparam StateBackgroundColor<<ctrlState>> lightcyan
+skinparam StateBorderColor<<searchState>> dimgray
+skinparam StateBackgroundColor<<searchState>> thistle
+skinparam StateBackgroundColor<<sysBorder>> white
+skinparam StateBorderColor<<sysBorder>> black
+skinparam NoteFontSize<<sysBorder>> 30
+skinparam StateBorderColor<<sysBorder>> black
+
+skinparam StateBorderColor<<connector>> transparent
+skinparam StateBackgroundColor<<connector>> lightblue
+
+legend top left
+<back:beige><font size=20>StabState
+<back:lightcyan><font size=20>ControlState
+<back:thistle><font size=20>TargetAssignment SearchState
+<back:white><font size=20>Internal-State
+endlegend
+
+
+state MOUNT<<sysBorder>>{
+
+    [*] --> MOTOR_OFF
+    note on link
+        Which mode is actually active
+        at startup depends on mount and project.
+    end note
+    MOTOR_OFF : <b>Notify-Inputs are ignored.
+    MOTOR_OFF : <back:lightcyan>No control state</back> is reported.
+
+    LOCKED : <b>Inputs:
+    LOCKED : <b>NotifyAngle (if supported by mount)
+    LOCKED : If NotifyAngle is supported, the
+    LOCKED : control state <back:lightcyan>Controlled_By_Angle</back>
+    LOCKED : is reported. Otherwise <back:lightcyan>none</back>.
+
+    HORIZONTAL_STAB : <b>Inputs:
+    HORIZONTAL_STAB : <b>NotifyAngle
+    HORIZONTAL_STAB : <b>NotifyRateAbsolute/Scaled/Relative
+    HORIZONTAL_STAB : Whether angle or rate is processed
+    HORIZONTAL_STAB : depends on most recent input.
+    HORIZONTAL_STAB : <back:lightcyan>Controlled_By_Rate</back> or <back:lightcyan>Controlled_By_Angle</back>
+    HORIZONTAL_STAB : are reported as control state accordingly.
+
+    state CTRL_MODE_CHOICE<<choice>>
+    MOUNT --> CTRL_MODE_CHOICE : CmdMode
+
+    state UNSTAB{
+        UNSTAB : <b>Inputs:
+        UNSTAB : <b>NotifyAngle
+        UNSTAB : <b>NotifyRateAbsolute/Scaled/Relative
+
+        state "CONTROLLED_BY_RATE" as UNSTAB_CONTROLLED_BY_RATE <<ctrlState>>
+        UNSTAB_CONTROLLED_BY_RATE : <b>Inputs:
+        UNSTAB_CONTROLLED_BY_RATE : <b>NotifyRateAbsolute/Scaled/Relative
+        state "CONTROLLED_BY_ANGLE" as UNSTAB_CONTROLLED_BY_ANGLE <<ctrlState>>
+        UNSTAB_CONTROLLED_BY_ANGLE : <b>Inputs:
+        UNSTAB_CONTROLLED_BY_ANGLE : <b>NotifyAngle
+
+
+        state UNSTAB_INPUT_CHOICE<<choice>>
+        [*] --> UNSTAB_INPUT_CHOICE
+        UNSTAB_INPUT_CHOICE --> UNSTAB_CONTROLLED_BY_ANGLE : [AngleReceivedLast]
+        UNSTAB_INPUT_CHOICE --> UNSTAB_CONTROLLED_BY_RATE : [RateReceivedLast]
+        UNSTAB_INPUT_CHOICE --> UNSTAB_CONTROLLED_BY_RATE : [NothingReceivedYet]
+
+        UNSTAB_CONTROLLED_BY_RATE --> UNSTAB_CONTROLLED_BY_ANGLE : NotifyAngle
+        UNSTAB_CONTROLLED_BY_ANGLE --> UNSTAB_CONTROLLED_BY_RATE : NotifyRateAbsolute
+        UNSTAB_CONTROLLED_BY_ANGLE --> UNSTAB_CONTROLLED_BY_RATE : NotifyRateScaled
+        UNSTAB_CONTROLLED_BY_ANGLE --> UNSTAB_CONTROLLED_BY_RATE : NotifyRateRelative
+
+        state "WIDE_AREA_SCAN" as WIDE_AREA_SCAN <<ctrlState>>
+        WIDE_AREA_SCAN : <b>Inputs:
+        WIDE_AREA_SCAN : <b>ConfigWideAreaScanParams
+
+        state "SLAVED_TO_LEADING_DEVICE" as SLAVED_TO_LEADING_DEVICE <<ctrlState>>
+        SLAVED_TO_LEADING_DEVICE : <b>Inputs:
+        SLAVED_TO_LEADING_DEVICE : <b>ConfigLeadingDevice
+
+    }
+
+
+
+
+    state STAB{
+        state STAB_INPUT_CHOICE<<choice>>
+        [*] --> STAB_INPUT_CHOICE
+        STAB_INPUT_CHOICE -down-> STAB_CONTROLLED_BY_ANGLE : [AngleReceivedLast]
+        STAB_INPUT_CHOICE -down-> STAB_CONTROLLED_BY_RATE : [RateReceivedLast]
+        STAB_INPUT_CHOICE -down-> STAB_CONTROLLED_BY_RATE : [NothingReceivedYet]
+
+        STAB_CONTROLLED_BY_RATE --> STAB_CONTROLLED_BY_ANGLE : NotifyAngle
+        STAB_CONTROLLED_BY_ANGLE --> STAB_CONTROLLED_BY_RATE : NotifyRateAbsolute
+        STAB_CONTROLLED_BY_ANGLE --> STAB_CONTROLLED_BY_RATE : NotifyRateScaled
+        STAB_CONTROLLED_BY_ANGLE --> STAB_CONTROLLED_BY_RATE : NotifyRateRelative
+
+
+        state "CONTROLLED_BY_RATE" as STAB_CONTROLLED_BY_RATE <<ctrlState>>
+        STAB_CONTROLLED_BY_RATE : <b>Inputs:
+        STAB_CONTROLLED_BY_RATE : <b>NotifyRateAbsolute/Scaled/Relative
+        state "CONTROLLED_BY_ANGLE" as STAB_CONTROLLED_BY_ANGLE <<ctrlState>>
+        STAB_CONTROLLED_BY_ANGLE : <b>Inputs:
+        STAB_CONTROLLED_BY_ANGLE : <b>NotifyAngle
+
+        state CONTROLLED_BY_VIDEO_TRACKER<<ctrlState>>{
+            CONTROLLED_BY_VIDEO_TRACKER : <b>OnExit: GEN( Vt::NotifyLosCtrlMountTrackingState=No_Tracking )
+
+            state "CENTERING" as CENTERING <<internalState>>
+            state "CENTERED" as CENTERED <<internalState>>
+            state "COASTING" as COASTING <<internalState>>
+
+            CENTERING : <b>Notify-Inputs are ignored
+            CENTERING :
+            CENTERING : <b>OnEntry: GEN( Vt::NotifyLosCtrlMountTrackingState=Centering )
+            note right of CENTERING
+                Optional. Control loop might not have
+                this intermediate state.
+            end note
+
+            CENTERING --> CENTERED : evVtCtrlCentered
+            CENTERED : <b>Notify-Inputs are ignored
+            CENTERED :
+            CENTERED :  <b>OnEntry: GEN( Vt::NotifyLosCtrlMountTrackingState=Centered )
+
+            CENTERED --> COASTING : Vt::ReportLosCtrlPosError[Vt::IsRemoved==false && Vt::IsCoasting==true]
+            COASTING : <b>Inputs:
+            COASTING : <b>NotifyRateAbsolute/Scaled/Relative (if supported by mount)
+            COASTING :
+            COASTING : <b>OnEntry: GEN( Vt::NotifyLosCtrlMountTrackingState=Memory_Track_Video_Tracker )
+            COASTING --> CENTERING : Vt::ReportLosCtrlPosError[Vt::IsRemoved==false && Vt::IsCoasting==false]
+
+            note "Rate variant behaves the same way." as N1
+
+        }
+
+        note top of CONTROLLED_BY_VIDEO_TRACKER
+        <font size=20>Depending on mount,
+        <font size=20>Controlled_By_Video_tracker could
+        <font size=20>also be placed in UNSTAB.
+        end note
+
+        CONTROLLED_BY_VIDEO_TRACKER --> STAB_INPUT_CHOICE : Vt::ReportLosCtrlPosError[Vt::IsRemoved==true]
+        STAB --> CENTERING : Vt::ReportLosCtrlPosError[Vt::IsRemoved==false]
+
+        state TARGET_ASSIGNMENT<<ctrlState>>{
+            note "Transitions are taken and states are reported\nregardless of whether the mount supports these\nsearch features." as N3
+
+            TARGET_ASSIGNMENT : TgtAssigmentSearchState is <back:thistle>NoSearch</back> outside this state.
+            TARGET_ASSIGNMENT :
+            TARGET_ASSIGNMENT : <b>Inputs:
+            TARGET_ASSIGNMENT : <b>NotifyTgtAssignmentSphere
+            TARGET_ASSIGNMENT : <b>NotifyTgtAssignmentCart
+            TARGET_ASSIGNMENT : Whether sphere or cart. position is
+            TARGET_ASSIGNMENT : processed depends on most recent input.
+
+            state "SEARCH_INIT" as SEARCH_INIT <<searchState>>
+            SEARCH_INIT --> SEARCH_AUTOMATIC : evReachedTgtPos
+            state "SEARCH_AUTOMATIC" as SEARCH_AUTOMATIC <<searchState>>
+            SEARCH_AUTOMATIC --> SEARCH_MANUAL : CmdTgtAssigmentSearchAction[Action==Manual_Search]
+            note on link
+                Automatic search process is paused.
+            end note
+            state "SEARCH_MANUAL" as SEARCH_MANUAL <<searchState>>
+            SEARCH_MANUAL --> SEARCH_AUTOMATIC : CmdTgtAssigmentSearchAction[Action==AutomaticSearch]
+            note on link
+                Automatic search process is resumed.
+            end note
+
+            SEARCH_AUTOMATIC : <b>Additional Inputs:
+            SEARCH_AUTOMATIC : <b>ConfigTgtAssignmentSearchPattern
+            SEARCH_MANUAL : <b>Additional Inputs:
+            SEARCH_MANUAL : <b>NotifyRateAbsolute/Scaled/Relative
+        }
+
+        note top of TARGET_ASSIGNMENT
+        <font size=20>Depending on mount,
+        <font size=20>Target_Assignment could
+        <font size=20>also be placed in UNSTAB.
+        end note
+
+    }
+
+    UNSTAB --> CENTERING : Vt::ReportLosCtrlPosError[Vt::IsRemoved==false]
+    note on link
+        Support for transition from other
+        stabmode depends on mount/project.
+    end note
+
+    CTRL_MODE_CHOICE -down-> MOTOR_OFF : [Mode==Motor_Off]
+    CTRL_MODE_CHOICE -down-> LOCKED : [Mode==Locked]
+    CTRL_MODE_CHOICE -down-> UNSTAB : [Mode==Unstab]
+    CTRL_MODE_CHOICE -down-> STAB : [Mode==Stab]
+    CTRL_MODE_CHOICE -down-> SEARCH_INIT  : [Mode==Target_Assignment]
+    CTRL_MODE_CHOICE -down-> SLAVED_TO_LEADING_DEVICE  : [Mode==Slaved_To_Leading_Device]
+    CTRL_MODE_CHOICE -down-> WIDE_AREA_SCAN  : [Mode==Wide_Area_Scan]
+    CTRL_MODE_CHOICE -down-> HORIZONTAL_STAB  : [Mode==Horizontal_Stab]
+}
+@enduml
+   */
+  interface IService
+  {
+    /**
+     * Configure the maximum rate of movement for a Mount platform
+     * (angular velocity soft limits).
+     */
+    void ConfigMaximumRate
+    (
+      /// Maximum azimuth rate in degrees per second.
+      /// Not present means no limit.
+      in M_Common::AngleRateDegreesPerSecOptionalType AzimuthRate,
+
+      /// Maximum elevation rate in degrees per second.
+      /// Not present means no limit.
+      in M_Common::AngleRateDegreesPerSecOptionalType ElevationRate
+    );
+
+    /**
+     * Determine source for inputs.
+     *
+     * Note: Input data should only be handled by the mount from the configured clients.
+     * Input data from other clients should be ignored.
+     * If a filter is disabled, all inputs are allowed.
+     * If a filter is enabled, all inputs in the according list are allowed (white list).
+     * (Therefore, an enabled filter in combination with an empty list inhibits all input.)
+     */
+    void ConfigInputSource
+    (
+      /// Indicates whether the mount should filter client ID input.
+      in boolean IsClientIdFilterEnabled,
+
+      /// List of client IDs to accept data (angles, rates) input from.
+      ///
+      /// The following calls should only be handled from the specified clients:
+      /// - NotifyAngle
+      /// - NotifyRateAbsolute
+      /// - NotifyRateRelative
+      /// - NotifyRateScaled
+      in M_Common::StringListType ClientIds
+    );
+
+    /**
+     * Determine source for target assignment inputs.
+     *
+     * Note: Input data should only be handled by the mount from the configured clients.
+     * Input data from other clients should be ignored.
+     * If a filter is disabled, all inputs are allowed.
+     * If a filter is enabled, all inputs in the according list are allowed (white list).
+     * (Therefore, an enabled filter in combination with an empty list inhibits all input.)
+     */
+    void ConfigTgtAssignmentInputSource
+    (
+      /// Indicates whether the mount should filter target assignment client ID input.
+      in boolean IsTgtAssignmentClientIdFilterEnabled,
+
+      /// List of client IDs from which target assignment notifies shall are processed.
+      ///
+      /// The following calls should only be handled from the specified clients:
+      /// - NotifyTgtAssignment
+      in M_Common::StringListType TgtAssignmentClientIds
+    );
+
+    /**
+     * Determine source for target assignment search inputs.
+     *
+     * Note: Input data should only be handled by the mount from the configured clients.
+     * Input data from other clients should be ignored.
+     * If a filter is disabled, all inputs are allowed.
+     * If a filter is enabled, all inputs in the according list are allowed (white list).
+     * (Therefore, an enabled filter in combination with an empty list inhibits all input.)
+     */
+    void ConfigTgtAssignmentSearchInputSource
+    (
+      /// Indicates whether the mount should filter target assignment search client ID input.
+      in boolean IsTgtAssignmentSearchClientIdFilterEnabled,
+
+      /// List of client IDs from which rates shall be processed in manual search mode.
+      ///
+      /// The following calls should only be handled from the specified clients when the mount is in
+      /// mode "Target_Assignment" and TgtAssignmentSearchState = "Manual_Search".
+      /// - NotifyRateAbsolute
+      /// - NotifyRateRelative
+      /// - NotifyRateScaled
+      in M_Common::StringListType TgtAssignmentSearchClientIds
+    );
+
+    /**
+     * Configure the search area around the Target Assignment position.
+     *
+     * Note: This should be stored and used when searching around a position in
+     * provided "NotifyTgtAssignmentCart" or "NotifyTgtAssignmentSphere" in
+     * "Target_Assignment" Control Mode.
+     */
+    void ConfigTgtAssignmentSearchPattern
+    (
+      /// Search pattern parameters.
+      in TgtAssignmentSearchPatternType SearchPatternParams
+    );
+
+    /**
+     * Configure the internal device that the Mount shall be slaved to.
+     * If value is not present, no leading device shall be used to slave to.
+     *
+     * Note: This should be stored and used when in "Slaved_To_Leading_Device"
+     * Control Mode.
+     */
+    void ConfigLeadingDevice
+    (
+      /// Device to be slaved to over an internal interface.
+      /// Not present means that no leading device shall be used to slave to.
+      in M_Common::LongOptionalType DeviceId
+    );
+
+    /**
+     * Configure the internal device that shall be slaved to the Mount.
+     * If value is not present, no slaving device shall be used.
+     */
+    void ConfigSlavedDevice
+    (
+      /// Device to slave over an internal interface.
+      /// Not present means that no slaving device shall be used.
+      in M_Common::LongOptionalType DeviceId
+    );
+
+    /**
+     * Configure the azimuth/elevation slew limits.
+     * If slew limitation is specified the Mount service uses the provided limits,
+     * otherwise the hard limits of the Mount will be used.
+     */
+    void ConfigSlewLimits
+    (
+      /// Angular slew limits for Mount which can change during runtime.
+      /// Note: Setting the limit to not present deactivates the limit.
+      in AngularLimitType SlewLimits
+    );
+
+    /**
+     * Store a mount position, identified by a string key.
+     * This is meant to quickly access positions of interest for later use.
+     */
+    void ConfigStorePosition
+    (
+      /// Identifies the position to be stored.
+      in string KeyId,
+
+      /// Azimuth [deg].
+      in M_Common::AngleDegreesType Azimuth,
+
+      /// Elevation [deg].
+      in M_Common::AngleDegreesType Elevation,
+
+      /// Indicates if the service should delete a stored position (true) or not (false).
+      /// After this has been set to true, the position will no longer be available to late joiners.
+      in boolean IsRemoved
+    );
+
+    /**
+     * Move to an earlier assigned or persistently stored mount position, identified by a string key.
+     */
+    void CmdMoveToStoredPosition
+    (
+      /// Identifies the stored position to be moved to
+      in string Id
+    );
+
+    /**
+     * Command to set mode of control and stabilization for a Mount platform.
+     *
+     * Note: The Mount will use stored data from previously provided config calls when required
+     * as parameters for the specified Mode.
+     */
+    void CmdMode
+    (
+      /// Mode of control and stabilization for a Mount platform.
+      in ModeCommand::Type Mode
+    );
+
+    /**
+     * Control Target Assignment search action.
+     *
+     * Note: Command is only processed when the Mount is in the "Target_Assignment" Control Mode.
+     */
+    void CmdTgtAssignmentSearchAction
+    (
+      /// Type of action to perform.
+      in TgtAssignmentSearchCmdKind::Type Action
+    );
+
+    /**
+     * Command to the Mount service to enable or disable automatic drift compensation correction.
+     * This is used to correct a drifting Mount platform. It uses offset values automatically
+     * determined by the Mount platform.
+     */
+    void CmdAutoDriftCompensation
+    (
+      /// Indicates if drift compensation should be enabled (true) or disabled (false).
+      /// True  = Enable drift compensation
+      /// False = Disable drift compensation
+      in boolean IsEnabled
+    );
+
+    /**
+     * Command to manually set the specified drift compensation offset.
+     * This is used to set the offset values to correct a drifting Mount.
+     */
+    void CmdManualDriftCompensation
+    (
+      /// Azimuth rate offset in degrees.
+      in M_Common::AngleRateDegreesPerSecType OffsetAzimuthRate,
+
+      /// Elevation rate offset in degrees.
+      in M_Common::AngleRateDegreesPerSecType OffsetElevationRate,
+
+      /// Indicates if the provided rate values are relative to the currently used Drift compensation (true)
+      /// or absolute rate value replacing currently used Drift compensation.
+      /// True = Relative to the currently used Drift compensation
+      /// False = Absolute rate value replacing currently used Drift compensation
+      in boolean IsRelative
+    );
+
+    /**
+     * Command to allow external sources to set drift compensation.
+     */
+    void CmdAllowExternalDriftCompensation
+    (
+      /// Indicates whether external drift compensation is allowed.
+      in boolean IsAllowed
+    );
+
+    /**
+     * Command to aim perfectly aligned with the horizon line by compensating vehicle attitude.
+     */
+    void CmdHorizontalAiming
+    (
+      /// Indicates whether horizontal aiming should be enabled (true) or disabled (false).
+      in boolean IsEnabled
+    );
+
+    /// Sets operational mode RateAid calculation.
+    void CmdSetOperationalModeRateAid
+    (
+      /// Activate the RateAid calculation (true) or deacivate (false).
+      in boolean Activate
+    );
+
+    /**
+     * Notify the Mount to turn to a position angle in degrees.
+     *
+     * Note: This operation shall be called only if the InputSourceClientId matches with the
+     * MountStatusType.InputSourceClientId of ReportMountStatus().
+     */
+    void NotifyAngle
+    (
+      /// The client name of the calling instance associated with the position angle
+      in string InputSourceClientId,
+
+      /// Azimuth in degrees.
+      in M_Common::AngleDegreesType Azimuth,
+
+      /// Elevation in degrees.
+      in M_Common::AngleDegreesType Elevation,
+
+      /// Parameters to tune how the Mount should be commanded into position.
+      /// Note: This indicates, among other things, what the above position is relative to.
+      in MountAngleParamsType AngleParams
+    );
+
+    /**
+     * Designate the Mount to position for a target assignment.
+     * The Mount will follow the object automatically between updates by using the provided object velocity.
+     *
+     * Note: This operation shall be called only if the InputSourceClientId matches with the
+     * MountStatusType.InputSourceClientId of ReportMountStatus().
+     */
+    void NotifyTgtAssignment
+    (
+      /// The client name of the calling instance associated with the assignment
+      in string InputSourceClientId,
+
+      /// Target position.
+      in M_Common::PositionType Position,
+
+      /// Target velocity.
+      in M_Common::LinearVelocityOptionalType Velocity,
+
+      /// Timestamp of target data.
+      in M_Common::TimeType Timestamp,
+
+      /// Parameters to tune how the Mount should be commanded into position.
+      /// Note: This indicates, among other things, what the above position is relative to.
+      in MountAngleParamsType AngleParams
+    );
+
+    /**
+     * Command to set relative rate of movement for a Mount platform.
+     * A value of 0 keeps the current Mount movement. A positive value speeds up
+     * or negative value slows down the Mount movement in one direction. A negative
+     * value speeds up or a positive value slows down the movement in the opposite
+     * direction.
+     *
+     * Note: This is implemented as a notify call in order to always contain the
+     * latest value from a client.
+
+     * Note: This operation shall be called only if the InputSourceClientId matches with the
+     * MountStatusType.InputSourceClientId of ReportMountStatus().
+     */
+    void NotifyRateRelative
+    (
+      /// The client name of the calling instance associated with the absolute rate
+      in string InputSourceClientId,
+
+      /// Azimuth rate in degrees per second.
+      in M_Common::AngleRateDegreesPerSecType AzimuthRate,
+
+      /// Elevation rate in degrees per second.
+      in M_Common::AngleRateDegreesPerSecType ElevationRate
+    );
+
+    /**
+     * Command to set absolute rate of movement for a Mount platform.
+     * A value of 0 stops the Mount from moving. A negative value moves the Mount
+     * in the other direction.
+     *
+     * Note: This is implemented as a notify call in order to always contain the
+     * latest value from a client.
+
+     * Note: This operation shall be called only if the InputSourceClientId matches with the
+     * MountStatusType.InputSourceClientId of ReportMountStatus().
+     */
+    void NotifyRateAbsolute
+    (
+      /// The client name of the calling instance associated with the absolute rate
+      in string InputSourceClientId,
+
+      /// Azimuth rate in degrees per second.
+      in M_Common::AngleRateDegreesPerSecType AzimuthRate,
+
+      /// Elevation rate in degrees per second.
+      in M_Common::AngleRateDegreesPerSecType ElevationRate
+    );
+
+    /**
+     * Provides the Mount with normed rate of movement.
+     * This sets the rate of movement normed to the maximum possible rate
+     * of the Mount. A value of 0 stops the Mount from moving. A value of
+     * 1 or -1 moves the Mount at the maximum rate. A negative value
+     * moves the Mount in the opposite direction.
+     *
+     * Note: This is implemented as a notify call in order to always contain the
+     * latest value from a client. This can then correspond to an output report
+     * from a joystick.
+     *
+     * Note: This operation shall be called only if the InputSourceClientId matches with the
+     * MountStatusType.InputSourceClientId of ReportMountStatus().
+     */
+    void NotifyRateScaled
+    (
+      /// The client name of the calling instance associated with the scaled rate
+      in string InputSourceClientId,
+
+      /// Rate of movement normed to the maximum possible rate of the Mount.
+      /// Note: Not present indicates no rate (similar to setting a rate of 0)
+      in ScaledRateOptionalType ScaledRate
+    );
+  };
+
+
+  /**
+   * Mount Client interface.
+   * Contains callback operations from the Mount Service to the Client.
+   */
+  interface IClient
+  {
+    /**
+     * Report with static Mount settings.
+     * This will only be provided on startup and the values will not be changed
+     * during runtime.
+     */
+    void ReportMountSettings
+    (
+      /// Mount settings data.
+      in MountSettingsType Settings
+    );
+
+    /**
+     * Report with current Mount status.
+     * This should always be called with the latest status updates since
+     * the last report can be read by late joiners.
+     */
+    void ReportMountStatus
+    (
+      /// Current status data for Mount.
+      in MountStatusType Status,
+
+      /// Indicates if the status is no longer available.
+      /// Note: This will always be set to True when a service has been shut down.
+      /// After this has been set to True, the status will no longer be available to late joiners.
+      in boolean IsRemoved
+    );
+
+    /**
+     * Report with current Mount position (e.g. Line of Sight) information.
+     * This should always be called with the latest status updates since
+     * the last report can be read by late joiners.
+     */
+    void ReportMountPosition
+    (
+      /// Current Mount positional data.
+      in MountPositionType Pos
+    );
+
+    /**
+     * Report of current search position information.
+     * This should always be called with the latest status updates since
+     * the last report can be read by late joiners.
+     */
+    void ReportTgtAssignmentSearchOffset
+    (
+      /// The current offset between Target Assignment position and line of sight.
+      in M_Common::SphericalPositionType Offset
+    );
+
+    /**
+     * Report of current target assignment position
+     * This should always be called with the latest status updates since
+     * the last report can be read by late joiners.
+     */
+    void ReportTgtAssignmentPosition
+    (
+      /// The current target position
+      in M_Common::PositionType Position
+    );
+
+    /**
+     * Report of current target assignment velocity
+     * This should always be called with the latest status updates since
+     * the last report can be read by late joiners.
+     */
+    void ReportTgtAssignmentVelocity
+    (
+      /// The current target velocity
+      in M_Common::LinearVelocityOptionalType Velocity
+    );
+  };
+};

@@ -1,0 +1,206 @@
+// Copyright (c) 2026 Rheinmetall Electronics GmbH
+//
+// This program and the accompanying materials are made available under the
+// terms of the Eclipse Public License 2.0 which is available at
+// https://www.eclipse.org/legal/epl-2.0.
+//
+// SPDX-License-Identifier: EPL-2.0
+
+#ifndef _SCAN_CTRL_TYPES_IDL_
+#define _SCAN_CTRL_TYPES_IDL_
+
+
+#include "CommonTypes.idl"
+
+
+/**
+ * Types used by the ScanCtrl Service/Client.
+ */
+module M_ScanCtrl
+{
+  /// Context for mode of a ScanCtrl.
+  module ScanCtrlMode
+  {
+    /// Mode of a ScanCtrl.
+    enum Type
+    {
+      /// Off.
+      Off,
+
+      /// Initialise.
+      Init,
+
+      /// Reset scan.
+      Reset,
+
+      /// Pause automatic scan for manual control.
+      Pause_Auto,
+
+      /// Run automatic scan.
+      Run_Auto,
+
+      /// Passive scan.
+      Passive,
+
+      /// Active scan.
+      Active,
+
+      /// Swivel into next scan grid-point/position.
+      Run_Auto_Swivel_In
+    };
+  };
+
+
+  /// Scan direction context.
+  module ScanDirectionKind
+  {
+    /// Scan direction enumeration.
+    enum Type
+    {
+      /// Search in azimuth continuously. At edge of sector move in elevation according to step size.
+      Azimuth_Continuous_Elevation_Step,
+
+      /// Search in elevation continuously. At edge of sector move in azimuth according to step size.
+      Elevation_Continuous_Azimuth_Step,
+
+      /// Search in elevation and azimuth continuously.
+      Both_Continuous,
+
+      /// Search in elevation and azimuth in steps, according to step size.
+      Both_Step
+    };
+  };
+
+  /// Optional ScanDirectionKind.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<ScanDirectionKind::Type, 1> ScanDirectionOptionalType;
+
+
+  /**
+   * Contains data defining scan pattern parameters
+   */
+  struct ScanParameterType
+  {
+    /// Velocity defining how fast the scanning direction changes.
+    M_Common::LinearVelocityOptionalType ScanVelocity;
+
+    /// Time duration to stay on a scan point [s].
+    M_Common::TimeSecondsOptionalType ScanPointWaitTime;
+
+    /// Offset to the default origin of the scan pattern.
+    M_Common::PositionOptionalType ReferenceOffset;
+  };
+
+  /// Optional ScanParameterType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<ScanParameterType, 1> ScanParameterOptionalType;
+
+
+  /**
+   * Contains data defining a scan grid.
+   */
+  struct GridType
+  {
+    /// Size of the grid.
+    M_Common::PositionType ScanSector;
+
+    /// Separation between grid points.
+    M_Common::PositionOptionalType GridDistance;
+
+    /// Direction of the scan.
+    ScanDirectionOptionalType Direction;
+
+    /// Horizontal direction in which to start search with.
+    M_Common::HorizontalDirection::Type StartDirectionHorizontal;
+
+    /// Vertical direction in which to start search with.
+    M_Common::VerticalDirection::Type StartDirectionVertical;
+  };
+
+  /// Optional GridType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<GridType, 1> GridOptionalType;
+
+
+  /**
+   * Contains one of different possible scan motion patterns to choose from.
+   * Either PositionList or GridMotion shall be filled.
+   * Note: Both sides of an interface using this structure should mutually agree upon the subtype to use.
+   */
+  struct ScanPatternType
+  {
+      /// List of positions to scan.
+      M_Common::MultiPositionOptionalType PositionList;
+
+      /// Scan grid.
+      GridOptionalType GridMotion;
+
+      /// Time allocated/needed for the scan [s].
+      M_Common::TimeSecondsOptionalType SearchTime;
+      
+      // Common scan pattern parameters
+      ScanParameterType ScanParameter;
+  };
+
+  /// Optional ScanPatternType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<ScanPatternType, 1> ScanPatternOptionalType;
+
+
+  /**
+   * Contains info on supported control modes.
+   */
+  struct ActionSupportedType
+  {
+    /// Indicates if "Reset" is supported.
+    boolean IsResetSupported;
+
+    /// Indicates if "Pause_Auto" mode is supported.
+    boolean IsPauseAutoSupported;
+
+    /// Indicates if "Run_Auto" mode is supported.
+    boolean IsRunAutoSupported;
+  };
+
+
+  /// Contains the ScanCtrl settings data.
+  struct ScanCtrlSettingsType
+  {
+    ActionSupportedType SupportedActions;
+
+    /// Indicates if a Client can store the scan positions with the CmdStoreScanPositions operation (true) or not (false).
+    boolean IsCmdStoreScanPatternSupported;
+
+    /// Indicates the maximum number of supported scan points which can be configured.
+    M_Common::ULongOptionalType MaxNumberOfScanPoints;
+
+    /// Additional properties relating to the ScanCtrl.
+    /// Note: Properties are defined generically to enable non-essential additional
+    /// information to be provided without impacting the Data Model.
+    M_Common::PropertyListType AdditionalInfo;
+  };
+
+
+  /// Contains the ScanCtrl status data.
+  struct ScanCtrlStatusType
+  {
+    /// Current mode of the Scan.
+    ScanCtrlMode::Type Mode;
+    
+    /// Currently active pattern name
+    string CurrentPatternName;
+
+    /// Currently active scan pattern.
+    ScanPatternType ScanPattern;
+
+    /// The current count of finished scan cycles.
+    /// A value change should be reported when scanning all grid-points/positions is finished and starts from the beginning.
+    M_Common::ULongOptionalType NumberOfScanCycles;
+
+    /// The current count or index of scan grid-points/positions within a scan cycle.
+    /// A value change should be reported when the scan reached the next grid-point/position.
+    M_Common::ULongOptionalType NumberOfScanPoint;
+  };
+};
+
+#endif

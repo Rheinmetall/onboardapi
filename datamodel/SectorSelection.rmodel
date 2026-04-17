@@ -1,0 +1,116 @@
+// Copyright (c) 2026 Rheinmetall Electronics GmbH
+//
+// This program and the accompanying materials are made available under the
+// terms of the Eclipse Public License 2.0 which is available at
+// https://www.eclipse.org/legal/epl-2.0.
+//
+// SPDX-License-Identifier: EPL-2.0
+
+#include "CommonTypes.idl"
+#include "SectorSelectionTypes.idl"
+
+
+/**
+ * A Sector Selection service is used to select sectors from an HMI.
+ *
+@startuml "Sector Selection"
+title Sector Selection
+hide footbox
+
+== Startup ==
+
+Client <- Service: ReportSectorSelectionSettings(Settings.IsCmdSelectSectorSupported=True)
+note over Service
+    Service reports settings on startup
+end note
+Client <- Service: ReportSectorDefinitions(AvailableSectors=[{Id=1, Name="abc", Sector=...}, {Id=2, Name="def", Sector=...}, ...])
+Client <- Service: ReportSectorSelectionStatus(Status.SelectionList=[{Id=1, IsSelected=False, IsSelectable=True}, {Id=2, ...}, ...], ...)
+note over Service
+    Service reports the definition of all
+    available sectors along with their
+    current status on startup and updates
+    this on change
+end note
+...
+
+== Select Sector ==
+note over Client
+    Client selects a sector from the
+    previously reported list of
+    available sectors
+end note
+Client -> Service: CmdSelectSector(SectorIdList=[1])
+Client <- Service: ReportSectorSelectionStatus(Status.SelectionList=[{Id=1, IsSelected=True, IsSelectable=True}, {Id=2, ...}, ...], ...)
+note over Service
+    Service reports the status for all
+    available sectors as a result of
+    the selection
+end note
+...
+
+== Sector Definition Change ==
+note over Service
+    Service reports an update list of sector
+    defintions (e.g. different sized sectors)
+    which should replace any previously reported
+    sector defintions.
+    This could for example occur as a result of
+    switching ammunition
+end note
+Client <- Service: ReportSectorDefinitions(AvailableSectors=[{Id=1, Name="ghi", Sector=...}, {Id=2, Name="jkl", Sector=...}, ...])
+Client <- Service: ReportSectorSelectionStatus(Status.SelectionList=[{Id=1, IsSelected=False, IsSelectable=True}, {Id=2, ...}, ...], ...)
+
+@enduml
+ */
+module M_SectorSelection
+{
+  /// Interface version number.
+  const string Version = "3.1.0";
+
+
+  /**
+   * Sector Selection Service interface.
+   * Contains operations that a client can command the Sector Selection Service to perform.
+   */
+  interface IService
+  {
+    /// Command to instruct the Service to select the sector(s) with the specified ID(s).
+    void CmdSelectSector (
+      /// The ID of one or more sectors to select.
+      /// Empty list indicates that existing selection should be cleared.
+      in M_Common::ULongListType SectorIdList
+    );
+  };
+
+
+  /**
+   * Sector Selection Client interface.
+   * Contains callback operations from the Sector Selection Service to the Client.
+   */
+  interface IClient
+  {
+    /// Reports static settings for Sector Selection Service.
+    void ReportSectorSelectionSettings (
+      /// Sector Selection Service settings data.
+      in SectorSelectionSettingsType Settings
+    );
+
+    /// Reports the definition (size and position) of all available sectors.
+    void ReportSectorDefinitions (
+      /// Defines the sectors currently available in the Selection Service.
+      in SectorDefinitionListType AvailableSectors
+    );
+
+    /// Reports the selection status of all sectors.
+    /// This is used to inform Clients which sectors are selected and which are not selected.
+    void ReportSectorSelectionStatus (
+      /// Sector Selection status data.
+      in SectorSelectionStatusType Status,
+
+      /// Indicates if the status is no longer available. 
+      /// Note: This will always be set to true when a service has been shut down.
+      /// After this has been set to true, the status will no longer be available to late joiners.
+      in boolean IsRemoved
+    );
+  };
+};

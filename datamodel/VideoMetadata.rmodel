@@ -1,0 +1,75 @@
+// Copyright (c) 2026 Rheinmetall Electronics GmbH
+//
+// This program and the accompanying materials are made available under the
+// terms of the Eclipse Public License 2.0 which is available at
+// https://www.eclipse.org/legal/epl-2.0.
+//
+// SPDX-License-Identifier: EPL-2.0
+
+#include "VideoMetadataTypes.idl"
+
+/**
+ * Interfaces used by the video metadata service and client.
+ */
+module M_VideoMetadata
+{
+  /// Interface version number.
+  const string Version = "3.4.0";
+
+
+  /**
+   * Video metadata service interface.
+   * Contains operations that a client can command the video metadata service to perform.
+   */
+  interface IService
+  {
+  };
+
+
+  /**
+   * Video metadata client interface.
+   * Contains callback operations from the video metadata service to the client.
+   */
+  interface IClient
+  {
+
+    /// RvtLS from Remote Video Temrinal Metadata Set (MISB ST 0806.4)
+    void EventRvtMetadata
+    (
+        in RvtLS Rvt
+    );
+
+    /// Security Metadata Local Set from
+    /// Security Metadata Universal and Local Sets for Motion Imagery Data (MISB ST 0102.11)
+    void EventSecurityMetadata
+    (
+      in SecurityMetadataLS SecurityMetadata
+    );
+
+    /// Security Metadata Universal Set from
+    /// Security Metadata Universal and Local Sets for Motion Imagery Data (MISB ST 0102.11)
+    void EventSecurityMetadataUniversal
+    (
+      in SecurityMetadataUniversalLS SecurityMetadataUniversal
+    );
+
+    /// UasDatalinkLS from UAS Datalink Local Set (MISB ST 0601.9)
+    void EventUasDatalinkLS
+    (
+      in UasDatalinkLS UasDatalink
+    );
+
+    /// VmtiLS from Video Moving Target Indicator and Track Metadata (MISB ST 0903.4)
+    void EventVmtiLS
+    (
+      in VmtiLS Vmti
+    );
+
+    /// VTrackLS from Video Moving Target Indicator and Track Metadata (MISB ST 0903.4)
+    void EventVTrackLS
+    (
+      in VTrackLS VTrack
+    );
+
+  };
+};

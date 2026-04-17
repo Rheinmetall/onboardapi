@@ -1,0 +1,76 @@
+// Copyright (c) 2026 Rheinmetall Electronics GmbH
+//
+// This program and the accompanying materials are made available under the
+// terms of the Eclipse Public License 2.0 which is available at
+// https://www.eclipse.org/legal/epl-2.0.
+//
+// SPDX-License-Identifier: EPL-2.0
+
+#include "CommonTypes.idl"
+
+
+/**
+ * Types used by the Video Object Export Service and Client.
+ */
+module M_VideoObjectExport
+{
+  /// Contains static settings data for the Video Object Export Service.
+  struct VideoObjectSettingsType
+  {
+    /// List of configured Video Channel names for which exported data will be provided.
+    M_Common::StringListType SupportedVideoChannels;
+
+// TODO: Report which video channels are on which mount here.
+  };
+
+  /// Contains positional data for a marker object
+  /// in a specific Video Channel
+  struct MarkerPositionType
+  {
+    /// ID of related stream (Video Channel name)
+    string VideoChannel;
+    /// Position.
+    M_Common::PositionOptionalType Position;
+    /// Positional reference.
+    M_Common::PositionOptionalType ReferencePosition;
+  };
+
+  /// List of MarkerPositionType.
+  typedef sequence<MarkerPositionType> MarkerPositionListType;
+
+
+  /// Contains data for marker object.
+  struct MarkerObjectType
+  {
+    /// Rectangle size height (in degrees)
+    M_Common::AngleDegreesOptionalType Height;
+    /// Rectangle size width (in degrees)
+    M_Common::AngleDegreesOptionalType Width;
+    /// Source type (tracker, acoustic, laser, manual, etc.)
+    M_Common::SensorType TypeOfDetectingSensor;
+    /// Identity code
+    M_Common::IdentityType Identity;
+    /// ID of related sensor (name of Sensor service)
+    string DetectingSensorName;
+    /// List of relative position for the marker in each Video Channel
+    MarkerPositionListType MarkerPositionList;
+    /// Object position.
+    M_Common::PositionType Position;
+    /// Object velocity.
+    M_Common::LinearVelocityOptionalType LinearVelocity;
+    /// Snapshot of the object.
+    M_Common::ImageOptionalType Snapshot;
+  };
+
+
+  /// Contains kinematics info relating to own vehicle.
+  struct KinematicInfoType
+  {
+    /// Position.
+    M_Common::PositionOptionalType Position;
+    /// Attitude.
+    M_Common::AttitudeOptionalType Attitude;
+    /// Velocity.
+    M_Common::LinearVelocityOptionalType LinearVelocity;
+  };
+};

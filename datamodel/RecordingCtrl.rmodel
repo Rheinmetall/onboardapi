@@ -1,0 +1,203 @@
+// Copyright (c) 2026 Rheinmetall Electronics GmbH
+//
+// This program and the accompanying materials are made available under the
+// terms of the Eclipse Public License 2.0 which is available at
+// https://www.eclipse.org/legal/epl-2.0.
+//
+// SPDX-License-Identifier: EPL-2.0
+
+#include "CommonTypes.idl"
+#include "RecordingCtrlTypes.idl"
+
+
+/**
+ * Interfaces and types used by the Recording Control Service and Client.
+ *
+@startuml "Recording Start"
+title
+ Startup
+ Service behaviour on start
+end title
+hide footbox
+
+Client <- Service: ReportRecordingSettings( Settings.IsStartStopRecordingSupported=true,\n      Settings.IsCaptureVideoCutoutSupported=true,\n      Settings.SupportedRecordingChannels=["SAS", "SEOSS1_TV", "SEOSS1_IR", "SEOSS2_TV", "SEOSS2_IR"] )
+note over Service
+    On startup the Service reports
+    true for all supported functions as
+    well as the names of all configured
+    Stream Recording Channels
+end note
+Client <- Service: ReportRecordingStatus( Status=..., IsRemoved=false )
+note over Service
+    Service reports the currents status on
+    startup. If the service has been configured
+    to automatically start recordings, then those
+    channels will be reported here as
+    In Progress Recordings
+    The existing stored video cutouts will also be
+    reported
+end note
+@enduml
+
+@startuml "Recording"
+title Recording
+hide footbox
+
+== Start Recording ==
+note over Client
+    Client starts recording for a list
+    of specified video channels
+end note
+Client -> Service: CmdStartRecording( VideoChannelList=["SAS", "SEOSS1_TV", "SEOSS2-IR"] )
+Client <- Service: ReportRecordingStatus( Status.InProgressRecordingsList=["SAS", "SEOSS1_TV", "SEOSS2-IR"],\n                                   Status.VideoCutoutList=[], IsRemoved=false )
+note over Service
+    Service reports an updated status which now
+    also contains the updated In Progress Recordings
+end note
+...
+
+== Capture Video Cutout ==
+note over Client
+    Client commands video cutout capture
+    of specified video channels which are
+    currently being recorded
+end note
+Client -> Service: CmdCaptureVideoCutout( VideoChannelList=["SEOSS1_TV"], StartTime, StopTime, Description="Manual Cmdr Cutout X" )
+...
+Client <- Service: ReportRecordingStatus( Status.InProgressRecordingsList=["SAS", "SEOSS1_TV", "SEOSS2-IR"],\n                                   Status.VideoCutoutList=[{"SEOSS1_TV", StartTime, StopTime, Description="Manual Cmdr Cutout X"}],\n                                   IsRemoved=false )
+note over Service
+    When the cutout has been recorded the
+    Service reports an updated status which now
+    also contains the updated Video Cutouts list
+end note
+...
+
+== Remove Video Cutout  ==
+note over Client
+    Client removes a specific video cutout
+    identified by the video channel and
+    start/stop times
+end note
+Client -> Service: CmdRemoveVideoCutout( VideoChannel="SEOSS1_TV", StartTime, StopTime )
+Client <- Service: ReportRecordingStatus( Status.InProgressRecordingsList=["SAS", "SEOSS1_TV", "SEOSS2-IR"],\n                                   Status.VideoCutoutList=[], IsRemoved=false )
+note over Service
+    Service reports an updated status which no
+    longer contains the Video Cutout
+end note
+...
+
+== Stop Recording ==
+note over Client
+    Client stop one or more currently running
+    recordings
+end note
+Client -> Service: CmdStopRecording( VideoChannelList=["SAS", "SEOSS1_TV", "SEOSS2-IR"] )
+Client <- Service: ReportRecordingStatus( Status.InProgressRecordingsList=[],\n                                   Status.VideoCutoutList=[], IsRemoved=false )
+note over Service
+    Service reports an updated status which no
+    longer contains stopped In Progress Recordings
+end note
+@enduml
+
+@startuml "Recording Shutdown"
+title
+ Shutdown
+ Service behaviour on shutdown
+end title
+hide footbox
+
+Client <- Service: ReportRecordingStatus( Status, IsRemoved=true )
+note over Service
+    On service shutdown the previously reported
+    status is automatically removed
+end note
+
+@enduml
+ */
+module M_RecordingCtrl
+{
+  /// Interface version number.
+  const string Version = "3.1.0";
+
+
+  /**
+   * Service interface.
+   * Contains operations that a client can command the Recording Control Service to perform.
+   */
+  interface IService
+  {
+    /// Start recording one or more Video Channels.
+    void CmdStartRecording (
+      /// List of Video Channels which should be started.
+      in VideoChannelListType VideoChannelList
+    );
+
+    /// Capture video cutout.
+    /// Note: Video cutouts can only be captured if a recording has been started for the specified channel(s).
+    /// The lead time of the video cutout capture should be configured in the Service.
+    void CmdCaptureVideoCutout (
+      /// List of Video Channel ids where the video cutout should be captured.
+      in M_Common::StringListType VideoChannelIdList,
+      /// The absolute time the video cutout should start from (seconds + nanoseconds since UTC epoch).
+      in M_Common::TimeType StartTime,
+      /// The absolute time the video cutout should end (seconds + nanoseconds since UTC epoch).
+      in M_Common::TimeType StopTime,
+      /// Textual description for the cutout.
+      in string Description
+    );
+
+    /// Stop recording.
+    void CmdStopRecording (
+      /// List of Video Channel ids which should be stopped.
+      in M_Common::StringListType VideoChannelIdList
+    );
+
+    /// Remove a captured video cutout.
+    /// Note: The VideoChannel, StartTime and StopTime parameters must all match
+    /// an existing stored video cutout in order for the cutout to be removed.
+    void CmdRemoveVideoCutout (
+      /// The video channel identifying the video source of the cutout.
+      in string VideoChannelId,
+      /// The absolute time the cutout was started.
+      /// Note: This has to match the start time of a stored video cutout reported in ReportRecordingStatus.
+      in M_Common::TimeType StartTime,
+      /// The absolute time the cutout was stopped.
+      /// Note: This has to match the stop time of a stored video cutout reported in ReportRecordingStatus.
+      in M_Common::TimeType StopTime
+    );
+
+    /// Remove all stored previously captured video cutouts.
+    void CmdRemoveAllVideoCutouts ();
+
+    /// Capture still image.
+    /// Note: Images can only be captured if a recording has been started for the specified channel(s).
+    void CmdCaptureImage (
+      /// List of Video Channel ids where still image should be captured.
+      in M_Common::StringListType VideoChannelIdList
+    );
+  };
+
+
+  /**
+   * Client interface.
+   * Contains callback operations from the Recording Control Service to the Client.
+   */
+  interface IClient
+  {
+    /// Static settings for the service reported once on startup.
+    void ReportRecordingSettings (
+      /// Configured settings for the Recording Control Service.
+      in RecordingSettingsType Settings
+    );
+
+    /// Current status data for the service which are dynamically updated on change.
+    void ReportRecordingStatus (
+      /// Current status data for the Recording Control Service.
+      in RecordingStatusType Status,
+      /// Indicates if the status is no longer available.
+      /// Note: This will always be set to True when a Service has been shutdown.
+      /// After this has been set to True the status will no longer be available to late joiners.
+      in boolean IsRemoved
+    );
+  };
+};

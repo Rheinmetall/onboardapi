@@ -1,0 +1,72 @@
+// Copyright (c) 2026 Rheinmetall Electronics GmbH
+//
+// This program and the accompanying materials are made available under the
+// terms of the Eclipse Public License 2.0 which is available at
+// https://www.eclipse.org/legal/epl-2.0.
+//
+// SPDX-License-Identifier: EPL-2.0
+
+#ifndef _VIDEO_MANAGER_TYPES_IDL_
+#define _VIDEO_MANAGER_TYPES_IDL_
+
+
+#include "CommonTypes.idl"
+
+
+/**
+ * Types used by the Video Manager Service.
+ */
+module M_VideoManager
+{
+  /// Contains information about a video channel.
+  struct ChannelInfoType
+  {
+    /// Name of video channel (Example: "Infrared" or "Daylight")
+    string VideoChannelName;
+
+    /// Name of camera which is the source of the video channel.
+    string CameraName;
+
+    /// Indicates if this video channel is synchronised with another channel.
+    boolean IsSynchronised;
+  };
+
+  /// List of PropertyType.
+  typedef sequence<ChannelInfoType> ChannelInfoListType;
+
+
+  /// Contains the Video Manager settings data.
+  struct VmSettingsType
+  {
+    /// List of the available video channels.
+    ChannelInfoListType AvailableChannelList;
+
+    /// Indicates whether field of view coupling can be commanded.
+    boolean IsCmdFovCouplingSupported;
+
+    /// Additional properties for the Service.
+    /// Note: Properties are defined generically to enable non-essential additional
+    /// information to be provided without impacting the Data Model.
+    M_Common::PropertyListType AdditionalInfo;
+  };
+
+
+  /// Contains the Video Manager status data.
+  struct VmStatusType
+  {
+    /// Field of View coupling enabled (True = Enabled, False = Disabled).
+    boolean IsFovCouplingEnabled;
+
+    /// Active video channel.
+    ChannelInfoType VideoChannel;
+
+    /// Video channels currently available for selection.
+    M_Common::StringListType AvailableVideoChannels;
+
+    /// Indicates if the specified VideoChannel value is a part of a change currently in-progress (true)
+    /// or if it has been applied and is currently in use (false).
+    boolean IsVideoChannelChangeInProgress;
+  };
+};
+
+#endif

@@ -1,0 +1,84 @@
+// Copyright (c) 2026 Rheinmetall Electronics GmbH
+//
+// This program and the accompanying materials are made available under the
+// terms of the Eclipse Public License 2.0 which is available at
+// https://www.eclipse.org/legal/epl-2.0.
+//
+// SPDX-License-Identifier: EPL-2.0
+
+#ifndef _MET_SENSOR_TYPES_IDL_
+#define _MET_SENSOR_TYPES_IDL_
+
+
+#include "CommonTypes.idl"
+
+
+/**
+ * Types used by the Meteorological Sensor Service.
+ */
+module M_MetSensor
+{
+  /**
+   * Contains atmospheric data.
+   */
+  struct AtmosphericType
+  {
+    /// Temperature [K].
+    M_Common::TemperatureKelvinsSelectionOptionalType Temperature;
+
+    /// Pressure [Pa].
+    M_Common::PressurePascalsSelectionOptionalType Pressure;
+
+    /// Relative humidity [-].
+    M_Common::PercentSelectionOptionalType RelativeHumidity;
+
+    /// Wind Velocity.
+    /// Note: Wind from ahead is negative, wind from rear is positive.
+    /// Wind from right is negative, wind from left is positive.
+    M_Common::LinearVelocitySelectionOptionalType WindVelocity;
+  };
+
+
+  /**
+   * Contains the Meteorological Sensor settings data.
+   */
+  struct MetSensorSettingsType
+  {
+    /// Indicates if the sensor supports reporting temperature (true) or not (false).
+    boolean IsTemperatureSupported;
+
+    /// The minimum temperature that can be measured [K].
+    M_Common::TemperatureKelvinsOptionalType MinTemperature;
+
+    /// The maximum temperature that can be measured [K].
+    M_Common::TemperatureKelvinsOptionalType MaxTemperature;
+
+    /// Indicates if the sensor supports reporting pressure (true) or not (false).
+    boolean IsPressureSupported;
+
+    /// The minimum pressure that can be measured [Pa].
+    M_Common::PressurePascalsOptionalType MinPressure;
+
+    /// The maximum pressure that can be measured [Pa].
+    M_Common::PressurePascalsOptionalType MaxPressure;
+
+    /// Indicates if the sensor supports reporting wind velocity (true) or not (false).
+    boolean IsWindVelocitySupported;
+
+    /// The maximum wind speed that can be measured [m/s].
+    M_Common::SpeedMetersPerSecOptionalType MaxWindSpeed;
+
+    /// Indicates if the sensor supports reporting relative humidity (true) or not (false).
+    boolean IsRelativeHumiditySupported;
+
+    /// The maximum relative humidity in percent that can be measured [%].
+    M_Common::PercentOptionalType MaxRelativeHumidity;
+
+    /// Additional properties information relating to the Service.
+    /// Note: Properties are defined generically to enable non-essential additional
+    /// information to be provided without impacting the Data Model.
+    M_Common::PropertyListType AdditionalInfo;
+  };
+};
+
+#endif

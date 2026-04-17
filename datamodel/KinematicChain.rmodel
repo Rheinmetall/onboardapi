@@ -1,0 +1,132 @@
+// Copyright (c) 2026 Rheinmetall Electronics GmbH
+//
+// This program and the accompanying materials are made available under the
+// terms of the Eclipse Public License 2.0 which is available at
+// https://www.eclipse.org/legal/epl-2.0.
+//
+// SPDX-License-Identifier: EPL-2.0
+
+#include "KinematicChainTypes.idl"
+
+
+/**
+ * Interfaces used by the kinematic chain service and client.
+ */
+module M_KinematicChain
+{
+  /// Interface version number.
+  const string Version = "4.2.0";
+
+
+  /**
+   * Kinematic chain service interface.
+   * Contains operations that a client can command the kinematic chain service to perform.
+   */
+  interface IService
+  {
+    /**
+     * Configure axis rotation constraints.
+     */
+    void ConfigAxisRotationConstraints
+    (
+      /// Axis rotation constraints.
+      in AxisRotationConstraintsListType AxisRotationConstraints
+    );
+
+    /**
+     * Notify to rotate about axes.
+     */
+    void NotifyAxisRotations
+    (
+      /// The client name of the calling instance associated with the axis rotations
+      in string InputSourceClientId,
+
+      /// Axis rotations.
+      in AxisRotationListType AxisRotations
+    );
+
+    /**
+     * Store an axis rotation, identified by a string key.
+     */
+    void ConfigStoreAxisRotations
+    (
+      /// Identifies the axis rotation to be stored.
+      in string KeyDatasetId,
+
+      /// Axis rotations.
+      in AxisRotationListType AxisRotations,
+
+      /// Indicates if the payload is no longer available
+      /// Note: This will always be set to true when the instance has been shut down
+      /// After this has been set to true, the payload will no longer be available to late joiners.
+      in boolean IsRemoved
+    );
+
+    /**
+     * Delete an axis rotations, identified by a string key.
+     */
+    void CmdDeleteStoredAxisRotations
+    (
+      /// Identifies the axis rotation to be deleted.
+      in string DatasetId
+    );
+
+    /**
+     * Apply an earlier assigned or persistently stored axis rotation, identified by a string key.
+     */
+    void CmdApplyStoredAxisRotation
+    (
+      /// Identifies the stored axis rotation to be applied.
+      in string DatasetId
+    );
+  };
+
+
+  /**
+   * Kinematic chain client interface.
+   * Contains callback operations from the kinematic chain service to the client.
+   */
+  interface IClient
+  {
+    /**
+     * Report static kinematic chain settings.
+     */
+    void ReportKinematicChainSettings
+    (
+      /// Kinematic chain settings.
+      in KinematicChainSettingsType Settings
+    );
+
+    /**
+     * Report current kinematic chain status.
+     */
+    void ReportKinematicChainStatus
+    (
+      /// Kinematic chain status.
+      in KinematicChainStatusType Status,
+
+      /// Indicates if the status is no longer available.
+      /// Note: This will always be set to true when a service has been shut down.
+      /// After this has been set to true, the status will no longer be available to late joiners.
+      in boolean IsRemoved
+    );
+
+    /**
+     * Report axis rotation constraints.
+     */
+    void ReportAxisRotationConstraints
+    (
+      /// Axis rotation constraints.
+      in AxisRotationConstraintsListType AxisRotationConstraints
+    );
+
+    /**
+     * Report axis rotations.
+     */
+    void ReportAxisRotations
+    (
+      /// Axis rotations.
+      in AxisRotationListType AxisRotations
+    );
+  };
+};

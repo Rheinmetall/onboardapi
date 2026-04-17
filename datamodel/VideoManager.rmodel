@@ -1,0 +1,73 @@
+// Copyright (c) 2026 Rheinmetall Electronics GmbH
+//
+// This program and the accompanying materials are made available under the
+// terms of the Eclipse Public License 2.0 which is available at
+// https://www.eclipse.org/legal/epl-2.0.
+//
+// SPDX-License-Identifier: EPL-2.0
+
+#include "VideoManagerTypes.idl"
+
+
+/**
+ * Interfaces used by the Video Manager Service and Client.
+ * The Video Manager handles the switching between Cameras (e.g. TV/IR) and
+ * coupling the Field of View.
+ */
+module M_VideoManager
+{
+  /// Interface version number.
+  const string Version = "7.1.0";
+
+
+  /**
+   * Video Manager Service interface.
+   * Contains operations that a client can command the Video Manager Service to perform
+   * such as switching between Cameras (e.g. TV/IR) and coupling the Field of View.
+   */
+  interface IService
+  {
+    /// Enable or disable Field of View coupling.
+    void CmdFovCoupling
+    (
+      /// Enable or disable (True = Enable, False = Disable)
+      in boolean Enable
+    );
+
+    /// Set the video channel which shall be active.
+    void ConfigVideoChannel
+    (
+      /// Name of video channel (Example: "Infrared" or "Daylight")
+      in string VideoChannelName
+    );
+  };
+
+
+  /**
+   * Video Manager Client interface.
+   * Contains callback operations from the Video Manager Service to the Client.
+   */
+  interface IClient
+  {
+    /// Report with static Video Manager settings.
+    /// This should be provided at startup and in the event of degraded functionality,
+    /// e.g. due to an internal failure.
+    void ReportVideoSettings
+    (
+      /// Video Manager settings data.
+      in VmSettingsType Settings
+    );
+
+    /// Report with the current Video Manager status.
+    void ReportVideoStatus
+    (
+      /// Current status data for Video Manager.
+      in VmStatusType Status,
+
+      /// Indicates if the status is no longer available.
+      /// Note: This will always be set to True when a Service has been shutdown.
+      /// After this has been set to True the status will no longer be available to late joiners.
+      in boolean IsRemoved
+    );
+  };
+};

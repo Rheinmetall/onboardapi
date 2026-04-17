@@ -1,0 +1,2080 @@
+// Copyright (c) 2026 Rheinmetall Electronics GmbH
+//
+// This program and the accompanying materials are made available under the
+// terms of the Eclipse Public License 2.0 which is available at
+// https://www.eclipse.org/legal/epl-2.0.
+//
+// SPDX-License-Identifier: EPL-2.0
+
+#include "CommonTypes.idl"
+
+/**
+ * Types used by the Video Metadata Interface.
+ */
+module M_VideoMetadata
+{
+
+    /// Security Metadata Universal Local Set from
+    /// Security Metadata Universal and Local Sets for Motion Imagery Data (MISB ST 0102.11)
+    struct SecurityMetadataUniversalLS
+    {
+
+        /// Tag N/A
+        /// TOP SECRET//
+        /// SECRET//
+        /// CONFIDENTIAL//
+        /// RESTRICTED//
+        /// UNCLASSIFIED//
+        M_Common::StringOptionalType SecurityClassification;
+
+        /// Tag N/A
+        M_Common::StringOptionalType ClassifyingCountryAndReleasingInstructionsCountryCodingMethod;
+
+        /// Tag N/A
+        M_Common::StringOptionalType ClassifyingCountry;
+
+        /// Tag N/A
+        M_Common::StringOptionalType SecuritySciShiInformation;
+
+        /// Tag N/A
+        M_Common::StringOptionalType Caveats;
+
+        /// Tag N/A
+        M_Common::StringOptionalType ReleasingInstructions;
+
+        /// Tag N/A
+        M_Common::StringOptionalType ClassifiedBy;
+
+        /// Tag N/A
+        M_Common::StringOptionalType DerivedFrom;
+
+        /// Tag N/A
+        M_Common::StringOptionalType ClassificationReason;
+
+        /// Tag N/A
+        M_Common::StringOptionalType DeclassificationDate;
+
+        /// Tag N/A
+        M_Common::StringOptionalType ClassificationAndMarkingSystem;
+
+        /// Tag N/A
+        M_Common::StringOptionalType ObjectCountryCodingMethod;
+
+        /// Tag N/A
+        M_Common::StringOptionalType ObjectCountryCodes;
+
+        /// Tag N/A
+        M_Common::StringOptionalType ClassificationComments;
+
+        /// Tag N/A
+        M_Common::StringOptionalType Umid;
+
+        /// Tag N/A
+        M_Common::StringOptionalType StreamId;
+
+        /// Tag N/A
+        M_Common::StringOptionalType TransportStreamId;
+
+        /// Tag N/A
+        M_Common::StringOptionalType ItemDesignatorId;
+
+        /// Tag N/A
+        M_Common::ULongOptionalType Version;
+
+        /// Tag N/A
+        M_Common::StringOptionalType ClassifyingCountryAndReleasingInstructionsCountryCodingMethodVersionDate;
+
+        /// Tag N/A
+        M_Common::StringOptionalType ObjectCountryCodingMethodVersionDate;
+
+    };
+
+    typedef sequence<SecurityMetadataUniversalLS, 1> SecurityMetadataUniversalLSOptionalType;
+
+    /// Security Metadata Local Set Elements from
+    /// Security Metadata Universal and Local Sets for Motion Imagery Data (MISB ST 0102.11)
+    struct SecurityMetadataLS
+    {
+
+        /// Tag 1
+        /// References:
+        ///     - 1 = UNCLASSIFIED//
+        ///     - 2 = RESTRICTED//
+        ///     - 3 = CONFIDENTIAL//
+        ///     - 4 = SECRET//
+        ///     - 5 = TOP SECRET//
+        M_Common::ULongOptionalType SecurityClassification;
+        
+        /// Tag 2
+        /// References:
+        ///     - 1 = ISO-3166 Two Letter
+        ///     - 2 = ISO-3166 Three Letter
+        ///     - 3 = FIPS 10-4 Two Letter
+        ///     - 4 = FIPS 10-4 Four Letter
+        ///     - 5 = ISO-3166 Numeric
+        ///     - 6 = 1059 Two Letter
+        ///     - 7 = 1059 Three Letter
+        ///     - 8 = Omitted Value
+        ///     - 9 = Omitted Value
+        ///     - 10 = FIPS 10-4 Mixed
+        ///     - 11 = ISO 3166 Mixed
+        ///     - 12 = STANAG 1059 Mixed
+        ///     - 13 = GENC Two Letter
+        ///     - 14 = GENC Three Letter
+        ///     - 15 = GENC Numeric
+        ///     - 16 = GENC Mixed
+        M_Common::ULongOptionalType ClassifyingCountryAndReleasingInstructionsCountryCodingMethod;
+        
+        /// Tag 3
+        /// Text from the appropriate standard preceded by double slash
+        /// FIPS 10-4[14]
+        /// ISO-3166[12][13]
+        /// STANAG 1059[18]
+        /// GENC[15]
+        M_Common::StringOptionalType ClassifyingCountry;
+        
+        /// Tag 4
+        M_Common::StringOptionalType SecuritySciShiInformation;
+        
+        /// Tag 5
+        M_Common::StringOptionalType Caveats;
+        
+        /// Tag 6
+        M_Common::StringOptionalType ReleasingInstructions;
+        
+        /// Tag 7
+        M_Common::StringOptionalType ClassifiedBy;
+        
+        /// Tag 8
+        M_Common::StringOptionalType DerivedFrom;
+        
+        /// Tag 9
+        M_Common::StringOptionalType ClassificationReason;
+        
+        /// Tag 10
+        M_Common::StringOptionalType DeclassificationDate;
+        
+        /// Tag 11
+        M_Common::StringOptionalType ClassificationAndMarkingSystem;
+
+        /// Tag 12
+        /// References:
+        ///     - 1 = ISO-3166 Two Letter
+        ///     - 2 = ISO-3166 Three Letter
+        ///     - 3 = ISO-3166 Numeric
+        ///     - 4 = FIPS 10-4 Two Letter
+        ///     - 5 = FIPS 10-4 Four Letter
+        ///     - 6 = 1059 Two Letter
+        ///     - 7 = 1059 Three Letter
+        ///     - 8 = Omitted Value
+        ///     - 9 = Omitted Value
+        ///     - 10 = Omitted Value
+        ///     - 11 = Omitted Value
+        ///     - 12 = Omitted Value
+        ///     - 13 = GENC Two Letter
+        ///     - 14 = GENC Three Letter
+        ///     - 15 = GENC Numeric
+        ///     - 16 = GENC AdminSub
+        M_Common::ULongOptionalType ObjectCountryCodingMethod;
+
+        /// Tag 13
+        M_Common::StringOptionalType ObjectCountryCodes;
+        
+        /// Tag 14
+        M_Common::StringOptionalType ClassificationComments;
+        
+        /// Tag 15
+        M_Common::StringOptionalType Umid;
+        
+        /// Tag 19
+        M_Common::StringOptionalType StreamId;
+
+        /// Tag 20
+        M_Common::StringOptionalType TransportStreamId;
+
+        /// Tag 21
+        M_Common::StringOptionalType ItemDesignatorId;
+
+        /// Tag 22
+        /// Value is version number of this document
+        /// e.g. for ST 0102.10, this value is 10
+        M_Common::ULongOptionalType Version;
+
+        /// Tag 23
+        M_Common::StringOptionalType ClassifyingCountryAndReleasingInstructionsCountryCodingMethodVersionDate;
+        
+        /// Tag 24
+        M_Common::StringOptionalType ObjectCountryCodingMethodVersionDate;
+
+    };
+
+    typedef sequence<SecurityMetadataLS, 1> SecurityMetadataLSOptionalType;
+
+    /// VFeature Local Set from Video Moving Target Indicator and Track Metadata (MISB ST 0903.4)
+    struct VFeatureLS
+    {
+        
+        /// Tag 1
+        /// Uniform Resource Identifier (URI) which refers to an OGC Geography Markup Language (GML)
+        /// Observations and Measurements (O&M) application schema.
+        M_Common::StringOptionalType Schema;
+        
+        /// Tag 2
+        /// OGC GML document structured according to the schema specified by Tag 1.
+        /// Intended to capture properties (values) observed for a feature of interest.
+        M_Common::StringOptionalType SchemaFeature;
+        
+    };
+
+    typedef sequence<VFeatureLS, 1> VFeatureLSOptionalType;
+
+    /// VChip Local Set from Video Moving Target Indicator and Track Metadata (MISB ST 0903.4)
+    struct VChipLS
+    {
+        
+        /// Tag 1
+        /// Internet Assigned Numbers Authority (IANA) image media subtype specifying
+        /// the VChip image type (limited to jpeg, and png).
+        M_Common::StringOptionalType ImageType;
+        
+        /// Tag 2
+        /// Uniform Resource Identifier (or Uniform Resource Locator) that refers to an image stored on a server.
+        M_Common::StringOptionalType ImageUri;
+        
+        /// Tag 3
+        /// An image chip of the image type specified by Tag 1.
+        M_Common::ByteSeqType EmbeddedImage;
+        
+    };
+
+    typedef sequence<VChipLS, 1> VChipLSOptionalType;
+
+    typedef sequence<VChipLS> VChipLSListType;
+
+    /// VObject Local Set from Video Moving Target Indicator and Track Metadata (MISB ST 0903.4)
+    struct VObjectLS
+    {
+        
+        /// Tag 1
+        /// This element is a Uniform Resource Identifier (URI) which refers to a VObject ontology.
+        ///The ontology shall be expressed using the Web Ontology Language OWL [8].
+        M_Common::StringOptionalType Ontology;
+        
+        /// Tag 2
+        /// The name of the target class or type, as defined in the VObject Ontology
+        M_Common::StringOptionalType OntologyClass;
+        
+    };
+
+    typedef sequence<VObjectLS, 1> VObjectLSOptionalType;
+
+    /// Pixel-number-plus-run-length Pair Section 11.15.23.2 Bit Mask (MISB ST 0903.4)
+    struct PixelNumberPlusRunLength
+    {
+        /// Tag N/A
+        /// The starting pixel number
+        M_Common::ULongLongOptionalType PixelNumber;
+
+        /// Tag N/A
+        /// The number of pixels in a run
+        M_Common::ULongLongOptionalType RunLength;
+    };
+
+    typedef sequence<PixelNumberPlusRunLength, 1> PixelNumberPlusRunLengthOptionalType;
+
+    typedef sequence<PixelNumberPlusRunLength> PixelNumberPlusRunLengthListType;
+
+    /// VMask Local Set from Video Moving Target Indicator and Track Metadata (MISB ST 0903.4)
+    struct VMaskLS
+    {
+        
+        /// Tag 1
+        /// This is a Series of at least three pixel numbers that specify the vertices of a
+        /// polygon representing the outline of the target. Numbering commences from 1,
+        /// denoting the Top Left pixel. Values are encoded using the Length-Value construct of a Variable-Length Pack.
+        M_Common::ULongLongListType Polygon;
+        
+        /// Tag 2
+        /// This element describes the area of the frame occupied by a target, using a run-length encoded bit mask,
+        /// with 1 to indicate that a pixel subtends a part of the target and 0 to indicate otherwise.
+        /// A Series of pixel-number- plus-run-length pairs, each describing the starting pixel number and
+        /// the number of pixels in a run. Numbering commences from 1, denoting the Top Left pixel.
+        /// Pixel numbers are encoded using the Length-Value construct of a Variable-Length Pack.
+        /// The length of each run is encoded using BER Length encoding.
+        PixelNumberPlusRunLengthListType BitMask;
+
+    };
+
+    typedef sequence<VMaskLS, 1> VMaskLSOptionalType;
+
+    /// Acceleration Truncation Pack from Video Moving Target Indicator and Track Metadata (MISB ST 0903.4)
+    struct AccelerationTruncationPack
+    {
+        
+        /// Tag N/A
+        /// Acceleration along the East axis of the East-North-Up coordinate system.
+        /// In Meters/Second
+        M_Common::DoubleOptionalType EastComponent;
+        
+        /// Tag N/A
+        /// Acceleration along the North axis of the East-North-Up coordinate system.
+        /// In Meters/Second
+        M_Common::DoubleOptionalType NorthComponent;
+        
+        /// Tag N/A
+        /// Acceleration along the Up axis of the East- North-Up coordinate system.
+        /// In Meters/Second
+        M_Common::DoubleOptionalType UpComponent;
+        
+        /// Tag N/A
+        /// Standard deviation along East axis.
+        /// In Meters/Second
+        M_Common::DoubleOptionalType SigmaEast;
+        
+        /// Tag N/A
+        /// Standard deviation along North axis
+        /// In Meters/Second
+        M_Common::DoubleOptionalType SigmaNorth;
+        
+        /// Tag N/A
+        /// Standard deviation along Up axis
+        /// In Meters/Second
+        M_Common::DoubleOptionalType SigmaUp;
+        
+        /// Tag N/A
+        /// Correlation coefficient between East and North.
+        M_Common::DoubleOptionalType RhoEastNorth;
+        
+        /// Tag N/A
+        /// Correlation coefficient between East and Up.
+        M_Common::DoubleOptionalType RhoEastUp;
+        
+        /// Tag N/A
+        /// Correlation coefficient between North and Up.
+        M_Common::DoubleOptionalType RhoNorthUp;
+        
+    };
+
+    typedef sequence<AccelerationTruncationPack, 1> AccelerationTruncationPackOptionalType;
+
+    /// Velocity Truncation Pack from Video Moving Target Indicator and Track Metadata (MISB ST 0903.4)
+    struct VelocityTruncationPack
+    {
+        
+        /// Tag N/A
+        /// Velocity along the East axis of the East-North- Up coordinate system.
+        /// In Meters/Second
+        M_Common::DoubleOptionalType EastComponent;
+        
+        /// Tag N/A
+        /// Velocity along the North axis of the East- North-Up coordinate system
+        /// In Meters/Second
+        M_Common::DoubleOptionalType NorthComponent;
+
+        /// Tag N/A    
+        /// Velocity along the Up axis of the East-North- Up coordinate system
+        /// In Meters/Second
+        M_Common::DoubleOptionalType UpComponent;
+        
+        /// Tag N/A
+        /// Standard deviation along East axis.
+        /// In Meters/Second
+        M_Common::DoubleOptionalType SigmaEast;
+        
+        /// Tag N/A
+        /// Standard deviation along North axis.
+        /// In Meters/Second
+        M_Common::DoubleOptionalType SigmaNorth;
+        
+        /// Tag N/A
+        /// Standard deviation along Up axis
+        /// In Meters/Second
+        M_Common::DoubleOptionalType SigmaUp;
+        
+        /// Tag N/A
+        /// Correlation coefficient between East and North.
+        M_Common::DoubleOptionalType RhoEastNorth;
+        
+        /// Tag N/A
+        /// Correlation coefficient between East and Up.
+        M_Common::DoubleOptionalType RhoEastUp;
+        
+        /// Tag N/A
+        /// Correlation coefficient between North and Up.
+        M_Common::DoubleOptionalType RhoNorthUp;
+        
+    };
+
+    typedef sequence<VelocityTruncationPack, 1> VelocityTruncationPackOptionalType;
+
+    /// Location Truncation Pack from Video Moving Target Indicator and Track Metadata (MISB ST 0903.4)
+    struct LocationTruncationPack
+    {
+        
+        /// Tag N/A
+        /// Latitude in degrees of a point with respect to the WGS84 datum. For expressing standard deviations,
+        /// correlation coefficients, velocity, and acceleration, the point represents the origin of a
+        /// local tangential East- North-Up (ENU) coordinate system
+        /// In Degrees
+        M_Common::DoubleOptionalType Latitude;
+        
+        /// Tag N/A
+        /// Longitude in degrees of a point with respect to the WGS84 datum. For expressing standard deviations,
+        /// correlation coefficients, velocity, and acceleration, the point represents the origin of a
+        /// local tangential East- North-Up (ENU) coordinate system.
+        /// In Degrees
+        M_Common::DoubleOptionalType Longitude;
+        
+        /// Tag N/A
+        /// Height of a point in meters above the WGS84 Ellipsoid (HAE). For expressing standard deviations,
+        /// correlation coefficients, velocity, and acceleration, the point represents the origin of a
+        /// local tangential East- North-Up (ENU) coordinate system.
+        /// In Meters
+        M_Common::DoubleOptionalType Height;
+        
+        /// Tag N/A
+        /// Standard deviation of the location of the point with respect to the ENU coordinate system East axis
+        /// In Meters
+        M_Common::DoubleOptionalType SigmaEast;
+        
+        /// Tag N/A
+        /// Standard deviation of the location of the point with respect to the ENU coordinate system North axis.
+        /// In Meters
+        M_Common::DoubleOptionalType SigmaNorth;
+        
+        /// Tag N/A
+        /// Standard deviation of the location of the point with respect to the ENU coordinate system Up axis.
+        /// In Meters
+        M_Common::DoubleOptionalType SigmaUp;
+        
+        /// Tag N/A
+        /// Correlation coefficient between the East and North components.
+        M_Common::DoubleOptionalType RhoEastNorth;
+        
+        /// Tag N/A
+        /// Correlation coefficient between East and Up components of error.
+        M_Common::DoubleOptionalType RhoEastUp;
+        
+        /// Tag N/A
+        /// Correlation coefficient between North and Up components of error.
+        M_Common::DoubleOptionalType RhoNorthUp;
+        
+    };
+
+    typedef sequence<LocationTruncationPack, 1> LocationTruncationPackOptionalType;
+
+    typedef sequence<LocationTruncationPack> LocationTruncationPackListType;
+
+    /// Boundary Series from Video Moving Target Indicator and Track Metadata (MISB ST 0903.4)
+    struct BoundarySeries
+    {
+        
+        /// Tag N/A
+        /// A Series of Location data elements, one for each vertex of a bounding area or volume.
+        /// Generally used for (planar) bounding boxes. However, it can support the specification
+        /// of multifaceted (triangulated) volumes, as well, and it is used in this manner to
+        /// describe the bounding volume of a track in VTracker.
+        LocationTruncationPackListType LocationPack;
+        
+    };
+
+    typedef sequence<BoundarySeries, 1> BoundarySeriesOptionalType;
+
+    /// FPA Index Pack from Video Moving Target Indicator and Track Metadata (MISB ST 0903.4)
+    struct FpaIndexPack
+    {
+        
+        /// Tag N/A
+        /// Specifies the row of a sensor Focal Plane Array (FPA) in a two-dimensional array of FPAs, numbering from 1,
+        /// top to bottom, starting at the upper left of the array. Specifies the FPA in which detection of
+        /// the target has occurred. Target pixel coordinates are expressed with respect to the FPA within which
+        /// the target is detected; the FPA is treated as a Motion Imagery frame for VMTI data elements
+        /// that use the frame as a reference.
+        M_Common::ULongOptionalType FpaRow;
+        
+        /// Tag N/A
+        /// Specifies the column of a sensor Focal Plane Array (FPA) in a two-dimensional array of FPAs,
+        /// numbering from 1, left to right, starting at the upper left of the array.
+        /// Specifies the FPA in which detection of the target has occurred. Target pixel coordinates
+        /// are expressed with respect to the FPA within which the target is detected;
+        /// the FPA is treated as a Motion Imagery frame for VMTI data elements that use the frame as a reference.
+        M_Common::ULongOptionalType FpaColumn;
+        
+    };
+
+    typedef sequence<FpaIndexPack, 1> FpaIndexPackOptionalType;
+
+    /// VTrackItem Pack from Video Moving Target Indicator and Track Metadata (MISB ST 0903.4)
+    struct VTrackItemPack
+    {
+        
+        /// Tag N/A
+        /// This element is mandatory and it must come first in the VTarget Pack.
+        /// It is BER-OID encoded to convey the length but has no Tag or Length field. Range 1 to 2,097,151.
+        M_Common::ULongLongOptionalType TargetIdNumber;
+        
+        /// Tag 1
+        /// Microseconds elapsed since midnight (00:00:00 UTC),
+        /// January 1, 1970 (the UNIX Epoch). Reference MISB ST 0603 [12]
+        /// In Micro- seconds
+        M_Common::ULongLongOptionalType TargetTimeStamp;
+        
+        /// Tag 2
+        /// Defines the position of the target within the Motion Imagery frame in pixels. Range 1 to 248-1.
+        /// Numbering commences from 1 denoting the Top Left pixel.
+        /// In Pixels
+        M_Common::ULongLongOptionalType TargetCentroidPixelNumber;
+        
+        /// Tag 3
+        /// Specifies the row of the target centroid within the Motion Imagery frame in pixels.
+        /// Range 1 to 232-1. Numbering commences from 1, denoting the top row.
+        /// May be used with Target Centroid Pixel Column (Tag 20) to provide an alternate method to
+        /// specify Target Pixel Centroid Number (Tag 1), the pixel location of the target centroid.
+        /// If present, Target Centroid Pixel Column (Tag 20) must also be present.
+        /// In Pixels
+        M_Common::ULongLongOptionalType TargetCentroidPixelRow;
+        
+        /// Tag 4
+        /// Specifies the column of the target centroid within the Motion Imagery frame in pixels.
+        /// Range 1 to 232-1. Numbering commences from 1, denoting the left column.
+        /// May be used with Target Centroid Pixel Row (Tag 19) to provide an alternate method to
+        /// specify Target Pixel Centroid Number (Tag 1), the pixel location of the target centroid.
+        /// If present, Target Centroid Pixel Row (Tag 19) must also be present.
+        /// In Pixels
+        M_Common::ULongLongOptionalType TargetCentroidPixelColumn;
+        
+        /// Tag 5
+        /// Defines the position of the top left corner of the target bounding box within the
+        /// Motion Imagery frame in pixels. Range 1 to 248-1. Numbering commences from 1 denoting the Top Left pixel.
+        /// In Pixels
+        M_Common::ULongLongOptionalType BoundingBoxTopLeftPixelNumber;
+        
+        /// Tag 6
+        /// Defines the position of the bottom right corner of the target bounding box within the
+        /// Motion Imagery frame in pixels. Range 1 to 248-1. Numbering commences from 1 denoting the Top Left pixel.
+        /// In Pixels
+        M_Common::ULongLongOptionalType BoundingBoxBottomRightPixelNumber;
+        
+        /// Tag 7
+        /// Priority or validity of target based on criteria within the VMTI system. The target(s) with
+        /// the highest priority may not have the highest confidence level. Potential for use in limited
+        /// bandwidth scenarios to only send highest priority targets. Range 1 to 255 where 1 is the highest priority.
+        /// Multiple targets may have the same priority.
+        M_Common::UShortOptionalType TargetPriority;
+        
+        /// Tag 8
+        /// Confidence level of target based on criteria within the VMTI system.
+        /// The target(s) with the highest confidence may not have the highest priority value.
+        /// Potential for use in limited bandwidth scenarios to only send highest confidence targets.
+        /// Range 0 to 100, as a percentage, where 100 percent is the highest confidence.
+        /// Multiple targets may have the same confidence level.
+        M_Common::UShortOptionalType TargetConfidenceLevel;
+        
+        /// Tag 9
+        /// The number of previous times the same target has been detected.
+        /// Range 0 to 65535 frames. Where a value of 0 denotes the target as a new detection.
+        /// Detections are not required to be in consecutive frames.
+        /// In Frames
+        M_Common::UShortOptionalType NewDetectionFlagTargetHistory;
+        
+        /// Tag 10
+        /// The percentage of pixels within the bounding box that are detected to be target pixels rather
+        /// than background pixels. Range 1 to 100, where 100 signifies that the target
+        /// completely fills the bounding box.
+        M_Common::UShortOptionalType PercentageOfTargetPixels;
+        
+        /// Tag 11
+        /// Dominant color of the target. For use when metadata is transmitted in the absence of
+        /// the underlying Motion Imagery. RGB color value. VFeature LS can be used
+        /// for more comprehensive color information.
+        M_Common::ULongOptionalType TargetColor;
+        
+        /// Tag 12
+        /// Dominant Intensity of the target. For use when metadata is transmitted in
+        /// the absence of the underlying Motion Imagery. Range 0 to 224-1.
+        /// VFeature LS can be used for more comprehensive temperature information.
+        M_Common::ULongOptionalType TargetIntensity;
+        
+        /// Tag 13
+        /// Location of the target (latitude, longitude, & height above the WGS84 Ellipsoid),
+        /// with associated sigma and rho values
+        LocationTruncationPackOptionalType TargetLocation;
+        
+        /// Tag 14
+        /// Boundary around the target, typically defined as a bounding box in two or more locations
+        /// (latitude, longitude, & height above the WGS84 Ellipsoid).
+        BoundarySeriesOptionalType TargetBoundary;
+        
+        /// Tag 15
+        /// Velocity of the entity at the time of last observation.
+        VelocityTruncationPackOptionalType Velocity;
+        
+        /// Tag 16
+        /// Acceleration of the entity at the time of last observation.
+        AccelerationTruncationPackOptionalType Acceleration;
+        
+        /// Tag 17
+        /// Specifies the column and the row of a sensor Focal Plane Array (FPA) in a two-dimensional array of FPAs.
+        /// Specifies the FPA in which detection of the target has occurred. Target pixel coordinates are expressed
+        /// with respect to the FPA within which the target is detected; the FPA is treated as a Motion Imagery frame
+        /// for VMTI data elements that use the frame as a reference.
+        FpaIndexPackOptionalType FpaIndex;
+
+        /// Tag 18
+        /// The Motion Imagery Frame Number corresponding to the frame in which the targets were detected.
+        /// Use of the Precision Time Stamp is preferred but frame number can be used where a
+        /// Precision Time Stamp is not available. Range 0 to 224 -1 which
+        /// equates to approximately 155 hours at 30 FPS.
+        /// In Frames
+        M_Common::ULongOptionalType MotionImageryFrameNumber;
+        
+        /// Tag 19
+        /// A Motion Imagery Identification System (MIIS) Core Identifier, compliant with ST 1204[4].
+        M_Common::StringOptionalType MotionImageryId;
+        
+        /// Tag 20
+        /// Width of the Motion Imagery frame in pixels. Range 1 to 16777215.
+        /// Value of zero is meaningless and should not be used.
+        /// In Pixels
+        M_Common::ULongOptionalType FrameWidth;
+        
+        /// Tag 21
+        /// Height of the Motion Imagery frame in pixels.
+        /// Range 1 to 16777215 Value of zero is meaningless and should not be used
+        /// In Pixels
+        M_Common::ULongOptionalType FrameHeight;
+        
+        /// Tag 22
+        /// Horizontal field of view of imaging sensor input to VMTI process. Required if
+        /// VMTI process is run on a different imaging sensor to that described by the parent MISB ST 0601 packet.
+        /// Can be used with HFOV (Tag 16) from MISB ST 0601 to scale VMTI Column, Row coordinates.
+        /// In Degrees
+        M_Common::DoubleOptionalType SensorHorizontalFieldOfView;
+        
+        /// Tag 23
+        /// Vertical field of view of imaging sensor input to VMTI process.
+        /// May be required if VMTI process is run on a different imaging sensor to that included in the
+        /// MPEG-2 Transport Stream. Can be used with VFOV (Tag 17) from MISB ST 0601 to scale
+        /// VMTI Column, Row coordinates. Typically only required to cater for aspect ratio variation.
+        /// In Degrees
+        M_Common::DoubleOptionalType SensorVerticalFieldOfView;
+
+        /// Tag 24
+        /// A Uniform Resource Locator (URL) for the Motion Imagery essence,
+        /// compliant with Internet Standard RFC 3986 [11].
+        M_Common::StringOptionalType MotionImageryUrl;
+        
+        /// Tag 101
+        /// Local set tag to include a mask for delineating the perimeter of the target.
+        /// It may be used to extract the target and populate the VChip LS. Use the VMask Local Set Tags.
+        /// The length field is the size of all VMask items to be packaged within this tag.
+        VMaskLSOptionalType VMaskLs;
+        
+        /// Tag 102
+        /// Local set tag to specify the class or type of a target.
+        /// Uses an ontology to describe the set of allowed class or type values.
+        VObjectLSOptionalType VObject;
+        
+        /// Tag 103
+        /// Local set tag to include features about the target. More than one VFeature LS can be
+        /// included within the VTarget Pack. Use the VFeature Local Set Tags. The length field is the size
+        /// of all VFeature items to be packaged within this tag.
+        VFeatureLSOptionalType VFeatureLs;
+        
+        /// Tag 105
+        /// Local set tag to include underlying pixel values for the target. The VChip LS contains a
+        /// target chip extracted from the Motion Imagery. Use the VChip Local Set Tags.
+        /// The length field is the size of all VChip items to be packaged within this tag.
+        VChipLSOptionalType VChip;
+        
+        /// Tag 106
+        /// VChipSeries is a Series of one or more VChip LSs. Multiple VChips could be useful for including an
+        /// image chip from the source sensor and another image chip of the target from another sensor,
+        /// say one of higher resolution or of a different modality (e.g. IR).
+        VChipLSListType VChipSeries;
+        
+    };
+
+    typedef sequence<VTrackItemPack, 1> VTrackItemPackOptionalType;
+
+    typedef sequence<VTrackItemPack> VTrackItemPackListType;
+
+    /// VTrack LS from Video Moving Target Indicator and Track Metadata (MISB ST 0903.4)
+    struct VTrackLS
+    {
+        
+        /// Tag 1
+        /// Checksum used to detect errors within a VMTI LS packet. Lower 16-bits of summation.
+        /// Performed on entire VMTI LS packet, including 16-byte US key and 1-byte checksum length.
+        M_Common::UShortOptionalType Checksum;
+        
+        /// Tag 2
+        /// Microseconds elapsed since midnight (00:00:00 UTC), January 1, 1970 (the UNIX Epoch).
+        /// Reference MISB ST 0603 [12]
+        /// In Micro- seconds
+        M_Common::ULongLongOptionalType TrackTimeStamp;
+        
+        /// Tag 3
+        /// A unique identifier (UUID) for the track.
+        M_Common::StringOptionalType TrackId;
+        
+        /// Tag 4
+        /// An enumeration indicating the current state of VMTI detections for a
+        /// given entity (Inactive, Active, Dropped, Stopped).
+        M_Common::UShortOptionalType TrackStatus;
+        
+        /// Tag 5
+        /// Date and time for the first observation of the entity
+        /// In Micro- seconds
+        M_Common::ULongLongOptionalType TrackStartTime;
+        
+        /// Tag 6
+        /// Date and time of the most recent observation of the entity.
+        /// In Micro- seconds
+        M_Common::ULongLongOptionalType TrackEndTime;
+        
+        /// Tag 7
+        /// Set of Boundary vertices that specify a minimum bounding area or volume,
+        /// which encloses the full extent of VMTI detections for the entity.
+        BoundarySeriesOptionalType TrackBoundingBox;
+        
+        /// Tag 8
+        /// Name or description of the algorithm or method used to create or maintain object movement reports
+        /// or intervening predictions of such movement. The intent of this element is to identify
+        /// uniquely the VMTI algorithm or method used.
+        M_Common::StringOptionalType TrackerAlgorithm;
+        
+        /// Tag 9
+        /// An estimation of the certainty or correctness of VMTI movement detections.
+        /// Larger values indicate greater confidence. Zero indicates no confidence.
+        M_Common::UShortOptionalType TrackConfidence;
+        
+        /// Tag 10
+        /// Text string to allow the inclusion of the name and/or description of the VMTI system.
+        M_Common::StringOptionalType VmtiSystemNameDescription;
+        
+        /// Tag 11
+        /// Version number of the VMTI LS document used to generate the VMTI metadata. 0 is pre- release,
+        /// initial release (090x.0), or test data. 1...65535 corresponds to document revisions 1 through 65535.
+        M_Common::UShortOptionalType VmtiLsVersionNumber;
+        
+        /// Tag 12
+        /// String of VMTI source sensor. E.g. 'EO Nose', 'EO Zoom (DLTV)', 'EO Spotter',
+        /// 'IR Mitsubishi PtSi Model 500', 'IR InSb Amber Model TBT', 'LYNX SAR Imagery', 'TESAR Imagery',
+        /// etc. Value field is Free Text. Maximum 127 characters. Similar to MISB ST 0601 Tag 11 Used to
+        /// identify the imagery source for the VMTI process if more than one bore-sighted Motion Imagery sou
+        /// In String
+        M_Common::StringOptionalType VmtiSourceSensor;
+        
+        /// Tag 13
+        /// The number of VTrackItem Packs contained in the VTrackItemSeries
+        M_Common::ULongLongOptionalType NumberOfTrackpoints;
+        
+        /// Tag 101
+        /// Series of track item metadata elements, each of which is a VTrackItem Pack.
+        VTrackItemPackListType VTrackItemSeries;
+        
+    };
+
+    typedef sequence<VTrackLS, 1> VTrackLSOptionalType;
+
+    /// VTracker Local Set from Video Moving Target Indicator and Track Metadata (MISB ST 0903.4)
+    struct VTrackerLS
+    {
+        
+        /// Tag 1
+        /// A unique identifier (UUID) for the track.
+        M_Common::StringOptionalType TrackId;
+        
+        /// Tag 2
+        /// An enumeration indicating the current state of VMTI detections for a given entity
+        /// (Inactive, Active, Dropped, Stopped).
+        M_Common::UShortOptionalType DetectionStatus;
+        
+        /// Tag 3
+        /// Date and time for the first observation of the entity
+        /// In Micro- seconds
+        M_Common::ULongLongOptionalType StartTimestamp;
+        
+        /// Tag 4
+        /// Date and time of the most recent observation of the entity.
+        /// In Micro- seconds
+        M_Common::ULongLongOptionalType EndTimeStamp;
+        
+        /// Tag 5
+        /// Set of Boundary vertices that specify a minimum bounding area or volume,
+        /// which encloses the full extent of VMTI detections for the entity.
+        BoundarySeriesOptionalType BoundingBox;
+        
+        /// Tag 6
+        /// Name or description of the algorithm or method used to create or maintain object movement reports or
+        /// intervening predictions of such movement. The intent of this element is to
+        /// identify uniquely the VMTI algorithm or method used.
+        M_Common::StringOptionalType Algorithm;
+        
+        /// Tag 7
+        /// An estimation of the certainty or correctness of VMTI movement detections.
+        /// Larger values indicate greater confidence. Zero indicates no confidence.
+        M_Common::UShortOptionalType Confidence;
+        
+        /// Tag 8
+        /// Number of coordinates of type Location that describe the locus of VMTI detections.
+        M_Common::UShortOptionalType NumberOfTrackPoints;
+        
+        /// Tag 9
+        /// Points of type Location that represent the locations of VMTI detections
+        LocationTruncationPackListType Locus;
+        
+        /// Tag 10
+        /// Velocity of the entity at the time of last observation.
+        VelocityTruncationPackOptionalType Velocity;
+        
+        /// Tag 11
+        /// Acceleration of the entity at the time of last observation.
+        AccelerationTruncationPackOptionalType Acceleration;
+        
+    };
+
+    typedef sequence<VTrackerLS, 1> VTrackerLSOptionalType;
+
+    /// VTargetPack from Video Moving Target Indicator and Track Metadata (MISB ST 0903.4)
+    struct VTargetPack
+    {
+        
+        /// Tag N/A
+        /// This element is mandatory and it must come first in the VTarget Pack.
+        /// It is BER-OID encoded to convey the length but has no Tag or Length field. Range 1 to 2,097,151.
+        M_Common::StringOptionalType TargetIdNumber;
+        
+        /// Tag 1
+        /// Defines the position of the target within the Motion Imagery frame in pixels.
+        /// Range 1 to 248-1. Numbering commences from 1 denoting the Top Left pixel.
+        /// In Pixels
+        M_Common::ULongLongOptionalType TargetCentroidPixelNumber;
+        
+        /// Tag 2
+        /// Defines the position of the top left corner of the target bounding box within
+        /// the Motion Imagery frame in pixels. Range 1 to 248-1.
+        /// Numbering commences from 1 denoting the Top Left pixel.
+        /// In Pixels
+        M_Common::ULongLongOptionalType BoundingBoxTopLeftPixelNumber;
+        
+        /// Tag 3
+        /// Defines the position of the bottom right corner of the target bounding box within the Motion Imagery
+        /// frame in pixels. Range 1 to 248-1. Numbering commences from 1 denoting the Top Left pixel.
+        /// In Pixels
+        M_Common::ULongLongOptionalType BoundingBoxBottomRightPixelNumber;
+        
+        /// Tag 4
+        /// Priority or validity of target based on criteria within the VMTI system.
+        /// The target(s) with the highest priority may not have the highest confidence level.
+        /// Potential for use in limited bandwidth scenarios to only send highest priority targets.
+        /// Range 1 to 255 where 1 is the highest priority. Multiple targets may have the same priority.
+        M_Common::UShortOptionalType TargetPriority;
+        
+        /// Tag 5
+        /// Confidence level of target based on criteria within the VMTI system.
+        /// The target(s) with the highest confidence may not have the highest priority value.
+        /// Potential for use in limited bandwidth scenarios to only send highest confidence targets.
+        /// Range 0 to 100, as a percentage, where 100 percent is the highest confidence.
+        /// Multiple targets may have the same confidence level.
+        M_Common::UShortOptionalType TargetConfidenceLevel;
+        
+        /// Tag 6
+        /// The number of previous times the same target has been detected. Range 0 to 65535 frames.
+        /// Where a value of 0 denotes the target as a new detection.
+        /// Detections are not required to be in consecutive frames.
+        /// In Frames
+        M_Common::UShortOptionalType NewDetectionFlagTargetHistory;
+        
+        /// Tag 7
+        /// The percentage of pixels within the bounding box that are detected to be
+        /// target pixels rather than background pixels. Range 1 to 100, where 100 signifies that
+        /// the target completely fills the bounding box.
+        M_Common::UShortOptionalType PercentageOfTargetPixels;
+        
+        /// Tag 8
+        /// Dominant color of the target. For use when metadata is transmitted in the absence of
+        /// the underlying Motion Imagery. RGB color value. VFeature LS can be used for
+        /// more comprehensive color information.
+        M_Common::ULongOptionalType TargetColor;
+        
+        /// Tag 9
+        /// Dominant Intensity of the target. For use when metadata is transmitted in the
+        /// absence of the underlying Motion Imagery. Range 0 to 224-1.
+        /// VFeature LS can be used for more comprehensive temperature information.
+        M_Common::ULongOptionalType TargetIntensity;
+        
+        /// Tag 10
+        /// Latitude offset for target from frame center latitude (MISB ST 0601).
+        /// Based on WGS84 ellipsoid. Use with Frame Center Latitude
+        /// In Degrees
+        M_Common::DoubleOptionalType TargetLocationLatitudeOffset;
+        
+        /// Tag 11
+        /// Longitude offset for target from frame center longitude (MISB ST 0601).
+        /// Based on WGS84 ellipsoid. Use with Frame Center Longitude.
+        /// In Degrees
+        M_Common::DoubleOptionalType TargetLocationLongitudeOffset;
+        
+        /// Tag 12
+        /// Height of target in meters above WGS84 Ellipsoid.
+        /// In Meters
+        M_Common::DoubleOptionalType TargetHeight;
+        
+        /// Tag 13
+        /// Latitude offset for top left corner of target bounding box. Use with MISB ST 0601 Frame Center Latitude.
+        /// In Degrees
+        M_Common::DoubleOptionalType BoundingBoxTopLeftLatitudeOffset;
+        
+        /// Tag 14
+        /// Longitude offset for top left corner of target bounding box. Use with MISB ST 0601 Frame Center Longitude.
+        /// In Degrees
+        M_Common::DoubleOptionalType BoundingBoxTopLeftLongitudeOffset;
+        
+        /// Tag 15
+        /// Latitude offset for bottom right corner of target bounding box.
+        /// Use with MISB ST 0601 Frame Center Latitude.
+        /// In Degrees
+        M_Common::DoubleOptionalType BoundingBoxBottomRightLatitudeOffset;
+        
+        /// Tag 16
+        /// Longitude offset for bottom right corner of target bounding box.
+        /// Use with MISB ST 0601 Frame Center Longitude.
+        /// In Degrees
+        M_Common::DoubleOptionalType BoundingBoxbottomRightLongitudeOffset;
+        
+        /// Tag 17
+        /// Location of the target (latitude, longitude, & height above the WGS84 Ellipsoid),
+        /// with associated sigma and rho values
+        LocationTruncationPackOptionalType TargetLocation;
+        
+        /// Tag 18
+        /// Boundary around the target, typically defined as a bounding box in two or more locations
+        /// (latitude, longitude, & height above the WGS84 Ellipsoid).
+        BoundarySeriesOptionalType TargetBoundary;
+        
+        /// Tag 19
+        /// Specifies the row of the target centroid within the Motion Imagery frame in pixels.
+        /// Range 1 to 232-1. Numbering commences from 1, denoting the top row. May be used with
+        /// Target Centroid Pixel Column (Tag 20) to provide an alternate method to specify Target
+        /// Pixel Centroid Number (Tag 1), the pixel location of the target centroid. If present,
+        /// Target Centroid Pixel Column (Tag 20) must also be present.
+        /// In Pixels
+        M_Common::ULongOptionalType TargetCentroidPixelRow;
+        
+        /// Tag 20
+        /// Specifies the column of the target centroid within the Motion Imagery frame in pixels. Range 1 to 232-1.
+        /// Numbering commences from 1, denoting the left column. May be used with Target Centroid Pixel Row (Tag 19)
+        /// to provide an alternate method to specify Target Pixel Centroid Number (Tag 1),
+        /// the pixel location of the target centroid. If present, Target Centroid Pixel Row (Tag 19) must also be present.
+        /// In Pixels
+        M_Common::ULongOptionalType TargetCentroidPixelColumn;
+        
+        /// Tag 21
+        /// Specifies the column and the row of a sensor Focal Plane Array (FPA) in a two-dimensional
+        /// array of FPAs. Specifies the FPA in which detection of the target has occurred.
+        /// Target pixel coordinates are expressed with respect to the FPA within which the target is detected;
+        /// the FPA is treated as a Motion Imagery frame for VMTI data elements that use the frame as a reference.
+        FpaIndexPackOptionalType FpaIndex;
+
+        /// Tag 101
+        /// Local set tag to include a mask for delineating the perimeter of the target.
+        /// It may be used to extract the target and populate the VChip LS.
+        /// Use the VMask Local Set Tags. The length field is the size of all VMask items
+        /// to be packaged within this tag.
+        VMaskLSOptionalType VMaskLs;
+        
+        /// Tag 102
+        /// Local set tag to specify the class or type of a target.
+        /// Uses an ontology to describe the set of allowed class or type values.
+        VObjectLSOptionalType VObjectLs;
+        
+        /// Tag 103
+        /// Local set tag to include features about the target. More than one VFeature LS can be
+        /// included within the VTarget Pack. Use the VFeature Local Set Tags.
+        /// The length field is the size of all VFeature items to be packaged within this tag.
+        VFeatureLSOptionalType VFeatureLs;
+        
+        /// Tag 104
+        /// Local set tag to include track information about the target. Use the VTracker Local Set Tags.
+        /// The length field is the size of all VTracker items to be packaged within this tag.
+        VTrackerLSOptionalType VTrackerLs;
+        
+        /// Tag 105
+        /// Local set tag to include underlying pixel values for the target.
+        /// The VChip LS contains a target chip extracted from the Motion Imagery. Use the VChip Local Set Tags.
+        /// The length field is the size of all VChip items to be packaged within this tag.
+        VChipLSOptionalType VChip;
+        
+        /// Tag 106
+        /// VChipSeries is a Series of one or more VChip LSs. Multiple VChips could be useful for
+        /// including an image chip from the source sensor and another image chip of the target from another sensor,
+        /// say one of higher resolution or of a different modality (e.g. IR).
+        VChipLSListType VChipSeries;
+        
+    };
+
+    typedef sequence<VTargetPack, 1> VTargetPackOptionalType;
+
+    typedef sequence<VTargetPack> VTargetPackListType;
+
+    /// VmtiLocalSet from Video Moving Target Indicator and Track Metadata (MISB ST 0903.4)
+    struct VmtiLS
+    {
+        
+        /// Tag 1
+        /// Checksum used to detect errors within a VMTI LS packet. Lower 16-bits of summation.
+        /// Performed on entire VMTI LS packet, including 16-byte US key and 1-byte checksum length.
+        M_Common::UShortOptionalType Checksum;
+        
+        /// Tag 2
+        /// Microseconds elapsed since midnight (00:00:00 UTC), January 1, 1970 (the UNIX Epoch).
+        /// Reference MISB ST 0603 [12]
+        /// In Micro- seconds
+        M_Common::ULongLongOptionalType PrecisionTimeStampPosixMicroseconds;
+        
+        /// Tag 3
+        /// Text string to allow the inclusion of the name and/or description of the VMTI system.
+        /// In String
+        M_Common::StringOptionalType VmtiSystemNameDescription;
+        
+        /// Tag 4
+        /// Version number of the VMTI LS document used to generate the VMTI metadata. 0 is pre- release,
+        /// initial release (090x.0), or test data. 1...65535 corresponds to document revisions 1 through 65535.
+        M_Common::UShortOptionalType VmtiLsVersionnumber;
+        
+        /// Tag 5
+        /// The total number of targets detected in the frame. Range 1 to 16,777,215.
+        /// 0 represents no targets detected, also implied by no value at all and VMTI LS is superfluous and
+        /// should be discarded. 16,777,215 represents 16,777,215 or more detections.
+        M_Common::ULongOptionalType TotalNumberOfTargetsDetectedInTheFrame;
+        
+        /// Tag 6
+        /// The number of targets reported following a culling process. For use, for example,
+        /// where bandwidth limits the number of targets that can be sent. Range 0 to 16,777,215.
+        M_Common::ULongOptionalType NumberOfReportedTargets;
+        
+        /// Tag 7
+        /// The Motion Imagery Frame Number corresponding to the frame in which the targets were detected.
+        /// Use of the Precision Time Stamp is preferred but frame number can be used where a
+        /// Precision Time Stamp is not available. Range 0 to 224 -1 which equates to
+        /// approximately 155 hours at 30 FPS.
+        /// In Frames
+        M_Common::ULongOptionalType MotionImageryFrameNumber;
+        
+        /// Tag 8
+        /// Width of the Motion Imagery frame in pixels. Range 1 to 16777215.
+        /// Value of zero is meaningless and should not be used.
+        /// In Pixels
+        M_Common::ULongOptionalType FrameWidth;
+        
+        /// Tag 9
+        /// Height of the Motion Imagery frame in pixels.
+        /// Range 1 to 16777215 Value of zero is meaningless and should not be used
+        /// In Pixels
+        M_Common::ULongOptionalType FrameHeight;
+        
+        /// Tag 10
+        /// String of VMTI source sensor. E.g. 'EO Nose', 'EO Zoom (DLTV)', 'EO Spotter',
+        /// 'IR Mitsubishi PtSi Model 500', 'IR InSb Amber Model TBT', 'LYNX SAR Imagery',
+        /// 'TESAR Imagery', etc. Value field is Free Text. Maximum 127 characters.
+        /// Similar to MISB ST 0601 Tag 11 Used to identify the imagery source for the VMTI process if more than
+        /// one bore-sighted Motion Imagery source is captured simultaneously.
+        M_Common::StringOptionalType VmtiSourceSensor;
+        
+        /// Tag 11
+        /// Horizontal field of view of imaging sensor input to VMTI process.
+        /// Required if VMTI process is run on a different imaging sensor to that described by the
+        /// parent MISB ST 0601 packet. Can be used with HFOV (Tag 16) from MISB ST 0601 to
+        /// scale VMTI Column, Row coordinates.
+        /// In Degrees
+        M_Common::DoubleOptionalType VmtiSensorHorizontalFieldOfView;
+        
+        /// Tag 12
+        /// Vertical field of view of imaging sensor input to VMTI process.
+        /// May be required if VMTI process is run on a different imaging sensor to that included in the
+        /// MPEG-2 Transport Stream. Can be used with VFOV (Tag 17) from MISB ST 0601 to scale
+        /// VMTI Column, Row coordinates. Typically only required to cater for aspect ratio variation.
+        /// In Degrees
+        M_Common::DoubleOptionalType VmtiSensorVerticalFieldOfView;
+        
+        /// Tag 13
+        /// A Motion Imagery Identification System (MIIS) Core Identifier, compliant with MISB ST 1204 [4].
+        /// Provides a unique identifier for the Motion Imagery stream in which the targets were detected.
+        /// Appearance of this data element in the metadata stream is desirable but not mandatory.
+        /// If the VMTI LS is subordinate to a MISB ST 0601 LS under Tag 74, a MIIS Core Identifier may
+        /// already be present in the MISB ST 0601 LS. In this case, this data element may be omitted
+        M_Common::StringOptionalType MotionImageryId;
+
+        /// Tag 14
+        /// Series of target metadata, each of which is a VTarget Pack.
+        /// The length field for VTargetSeries is the sum of the lengths of all the contained target metadata.
+        /// The length field for each VTarget Pack is the size of all elements within that pack
+        /// including the Target ID #.
+        VTargetPackListType VTargetSeries;
+        
+    };
+
+    typedef sequence<VmtiLS, 1> VmtiLSOptionalType;
+
+    typedef sequence<VmtiLS> VmtiLSListType;
+
+    /// Area of Interest Local Set from Remote Video Temrinal Metadata Set (MISB ST 0806.4)
+    struct AreaOfInterestLS
+    {
+        
+        /// Tag 1
+        /// AOI Number ** REQUIRED when sending an AOI **
+        M_Common::ULongLongOptionalType PoiAoiNumber;
+        
+        /// Tag 2
+        /// NW corner of AOI. Based on WGS84 ellipsoid. Map - (2^31 - 1)..(2^31 - 1) to +/ - 90.
+        /// Use - (2^31) as an error indicator. - (2^31) = 0x80000000.
+        /// Resolution: ~42 nano degrees. ** REQUIRED when sending an AOI **
+        /// In Degrees
+        M_Common::DoubleOptionalType CornerLatitudePoint1;
+        
+        /// Tag 3
+        /// NW corner of AOI. Based on WGS84 ellipsoid. Map - (2^31 - 1)..(2^31 - 1) to +/ - 180.
+        /// Use - (2^31) as an error indicator. - (2^31) = 0x80000000. Resolution: ~84 nano degrees.
+        /// ** REQUIRED when sending an AOI **
+        /// In Degrees
+        M_Common::DoubleOptionalType CornerLongitudePoint1;
+        
+        /// Tag 4
+        /// SE corner of AOI. Based on WGS84 ellipsoid. Map - (2^31 - 1)..(2^31 - 1) to +/ - 90.
+        /// Use - (2^31) as an error indicator. - (2^31) = 0x80000000. Resolutio n: ~42 nano degrees.
+        /// ** REQUIRED when sending an AOI **
+        /// In Degrees
+        M_Common::DoubleOptionalType CornerLatitudePoint3;
+        
+        /// Tag 5
+        /// SE corner of AOI. Based on WGS84 ellipsoid. Map - (2^31 - 1)..(2^31 - 1) to +/ - 180.
+        /// Use - (2^31) as an error indicator. - (2^31) = 0x80000000. Resolution: ~84 nano degrees.
+        /// ** REQUIRED when sending an AOI **
+        /// In Degrees
+        M_Common::DoubleOptionalType CornerLongitudePoint3;
+        
+        /// Tag 6
+        /// Target Identifier: 1=Friendly, 2=Hostile, 3=Reserved, or 4=Unknown
+        /// ** REQUIRED when sending an AOI **
+        M_Common::ULongLongOptionalType PoiAoiType;
+        
+        /// Tag 7
+        /// User Defined String
+        M_Common::StringOptionalType PoiAoiText;
+        
+        /// Tag 8
+        /// User Defined String
+        M_Common::StringOptionalType PoiAoiSourceId;
+        
+        /// Tag 9
+        /// User Defined String
+        M_Common::StringOptionalType PoiAoiLabel;
+        
+        /// Tag 10
+        /// Operation ID is the identifier for the duration of the supporting mission or
+        /// event associated with the Area of Interest. This is not the platform mission designation
+        M_Common::StringOptionalType OperationId;
+        
+    };
+
+    typedef sequence<AreaOfInterestLS, 1> AreaOfInterestLSOptionalType;
+
+    typedef sequence<AreaOfInterestLS> AreaOfInterestLSListType;
+
+    /// Point of Interest Local Set from Remote Video Temrinal Metadata Set (MISB ST 0806.4)
+    struct PointOfInterestLS
+    {
+        
+        /// Tag 1
+        /// POI Number ** REQUIRED when sending a POI **
+        M_Common::ULongLongOptionalType PoiAoiNumber;
+        
+        /// Tag 2
+        /// POI Latitude. Based on WGS84 ellipsoid. Map - (2^31 - 1)..(2^31 - 1) to +/ - 90.
+        /// Use - (2^31) as an error indicator. - (2^31) = 0x80000000. Resolution: ~42 nano degrees.
+        /// ** REQUIRED when sending a POI **
+        /// In Degrees
+        M_Common::DoubleOptionalType PoiLatitude;
+        
+        /// Tag 3
+        /// POI Longitude. Based on WGS84 ellipsoid. Map - (2^31 - 1)..(2^31 - 1) to +/ - 180.
+        /// Use - (2^31) as an error indicator. - (2^31) = 0x80000000. Resolution: ~84 nano degrees.
+        /// ** REQUIRED when sending a POI **
+        /// In Degrees
+        M_Common::DoubleOptionalType PoiLongitude;
+        
+        /// Tag 4
+        /// Altitude of POI as measured from Mean Sea Level (MSL). Map 0..(2^16 - 1) to - 900..19000 meters.
+        /// 1 meter = 3.2808399 feet. Resolution: ~0.3 meters
+        /// In Meters
+        M_Common::DoubleOptionalType PoiAltitude;
+        
+        /// Tag 5
+        /// Target Identifier: 1=Friendly, 2=Hostile, 3=Target, or 4=Unknown
+        M_Common::ULongLongOptionalType PoiAoiType;
+        
+        /// Tag 6
+        /// User Defined String
+        M_Common::StringOptionalType PoiAoiText;
+        
+        /// Tag 7
+        /// Per MIL - STD - 2525B. Maximum 127 char acters. Icon used in FalconView
+        M_Common::StringOptionalType PoiSourceIcon;
+        
+        /// Tag 8
+        /// User Defined String
+        M_Common::StringOptionalType PoiAoiSourceId;
+        
+        /// Tag 9
+        /// User Defined String
+        M_Common::StringOptionalType PoiAoiLabel;
+        
+        /// Tag 10
+        /// Operation ID is the identifier for the duration of the supporting mission or
+        /// event associated with the Point of Interest; this is not the platform mission designation
+        M_Common::StringOptionalType OperationId;
+        
+    };
+
+    typedef sequence<PointOfInterestLS, 1> PointOfInterestLSOptionalType;
+
+    typedef sequence<PointOfInterestLS> PointOfInterestLSListType;
+
+    /// RVT Local Set from Remote Video Temrinal Metadata Set (MISB ST 0806.4)
+    struct RvtLS
+    {
+        
+        /// Tag 1
+        /// Performed on entire L S packet, including 16 - byte U S key.
+        /// Note: This is Not the same Checksum as is used in STANDARD 0601.
+        /// See the Appendix. This checksum must appea r as that last item in an RVT L S pack when used.
+        M_Common::ULongLongOptionalType Crc32;
+        
+        /// Tag 2
+        /// Represents the Coordinated Universal Time (UTC) in Microseconds elapsed since
+        /// midnight (00:00:00), January 1, 1970 (the UNIX Epoch).
+        /// Defined as the Precision Time Stamp in MISB ST 0603 [1] .
+        /// Resolution: 1 microsecond. Note: This timestamp must appear as the first item in an RVT LS pack when used.
+        /// In Microseconds
+        M_Common::ULongLongOptionalType UserDefinedTimestampMicrosecondsSince1970;
+        
+        /// Tag 3
+        /// True airspeed (TAS) of platform. Indicated Airspeed adjusted for temperature and altitude.
+        /// 1 m/s = 1.94384449 knots. Resolution: 1 meter/second
+        /// In Meters / Second
+        M_Common::DoubleOptionalType PlatformTrueAirspeed;
+        
+        /// Tag 4
+        /// Indicated airspeed (IAS) of platform. Derived from Pilot tube and static pressure sensors.
+        /// 1 m/s = 1.94384449 knots. Resolution: 1 meter/second
+        /// In Meters / Second
+        M_Common::DoubleOptionalType PlatformIndicatedAirspeed;
+        
+        /// Tag 5
+        /// Reserved for future use
+        M_Common::DoubleOptionalType TelemetryAccuracyIndicator;
+        
+        /// Tag 6
+        /// Size of fragmentation circle selected by the aircrew. Resolution: 1 meter
+        /// In Meters
+        M_Common::DoubleOptionalType FragCircleRadius;
+        
+        /// Tag 7
+        /// Range is from 0 to 4,294,967,296. Counter runs at 60 Hz
+        M_Common::DoubleOptionalType FrameCode;
+        
+        /// Tag 8
+        /// Version number of the L S document used to generate a source of LS KLV metadata.
+        /// 0 is pre - release, initial release (0806.0), or test data. 1..255 corresponds to
+        /// document revisions 1 thru 255. This version is represented by 0d02.
+        /// In Number
+        M_Common::ULongLongOptionalType UasLsVersionNumber;
+        
+        /// Tag 9
+        /// Video data rate (Digital only), or Analog FM
+        /// In bps or Hz
+        M_Common::DoubleOptionalType VideoDataRate;
+        
+        /// Tag 10
+        /// Video Compression being used. Maximum 127 characters.
+        /// Examples: M P EG2, MPEG4, H.264, Analog FM (non - compressed) As this list is not exhaustive,
+        /// other values or variants are also acceptable
+        M_Common::StringOptionalType DigitalVideoFileFormat;
+        
+        /// Tag 11
+        /// Local set key to include User Defined data items within the RVT KLV Dictionary.
+        /// Use the values of the items specified within the User Defined Data Packet.
+        /// The length field is the size of all items to be packaged within this tag.
+        M_Common::PropertyListType UserDefinedLs;
+        
+        /// Tag 12
+        /// Local set key to include POI items within RVT KLV Dictionary.
+        /// Use POI local set tags within a POI packet.
+        /// The length field is the size of all POI items to be packaged within this tag
+        PointOfInterestLSListType PointOfInterest;
+        
+        /// Tag 13
+        /// Local set key to include AOI items within RVT KLV Dictionary.
+        /// Use AOI local set tags within an AOI packet.
+        /// The length field is the size of all AOI items to be packaged within this tag
+        AreaOfInterestLSListType AreaOfInterest;
+        
+        /// Tag 14
+        /// AIRCRAFT: First two characters of Aircraft MGRS coordinates, UTM zone 01 through 60
+        M_Common::ULongOptionalType MgrsZone;
+        
+        /// Tag 15
+        /// AIRCRAFT: Third, fourth and fifth characters of Aircraft MGRS coordinates.
+        /// Third character is the alpha code for the latitude band (A through Z, omitting I and O).
+        /// Fourth and fifth characters are the 2 - digit alpha code for the grid square designator (WGS 84).
+        /// Note that latitude bands A & B correspond to Antarctic UPS regions and Y & Z correspond to
+        /// Artic UPS regions
+        M_Common::StringOptionalType MgrsLatitudeBandAndGridSquare;
+        
+        /// Tag 16
+        /// AIRCRAFT: Sixth through tenth character of Aircraft MGRS coordinates.
+        /// Range is from 0 to 99,999 representing the 5 - digit Easting value in meters. Resolution: 1 meter
+        /// In Meters
+        M_Common::ULongOptionalType MgrsEasting;
+        
+        /// Tag 17
+        /// AIRCRAFT: Eleventh through fifteenth character of Aircraft MGRS coordinates.
+        /// Range is from 0 to 99,999 representing the 5 - digit Northing value in meters. Resolution: 1 meter
+        /// In Meters
+        M_Common::ULongOptionalType MgrsNorthing;
+        
+        /// Tag 18
+        /// FRAME CENTER: First two characters of Frame Center MGRS coordinates, UTM zone 01 through 60
+        M_Common::ULongOptionalType MgrsZoneSecondValue;
+        
+        /// Tag 19
+        /// FRAME CENTER: Third, fourth and fifth characters of Frame Center MGRS coordinates.
+        /// Third character is the alpha code for the latitude band
+        /// (for UTM: C through X, omitting I and O; for UPS: A, B, Y or Z).
+        /// Fourth and fifth characters ar e the 2 - digit alpha code for the grid square designator (WGS 84).
+        /// In String
+        M_Common::StringOptionalType MgrsLatitudeBandandGridSquareSecondValue;
+        
+        /// Tag 20
+        /// FRAME CENTER: Sixth through tenth character of Frame Center MGRS coordinates.
+        /// Range is from 0 to 99,999 representing the 5 - digit Easting value in meters. Resolution: 1 meter
+        /// In Meters
+        M_Common::ULongOptionalType MgrsEastingSecondValue;
+        
+        /// Tag 21
+        /// FRAME CENTER: Eleventh through fifteenth character of Frame Center MGRS coordinates.
+        /// Range is from 0 to 99,999 representing the 5 - digit Northing value in meters. Resolution: 1 meter
+        /// In Meters
+        M_Common::ULongOptionalType MgrsNorthingSecondValue;
+        
+    };
+
+    typedef sequence<RvtLS, 1> RvtLSOptionalType;
+
+    typedef sequence<RvtLS> RvtLSListType;
+
+    /// UasImageHorizonPixelPack from UAS Datalink Local Set (MISB ST 0601.9)
+    struct UasImageHorizonPixelPack
+    {
+        
+        /// Tag N/A
+        M_Common::ULongLongOptionalType StartX0;
+        
+        /// Tag N/A
+        M_Common::ULongLongOptionalType StartY0;
+        
+        /// Tag N/A
+        M_Common::ULongLongOptionalType EndX1;
+        
+        /// Tag N/A
+        M_Common::ULongLongOptionalType EndY1;
+        
+        /// Tag N/A
+        M_Common::DoubleOptionalType StartLatitude;
+        
+        /// Tag N/A
+        M_Common::DoubleOptionalType StartLongitude;
+        
+        /// Tag N/A
+        M_Common::DoubleOptionalType EndLatitude;
+        
+        /// Tag N/A
+        M_Common::DoubleOptionalType EndLongitude;
+        
+    };
+
+    typedef sequence<UasImageHorizonPixelPack, 1> UasImageHorizonPixelPackOptionalType;
+
+    /// SarMotionImageryMetadataLS from SAR Motion Imagery Metadata (MISB ST 1206)
+    struct SarMotionImageryMetadataLS
+    {
+        
+        /// Tag 1
+        /// 0 to 90 Degrees
+        M_Common::DoubleOptionalType GrazingAngle;
+        
+        /// Tag 2
+        /// +/- 90 Degrees
+        M_Common::DoubleOptionalType GroundPlaneSquintAngle;
+        
+        /// Tag 3
+        /// Look Up Table
+        M_Common::UShortOptionalType LookDirection;
+        
+        /// Tag 4
+        /// Look Up Table
+        M_Common::UShortOptionalType ImagePlane;
+        
+        /// Tag 5
+        /// 0 to 1000000 Meters
+        M_Common::DoubleOptionalType RangeResolution;
+        
+        /// Tag 6
+        /// 0 to 1000000 Meters
+        M_Common::DoubleOptionalType CrossRangeResolution;
+        
+        /// Tag 7
+        /// 0 to 1000000 Meters
+        M_Common::DoubleOptionalType RangeImagePlanePixelSize;
+        
+        /// Tag 8
+        /// 0 to 1000000 Meters
+        M_Common::DoubleOptionalType CrossRangeImagePlanePixelSize;
+        
+        /// Tag 9
+        /// 0 to 65535 Integer
+        M_Common::ULongLongOptionalType ImageRows;
+        
+        /// Tag 10
+        /// 0 to 65535 Integer
+        M_Common::ULongLongOptionalType ImageColumns;
+        
+        /// Tag 11
+        /// 0 to 360 Degrees
+        M_Common::DoubleOptionalType RangeDirectionAngleRelativeToTrueNorth;
+        
+        /// Tag 12
+        /// 0 to 360 Degrees
+        M_Common::DoubleOptionalType TrueNorthDirectionRelativeToTopImageEdge;
+        
+        /// Tag 13
+        /// 0 to 360 Degrees
+        M_Common::DoubleOptionalType RangeLayoverAngleRelativeToTrueNorth;
+        
+        /// Tag 14
+        /// 0 to 90 Degrees
+        M_Common::DoubleOptionalType GroundApertureAngularExtent;
+        
+        /// Tag 15
+        /// Microseconds
+        M_Common::ULongLongOptionalType ApertureDuration;
+        
+        /// Tag 16
+        /// 0 to 360 Degrees
+        M_Common::DoubleOptionalType GroundTrackAngle;
+        
+        /// Tag 17
+        /// 0 to 100 Meters /  Second
+        M_Common::DoubleOptionalType MinimumDetectableVelocity;
+        
+        /// Tag 18
+        /// 0 to 1000000 Hertz
+        M_Common::DoubleOptionalType TruePulseRepetitionFrequency;
+        
+        /// Tag 19
+        /// 0 to 1 Integer
+        M_Common::DoubleOptionalType PulseRepetitionFrequencyScaleFactor;
+        
+        /// Tag 20
+        /// 0 to 1000000000000 Hertz
+        M_Common::DoubleOptionalType TransmitRfCenterFrequency;
+        
+        /// Tag 21
+        /// 0 to 100000000000  Hertz
+        M_Common::DoubleOptionalType TransmitRfBandwidth;
+        
+        /// Tag 22
+        /// m^2, m, 1, 1/m,  etc.
+        M_Common::DoubleMatrixType RadarCrossSectionScaleFactorPolynomial;
+        
+        /// Tag 23
+        /// Microseconds
+        M_Common::ULongLongOptionalType ReferenceFramePrecisionTimeStamp;
+        
+        /// Tag 24
+        /// 0 to 90 Degrees
+        M_Common::DoubleOptionalType ReferenceFrameGrazingAngle;
+        
+        /// Tag 25
+        /// +/- 90 Degrees
+        M_Common::DoubleOptionalType ReferenceFrameGroundPlaneSquintAngle;
+        
+        /// Tag 26
+        /// 0 to 360 Degrees
+        M_Common::DoubleOptionalType ReferenceFrameRangeDirectionAngleRelativeToTrueNorth;
+        
+        /// Tag 27
+        /// 0 to 360 Degrees
+        M_Common::DoubleOptionalType ReferenceFrameRangeLayoverAngleRelativeToTrueNorth;
+        
+        /// Tag 28
+        /// 0 to 255 Integer
+        M_Common::UShortOptionalType DocumentVersion;
+        
+    };
+
+    typedef sequence<SarMotionImageryMetadataLS, 1> SarMotionImageryMetadataLSOptionalType;
+
+    /// OffsetCorner from UAS Datalink Local Set (MISB ST 0601.9)
+    /// This includes Tag 26 - 33 from the UasDatalinkLS
+    struct UasOffsetCorner
+    {
+
+        /// Tag 26
+        /// Frame latitude offset for upper left corner
+        /// In Grad
+        M_Common::DoubleOptionalType OffsetCornerLatitudePoint1;
+        
+        /// Tag 27
+        /// Frame longitude offset for upper left corner
+        /// In Grad
+        M_Common::DoubleOptionalType OffsetCornerLongitudePoint1;
+        
+        /// Tag 28
+        /// Frame latitude offset for upper right corner
+        /// In Grad
+        M_Common::DoubleOptionalType OffsetCornerLatitudePoint2;
+        
+        /// Tag 29
+        /// Frame longitude offset for upper right corner
+        /// In Grad
+        M_Common::DoubleOptionalType OffsetCornerLongitudePoint2;
+        
+        /// Tag 30
+        /// Frame latitude offset for lower right corner
+        /// In Grad
+        M_Common::DoubleOptionalType OffsetCornerLatitudePoint3;
+        
+        /// Tag 31
+        /// Frame longitude offset for lower right corner
+        /// In Grad
+        M_Common::DoubleOptionalType OffsetCornerLongitudePoint3;
+        
+        /// Tag 32
+        /// Frame latitude offset for lower left corner
+        /// In Grad
+        M_Common::DoubleOptionalType OffsetCornerLatitudePoint4;
+        
+        /// Tag 33
+        /// Frame longitude offset for lower left corner
+        /// In Grad
+        M_Common::DoubleOptionalType OffsetCornerLongitudePoint4;
+
+    };
+
+    typedef sequence<UasOffsetCorner, 1> UasOffsetCornerOptionalType;
+
+    /// UasCorner from UAS Datalink Local Set (MISB ST 0601.9)
+    /// This includes Tag 82 - 89 from the UasDatalinkLS
+    struct UasCorner
+    {
+
+        /// Tag 82
+        /// Frame latitude for upper left corner
+        /// In Grad
+        M_Common::DoubleOptionalType CornerLatitudePoint1Full;
+        
+        /// Tag 83
+        /// Frame longitude for upper left corner
+        /// In Grad
+        M_Common::DoubleOptionalType CornerLongitudePoint1Full;
+        
+        /// Tag 84
+        /// Frame latitude for upper right corner
+        /// In Grad
+        M_Common::DoubleOptionalType CornerlatitudePoint2Full;
+        
+        /// Tag 85
+        /// Frame longitude for upper right corner
+        /// In Grad
+        M_Common::DoubleOptionalType CornerLongitudePoint2Full;
+        
+        /// Tag 86
+        /// Frame latitude for lower right corner
+        /// In Grad
+        M_Common::DoubleOptionalType CornerLatitudePoint3Full;
+        
+        /// Tag 87
+        /// Frame longitude for lower right corner
+        /// In Grad
+        M_Common::DoubleOptionalType CornerLongitudePoint3Full;
+        
+        /// Tag 88
+        /// Frame latitude for lower left corner
+        /// In Grad
+        M_Common::DoubleOptionalType CornerLatitudePoint4Full;
+        
+        /// Tag 89
+        /// Frame longitude for lower left corner
+        /// In Grad
+        M_Common::DoubleOptionalType CornerLongitudePoint4Full;
+
+    };
+
+    typedef sequence<UasCorner, 1> UasCornerOptionalType;
+
+    /// UasAlternatePlatform from UAS Datalink Local Set (MISB ST 0601.9)
+    /// Tag 67 - 71, 76  from the UasDatalinkLS
+    struct UasAlternatePlatform 
+    {
+
+        /// Tag 67
+        /// Alternate platform latitude
+        /// In Grad
+        M_Common::DoubleOptionalType AlternatePlatformLatitude;
+        
+        /// Tag 68
+        /// Alternate platform longitude
+        /// In Grad
+        M_Common::DoubleOptionalType AlternatePlatformLongitude;
+        
+        /// Tag 69
+        /// Altitude of alternate platform as measured from Mean  Sea Level (MSL)
+        /// In m
+        M_Common::DoubleOptionalType AlternatePlatformAltitude;
+        
+        /// Tag 70
+        /// Name of alternate platform connected to UAS
+        M_Common::StringOptionalType AlternatePlatformName;
+        
+        /// Tag 71
+        /// Heading angle of alternate platform connected to UAS
+        /// In Grad
+        M_Common::DoubleOptionalType AlternatePlatformHeading;
+                
+        /// Tag 76
+        /// Alternate platform ellipsoid height as  measured from the  reference WGS84 Ellipsoid
+        /// In m
+        M_Common::DoubleOptionalType AlternatePlatformEllipsoidHeight;
+
+    };
+
+    typedef sequence<UasAlternatePlatform, 1> UasAlternatePlatformOptionalType;
+
+    /// UasSensor from UAS Datalink Local Set (MISB ST 0601.9)
+    /// Tag 13 - 20, 63, 75, 79, 80 from the UasDatalinkLS
+    struct UasSensor
+    {
+
+        /// Tag 13
+        /// Sensor latitude
+        /// In Grad
+        M_Common::DoubleOptionalType SensorLatitude;
+        
+        /// Tag 14
+        /// Sensor longitude
+        /// In Grad
+        M_Common::DoubleOptionalType SensorLongitude;
+        
+        /// Tag 15
+        /// Altitude of sensor as measured from Mean Sea Level  (MSL)
+        /// In m
+        M_Common::DoubleOptionalType SensorTrueAltitude;
+        
+        /// Tag 16
+        /// Horizontal field of view of selected imaging  sensor
+        /// In Grad
+        M_Common::DoubleOptionalType SensorHorizontalFieldOfView;
+        
+        /// Tag 17
+        /// Vertical field of view of selected imaging sensor
+        /// In Grad
+        M_Common::DoubleOptionalType SensorVerticalFieldOfView;
+        
+        /// Tag 18
+        /// Relative rotation angle of sensor to platform  longitudinal  axis
+        /// In Grad
+        M_Common::DoubleOptionalType SensorRelativeAzimuthAngle;
+        
+        /// Tag 19
+        /// Relative elevation angle of sensor to platform  longitudinal - transverse plane
+        /// In Grad
+        M_Common::DoubleOptionalType SensorRelativeElevationAngle;
+        
+        /// Tag 20
+        /// Relative roll angle of sensor to aircraft platform
+        /// In Grad
+        M_Common::DoubleOptionalType SensorRelativeRollAngle;
+
+        /// Tag 63
+        /// Sensor field of view names
+        /// 0 = Ultranarrow
+        /// 1 = Narrow
+        /// 2 = Medium
+        /// 3 = Wide
+        /// 4 = Ultrawide
+        /// 5 = Narrow Medium
+        /// 6 = 2x Ultranarrow
+        /// 7 = 4x Ultranarrow
+        /// 8 - 255 = Reserved Do not use
+        M_Common::UShortOptionalType SensorFieldOfViewName;
+
+        /// Tag 75
+        /// Sensor ellipsoid height as measured from the reference  WGS84 ellipsoid
+        /// In m
+        M_Common::DoubleOptionalType SensorEllipsoidHeight;
+        
+        /// Tag 79
+        /// Northing velocity of the sensor or platform
+        /// In m/s
+        M_Common::DoubleOptionalType SensorNorthVelocity;
+        
+        /// Tag 80
+        /// Easting velocity of the sensor or platform
+        /// In m/s
+        M_Common::DoubleOptionalType SensorEastVelocity;
+
+    };
+
+    typedef sequence<UasSensor, 1> UasSensorOptionalType;
+
+    /// UasPlatform from UAS Datalink Local Set (MISB ST 0601.9)
+    /// Tag 4, 5, 6, 7, 8, 9, 10, 50, 51, 52, 56, 58, 59, 64, 90, 91, 92, 93 from the UasDatalinkLS
+    struct UasPlatform
+    {
+
+        /// Tag 4
+        /// Identifier of platform as posted
+        M_Common::StringOptionalType PlatformTailNumber;
+        
+        /// Tag 5
+        /// Aircraft heading angle
+        M_Common::DoubleOptionalType PlatformHeadingAngle;
+        
+        /// Tag 6
+        /// Aircraft pitch angle
+        M_Common::DoubleOptionalType PlatformPitchAngle;
+        
+        /// Tag 7
+        /// Platform roll angle
+        /// In Grad
+        M_Common::DoubleOptionalType PlatformRollAngle;
+        
+        /// Tag 8
+        /// True airspeed (TAS) of platform
+        /// In m/s
+        M_Common::DoubleOptionalType PlatformTrueAirspeed;
+        
+        /// Tag 9
+        /// Indicated airspeed (IAS) of platform
+        /// In m/s
+        M_Common::DoubleOptionalType PlatformIndicatedAirspeed;
+        
+        /// Tag 10
+        /// Model name for the platform
+        M_Common::StringOptionalType PlatformDesignation;
+
+        /// Tag 50
+        /// Platform attack angle
+        /// In Grad
+        M_Common::DoubleOptionalType PlatformAngleOfAttack;
+        
+        /// Tag 51
+        /// Vertical speed of the aircraft relative to zenith
+        /// In m/s
+        M_Common::DoubleOptionalType PlatformVerticalSpeed;
+        
+        /// Tag 52
+        /// Angle between the platform longitudinal axis and  relative  wind
+        /// In Grad
+        M_Common::DoubleOptionalType PlatformSideslipAngle;
+
+        /// Tag 56
+        /// Speed projected to the ground of an airborne platform  passing overhead
+        /// In m/s
+        M_Common::UShortOptionalType PlatformGroundSpeed;
+        
+        /// Tag 58
+        /// Remaining fuel on airborne platform
+        /// In kg
+        M_Common::DoubleOptionalType PlatformFuelRemaining;
+        
+        /// Tag 59
+        /// Call sign of platform or operating unit
+        M_Common::StringOptionalType PlatformCallSign;
+
+        /// Tag 64
+        /// Aircraft magnetic heading angle
+        /// In Grad
+        M_Common::DoubleOptionalType PlatformMagneticHeading;
+
+        /// Tag 90
+        /// Aircraft pitch angle
+        /// In Grad
+        M_Common::DoubleOptionalType PlatformPitchAngleFull;
+        
+        /// Tag 91
+        /// Platform roll angle
+        /// In Grad
+        M_Common::DoubleOptionalType PlatformRollAngleFull;
+        
+        /// Tag 92
+        /// Platform attack angle
+        /// In Grad
+        M_Common::DoubleOptionalType PlatformAngleOfAttackFull;
+        
+        /// Tag 93
+        /// Angle between the platform longitudinal axis and relative wind
+        /// In Grad
+        M_Common::DoubleOptionalType PlatformSideSlipAngleFull;
+
+    };
+
+    typedef sequence<UasPlatform, 1> UasPlatformOptionalType;
+
+    /// UasTarget from UAS Datalink Local Set (MISB ST 0601.9)
+    /// Tag 22, 40, 41, 42, 43, 44, 45, 46, 96 from the UasDatalinkLS
+    struct UasTarget
+    {
+
+        /// Tag 22
+        /// Target width within sensor field of view
+        /// In m
+        M_Common::DoubleOptionalType TargetWidth;
+
+        /// Tag 40
+        /// Calculated target latitude
+        /// In Grad
+        M_Common::DoubleOptionalType TargetLocationLatitude;
+        
+        /// Tag 41
+        /// Calculated target longitude
+        /// In Grad
+        M_Common::DoubleOptionalType TargetLocationLongitude;
+        
+        /// Tag 42
+        /// Calculated target elevation
+        /// In m
+        M_Common::DoubleOptionalType TargetLocationElevation;
+        
+        /// Tag 43
+        /// Tracking gate width (x value) of tracked target within  field of view
+        /// In Pixels
+        M_Common::UShortOptionalType TargetTrackGateWidth;
+        
+        /// Tag 44
+        /// Tracking gate height (y value) of tracked target  within  field of view
+        /// In Pixels
+        M_Common::UShortOptionalType TargetTrackGateHeight;
+        
+        /// Tag 45
+        /// Circular error 90 (CE90) is the estimated error distance  in the horizontal direction
+        /// In m
+        M_Common::DoubleOptionalType TargetErrorEstimateCe90;
+        
+        /// Tag 46
+        /// Lateral error 90 (LE90) is the estimated error  distance in  the vertical (or lateral) direction
+        /// In m
+        M_Common::DoubleOptionalType TargetErrorEstimateLe90;
+
+        /// Tag 96
+        /// Target width within sensor field of view
+        /// In m
+        M_Common::DoubleOptionalType TargetWidthExtended;
+
+    };
+
+    typedef sequence<UasTarget, 1> UasTargetOptionalType;
+
+    /// UAS Datalink Local Set (MISB ST 0601.9)
+    struct UasDatalinkLS
+    {
+        
+        /// Tag 1
+        /// Checksum used to detect errors within a UAS Datalink LS packet
+        M_Common::UShortOptionalType Checksum;
+        
+        /// Tag 2
+        /// Timestamp for all metadata in this Local Set; used to coordinate with Motion Imagery
+        M_Common::ULongLongOptionalType PrecisionTimeStamp;
+        
+        /// Tag 3
+        /// Descriptive mission identifier to distinguish event or sortie
+        M_Common::StringOptionalType MissionId;
+        
+        /// Tag 4, 5, 6, 7, 8, 9, 10, 50, 51, 52, 56, 58, 59, 64, 90, 91, 92, 93
+        UasPlatformOptionalType Platform;
+        
+        /// Tag 11
+        /// Name of currently active sensor
+        M_Common::StringOptionalType ImageSourceSensor;
+        
+        /// Tag 12
+        /// Name of the image coordinate system used
+        M_Common::StringOptionalType ImageCoordinateSystem;
+        
+        /// Tag 13 - 20, 63, 75, 79, 80
+        UasSensorOptionalType Sensor;
+        
+        /// Tag 21
+        /// Slant range in meters
+        /// In m
+        M_Common::DoubleOptionalType SlantRange;
+
+        /// Tag 22, 40, 41, 42, 43, 44, 45, 46, 96
+        UasTargetOptionalType Target;
+        
+        /// Tag 23
+        /// Terrain latitude of frame center
+        /// In Grad
+        M_Common::DoubleOptionalType FrameCenterLatitude;
+        
+        /// Tag 24
+        /// Terrain longitude of frame center
+        /// In Grad
+        M_Common::DoubleOptionalType FrameCenterLongitude;
+        
+        /// Tag 25
+        /// Terrain elevation at frame center relative to Mean Sea  Level (MSL)
+        /// In m
+        M_Common::DoubleOptionalType FrameCenterElevation;
+
+        /// Tag 26 - 33
+        UasOffsetCornerOptionalType OffsetCorner;
+
+        /// Tag 34
+        /// Flag for icing detected at aircraft location
+        /// 0: Detector off
+        /// 1: No icing Detected
+        /// 2: Icing Detected
+        M_Common::UShortOptionalType IcingDetected;
+        
+        /// Tag 35
+        /// Wind direction at aircraft location
+        /// In Grad
+        M_Common::DoubleOptionalType WindDirection;
+        
+        /// Tag 36
+        /// Wind speed at aircraft location
+        /// In m/s
+        M_Common::DoubleOptionalType WindSpeed;
+        
+        /// Tag 37
+        /// Static pressure at aircraft location
+        /// In mbar
+        M_Common::DoubleOptionalType StaticPressure;
+        
+        /// Tag 38
+        /// Density altitude at aircraft location
+        /// In m
+        M_Common::DoubleOptionalType DensityAltitude;
+        
+        /// Tag 39
+        /// Temperature outside of aircraft
+        /// In GradC
+        M_Common::LongOptionalType OutsideAirTemperature;
+        
+        /// Tag 47
+        /// Generic metadata flags
+        M_Common::UShortOptionalType GenericFlagData;
+        
+        /// Tag 48
+        /// MISB ST 0102 local let Security Metadata items
+        SecurityMetadataLSOptionalType SecurityLocalSet;
+        
+        /// Tag 49
+        /// Differential pressure at aircraft location
+        /// In mbar
+        M_Common::DoubleOptionalType DifferentialPressure;
+
+        /// Tag 53
+        /// Local pressure at airfield of known height
+        /// In mbar
+        M_Common::DoubleOptionalType AirfieldBarometricPressure;
+        
+        /// Tag 54
+        /// Elevation of airfield corresponding to Airfield Barometric  Pressure
+        /// In m
+        M_Common::DoubleOptionalType AirfieldElevation;
+        
+        /// Tag 55
+        /// Relative humidity at aircraft location
+        /// In %
+        M_Common::DoubleOptionalType RelativeHumidity;
+                
+        /// Tag 57
+        /// Horizontal distance from ground position of aircraft  relative to nadir, and target of interest
+        /// In m
+        M_Common::DoubleOptionalType GroundRange;
+                
+        /// Tag 60
+        /// Current weapons stored on aircraft
+        M_Common::UShortOptionalType WeaponLoad;
+        
+        /// Tag 61
+        /// Indication when a particular weapon is released
+        M_Common::UShortOptionalType WeaponFired;
+        
+        /// Tag 62
+        /// A laser's Pulse Repetition Frequency (PRF) code used to  mark a  target
+        M_Common::UShortOptionalType LaserPrfCode;
+        
+        /// Tag 65
+        /// Version number of the UAS Datalink LS document used to generate KLV metadata
+        M_Common::UShortOptionalType UasDatalinkLsVersionNumber;
+        
+        /// Tag 67 - 71, 76
+        UasAlternatePlatformOptionalType AlternatePlatform;
+        
+        /// Tag 72
+        /// Start time of scene, project, event, mission, editing  event, license, publication, etc.
+        /// In Microseconds
+        M_Common::ULongLongOptionalType EventStartTimeUtc;
+        
+        /// Tag 73
+        /// MISB ST 0806 RVT Local Set metadata items
+        RvtLSListType RvtLocalSet;
+        
+        /// Tag 74
+        /// MISB ST 0903 VMTI Local Set metadata items
+        VmtiLSListType VmtiLocalSet;
+
+        /// Tag 77
+        /// Indicates the mode of operations of the event portrayed  in Motion Imagery
+        /// 0 = Other
+        /// 1 = Operational
+        /// 2 = Training
+        /// 3 = Exercise
+        /// 4 = Maintenance
+        /// 5 = Test
+        /// 6 - 255 Reserved Do Not Use
+        M_Common::UShortOptionalType OperationalMode;
+        
+        /// Tag 78
+        /// Frame center ellipsoid height as measured from  the  reference WGS84 ellipsoid
+        /// In m
+        M_Common::DoubleOptionalType FrameCenterHeightAboveEllipsoid;
+        
+        /// Tag 81
+        /// Location of earth - sky horizon in the Imagery
+        UasImageHorizonPixelPackOptionalType ImageHorizonPixelPack;
+        
+        /// Tag 82 - 89
+        UasCornerOptionalType UasCorner;
+        
+        /// Tag 94
+        /// MISB ST 1204 MIIS Core Identifier binary value
+        M_Common::StringOptionalType MiisCoreIdentifier;
+        
+        /// Tag 95
+        /// MISB ST 1206 SAR Motion Imagery Metadata Local Set metadata items
+        SarMotionImageryMetadataLSOptionalType SarMotionImageryLocalSet;
+        
+    };
+
+    typedef sequence<UasDatalinkLS, 1> UasDatalinkLSOptionalType;
+
+};

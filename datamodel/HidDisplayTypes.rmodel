@@ -1,0 +1,235 @@
+// Copyright (c) 2026 Rheinmetall Electronics GmbH
+//
+// This program and the accompanying materials are made available under the
+// terms of the Eclipse Public License 2.0 which is available at
+// https://www.eclipse.org/legal/epl-2.0.
+//
+// SPDX-License-Identifier: EPL-2.0
+
+#ifndef _HID_DISPLAY_TYPES_IDL_
+#define _HID_DISPLAY_TYPES_IDL_
+
+
+#include "CommonTypes.idl"
+
+
+/**
+ * Types used for input devices, for example Joystick axis and buttons.
+ */
+module M_HidDisplay
+{
+  /**
+   * Contains information about a display element for a button.
+   */
+  struct ButtonDisplayInfoType
+  {
+    /// Index identifying the input device.
+    unsigned long Index;
+
+    /// Name of the input device.
+    string Name;
+
+    /// Label to display for the button.
+    /// Empty if not set or not relevant.
+    string Label;
+
+    /// Image to display for the button.
+    /// Empty if not set or not relevant.
+    M_Common::ImageType Image;
+
+    /// Indicates if the button is enabled (true) or disabled (false).
+    /// An enabled button can be used by the user. A disabled button can NOT be used
+    /// by the user.
+    /// True = Enabled
+    /// False = Disabled
+    boolean IsEnabled;
+
+    /// Indicates if the button is highlighted (true).
+    /// True = Highlighted
+    /// False = Not highlighted
+    boolean IsHighlighted;
+  };
+
+  /// List of ButtonDisplayInfoType.
+  typedef sequence<ButtonDisplayInfoType> ButtonDisplayInfoListType;
+
+  /**
+   * Contains information about a single LED light action.
+   */
+  struct LedLightModeActionType
+  {
+    /// Led is ON or OFF
+    boolean LedLightOn;
+
+    /// Indicates which color the LED should use.
+    /// The code is calculated by combining the color codes for Red, Green and Blue:
+    /// RGB = (Red * 65536) + (Green * 256) + Blue
+    /// Note: Only relevant when turning on multi-color LEDs.
+    M_Common::ULongOptionalType RgbColorCode;
+
+    /// Indicates how long the mode shall persist.
+    M_Common::ULongOptionalType durationInMilliseconds;
+  };
+
+  /// List of LedLightModeActionType.
+  typedef sequence<LedLightModeActionType> LedLightModeActionListType;
+
+  /**
+   * Contains information about a LED light mode.
+   */
+  struct LedLightModeType
+  {
+    /// The actions of the LED light.
+    /// This can be a single element to
+    /// simply turn a LED on or a blink pattern.
+    LedLightModeActionListType Actions;
+
+    /// How often the actions shall be executed
+    /// When its not set then its infinity.
+    M_Common::ULongOptionalType RepeatCount;
+  };
+
+  /**
+   * Contains information about a display element for an axis.
+   */
+  struct AxisDisplayInfoType
+  {
+    /// Index identifying the input device.
+    unsigned long Index;
+
+    /// Name of the input device.
+    string Name;
+
+    /// Label to display for the negative axis.
+    /// Empty if not set or not relevant.
+    string NegativeLabel;
+
+    /// Image to display for the negative axis.
+    /// Empty if not set or not relevant.
+    M_Common::ImageType NegativeImage;
+
+    /// Label to display for the positive axis.
+    /// Empty if not set or not relevant.
+    string PositiveLabel;
+
+    /// Image to display for the positive axis.
+    /// Empty if not set or not relevant.
+    M_Common::ImageType PositiveImage;
+  };
+
+  /// List of AxisDisplayInfoType.
+  typedef sequence<AxisDisplayInfoType> AxisDisplayInfoListType;
+
+
+  /**
+   * Contains information about a display element for a LED.
+   */
+  struct LedDisplayInfoType
+  {
+    /// Index identifying the LED.
+    unsigned long Index;
+
+    /// Name of the LED.
+    string Name;
+
+    /// Label to display for the LED.
+    /// Empty if not set or not relevant.
+    string Label;
+
+    /// Indicates the LED light mode.
+    /// Can be On/Off or a specific pattern.
+    LedLightModeType LedLightMode;
+
+    /// List of supported colors.
+    /// Empty if the LED is not multi-color.
+    /// The code is calculated by combining the color codes for Red, Green and Blue:
+    /// RGB = (Red * 65536) + (Green * 256) + Blue
+    M_Common::ULongListType SupportedRgbColorCodesList;
+  };
+
+  /// List of LedDisplayInfoType.
+  typedef sequence<LedDisplayInfoType> LedDisplayInfoListType;
+
+
+  /**
+   * Contains informationa about a value input info.
+   */
+  struct ValueInputInfoType
+  {
+    /// Index identifying the value input.
+    unsigned long ValueInputIndex;
+
+    /// Label of the value input.
+    string Label;
+
+    /// Indicates whether value input info is enabled.
+    boolean IsEnabled;
+
+    /// Value input mode.
+    M_Common::PropertyOptionalType ValueInputMode;
+
+    /// Default value.
+    M_Common::PropertyOptionalType DefaultValue;
+
+    /// Minimum value.
+    M_Common::PropertyOptionalType MinValue;
+
+    /// Maximum value.
+    M_Common::PropertyOptionalType MaxValue;
+
+    /// Preset list.
+    M_Common::PropertyListType PresetList;
+  };
+
+  /// List of ValueInputInfoType.
+  typedef sequence<ValueInputInfoType> ValueInputInfoListType;
+
+
+  /**
+   * Contains information about a menu info.
+   */
+  struct MenuInfoType
+  {
+    /// Index identifying the input device.
+    unsigned long MenuIndex;
+
+    /// Label.
+    string Label;
+
+    /// Indicates whether menu info is enabled.
+    boolean IsEnabled;
+  };
+
+  /// List of MenuInfoType.
+  typedef sequence<MenuInfoType> MenuInfoListType;
+
+
+  /**
+   * Contains the display info for an input device.
+   */
+  struct HidInfoType
+  {
+    /// List of axes supported by the Service.
+    AxisDisplayInfoListType Axes;      // TODO: Is this really needed? For what Axis is it possibile to set a Label?
+
+    /// List of buttons supported by the Service.
+    ButtonDisplayInfoListType Buttons;
+
+    /// List of supported status LEDs.
+    LedDisplayInfoListType Leds;
+
+    /// List of value inputs.
+    ValueInputInfoListType ValueInputs;
+
+    /// List of menus.
+    MenuInfoListType Menus;
+
+    /// Background illumination level.
+    M_Common::PercentOptionalType BackgroundIlluminationLevel;
+
+    /// Indicates if blackout mode is enabled (true) or not (false).
+    boolean IsBlackoutModeEnabled;
+  };
+};
+
+#endif

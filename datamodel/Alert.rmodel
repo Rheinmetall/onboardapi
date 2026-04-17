@@ -1,0 +1,437 @@
+// Copyright (c) 2026 Rheinmetall Electronics GmbH
+//
+// This program and the accompanying materials are made available under the
+// terms of the Eclipse Public License 2.0 which is available at
+// https://www.eclipse.org/legal/epl-2.0.
+//
+// SPDX-License-Identifier: EPL-2.0
+
+#include "CommonTypes.idl"
+#include "AlertTypes.idl"
+
+
+/**
+ * An Alert service generates Alerts (Alarms and Threat Alerts) from resource clients.
+ * It manages the lifetime of these generates Alerts.
+ *
+@startuml "Start Alert Service
+hide footbox
+title Start Alert Service
+"HMI Client" <- Service: ReportAlertSettings(Settings)
+note over Service
+  The static settings for the service
+  are reported on startup
+end note
+"HMI Client" <- Service: ReportAlertStatus(Status, IsRemoved=false)
+note over Service
+  The initial status for the service
+  is also reported on startup.
+end note
+loop for all stored alarms
+note over Service
+  The existing alarms are read from the
+  database and are reported.
+end note
+"HMI Client" <- Service: ReportAlarmLog(KeyAlarmId=x, Alarm, IsRemoved=false)
+end
+"HMI Client" <- Service: ReportAlarmAnnunciation(KeyCrewRole="Driver", Annunciation, IsRemoved=false)
+"HMI Client" <- Service: ReportAlarmAnnunciation(KeyCrewRole="Gunner", Annunciation, IsRemoved=false)
+"HMI Client" <- Service: ReportAlarmAnnunciation(KeyCrewRole="Commander", Annunciation, IsRemoved=false)
+note over Service
+  The annunciation is reported per role
+  if the alarm should be displayed.
+end note
+"HMI Client" <- Service: ReportAlertStatus(Status, IsRemoved=false)
+note over Service
+  The number of active alarms is
+  updated in the status.
+end note
+@enduml
+ *
+@startuml "Raise Alarm"
+hide footbox
+title Raise Alarm
+"Resource Client" -> Service: CmdRaiseAlarm(Condition)
+"HMI Client" <- Service: ReportAlarmLog(KeyAlarmId=x, Alarm, IsRemoved=false)
+"HMI Client" <- Service: ReportAlarmAnnunciation(KeyCrewRole="Driver", Annunciation, IsRemoved=false)
+"HMI Client" <- Service: ReportAlarmAnnunciation(KeyCrewRole="Gunner", Annunciation, IsRemoved=false)
+"HMI Client" <- Service: ReportAlarmAnnunciation(KeyCrewRole="Commander", Annunciation, IsRemoved=false)
+note over Service
+  The annunciation is reported per role
+  if the alarm should be displayed.
+end note
+"HMI Client" <- Service: ReportAlertStatus(Status, IsRemoved=false)
+note over Service
+  The number of active alarms is updated
+  in the status.
+end note
+@enduml
+ *
+@startuml "Resolve Alarm"
+hide footbox
+title Resolve Alarm
+"Resource Client" -> Service: CmdResolveAlarm(Condition)
+"HMI Client" <- Service: ReportAlarmLog(KeyAlarmId=x, Alarm, IsRemoved=true)
+note over Service
+  Reported as removed true to indicate
+  Alarms has been removed
+end note
+"HMI Client" <- Service: ReportAlarmAnnunciation(KeyCrewRole="Driver", Annunciation, IsRemoved=true/false)
+"HMI Client" <- Service: ReportAlarmAnnunciation(KeyCrewRole="Gunner", Annunciation, IsRemoved=true/false)
+"HMI Client" <- Service: ReportAlarmAnnunciation(KeyCrewRole="Commander", Annunciation, IsRemoved=true/false)
+note over Service
+  Reported as removed true if there are no
+  more relevant annunciations for the Role
+  otherwise the next relevant annunciation
+  for the Role is reported as removed false
+end note
+"HMI Client" <- Service: ReportAlertStatus(Status, IsRemoved=false)
+note over Service
+  The number of active alarms is updated in
+  the status
+end note
+@enduml
+ *
+@startuml "Acknowledge Alarm"
+hide footbox
+title Acknowledge Alarm
+"HMI Client" -> Service: CmdAcknowledgeAlarm(AlarmIdList=[x])
+note over Service
+  Crew Terminal can remove specific alarms
+  based on the reported id
+end note
+"HMI Client" <- Service: ReportAlarmLog(KeyAlarmId=x, Alarm, IsRemoved=false)
+note over Service
+  Reported with IsAcknowledged true to
+  indicate Alarm has been acknowledged
+end note
+"HMI Client" <- Service: ReportAlarmAnnunciation(KeyCrewRole="Driver", Annunciation, IsRemoved=true/false)
+"HMI Client" <- Service: ReportAlarmAnnunciation(KeyCrewRole="Gunner", Annunciation, IsRemoved=true/false)
+"HMI Client" <- Service: ReportAlarmAnnunciation(KeyCrewRole="Commander", Annunciation, IsRemoved=true/false)
+note over Service
+  Reported as removed true if there are
+  no more relevant annunciations for the Role
+  otherwise the next relevant annunciation for
+  the Role is reported as removed false
+end note
+...
+note over Service
+  After a configured time acknowledged alarms
+  are automatically reannounced
+end note
+...
+"HMI Client" <- Service: ReportAlarmLog(KeyAlarmId=x, Alarm, IsRemoved=false)
+note over Service
+  Reported with IsAcknowledged false to indicate
+  Alarm has been unacknowledged
+end note
+"HMI Client" <- Service: ReportAlarmAnnunciation(KeyCrewRole="Driver", Annunciation, IsRemoved=false)
+"HMI Client" <- Service: ReportAlarmAnnunciation(KeyCrewRole="Gunner", Annunciation, IsRemoved=false)
+"HMI Client" <- Service: ReportAlarmAnnunciation(KeyCrewRole="Commander", Annunciation, IsRemoved=false)
+note over Service
+  The annunciation is reported per role if the
+  alarm should be displayed
+end note
+@enduml
+ *
+@startuml "Auto Acknowledge Alarm"
+hide footbox
+title Auto Acknowledge Alarm
+"Resource Client" -> Service: CmdRaiseAlarm(Condition)
+"HMI Client" <- Service: ReportAlarmLog(KeyAlarmId=x, Alarm, IsRemoved=false)
+"HMI Client" <- Service: ReportAlarmAnnunciation(KeyCrewRole="Driver", Annunciation, IsRemoved=false)
+"HMI Client" <- Service: ReportAlarmAnnunciation(KeyCrewRole="Gunner", Annunciation, IsRemoved=false)
+"HMI Client" <- Service: ReportAlarmAnnunciation(KeyCrewRole="Commander", Annunciation, IsRemoved=false)
+"HMI Client" <- Service: ReportAlertStatus(Status, IsRemoved=false)
+...
+note over Service
+  After a configured time certain alarms can be
+  auto acknowledged by the service
+end note
+...
+"HMI Client" <- Service: ReportAlarmLog(KeyAlarmId=x, Alarm, IsRemoved=false)
+note over Service
+  Reported with IsAcknowledged true and
+  IsAutoAcknowledged true to indicate Alarm
+  has been auto acknowledged
+end note
+"HMI Client" <- Service: ReportAlarmAnnunciation(KeyCrewRole="Driver", Annunciation, IsRemoved=true/false)
+"HMI Client" <- Service: ReportAlarmAnnunciation(KeyCrewRole="Gunner", Annunciation, IsRemoved=true/false)
+"HMI Client" <- Service: ReportAlarmAnnunciation(KeyCrewRole="Commander", Annunciation, IsRemoved=true/false)
+note over Service
+  Reported as removed true if there are no more
+  relevant annunciations for the Role otherwise
+  the next relevant annunciation for the Role is
+  reported as removed false
+end note
+@enduml
+ *
+@startuml "Override Alarm Condition"
+hide footbox
+title Override Alarm Condition
+"Resource Client" -> Service: CmdRaiseAlarm(Condition)
+note over Service
+  See Raise Alarm diagram
+end note
+...
+"HMI Client" -> Service: CmdOverrideAlarmCondition(Condition)
+"HMI Client" <- Service: ReportAlarmLog(KeyAlarmId=x, Alarm, IsRemoved=true)
+note over Service
+  Existing alarms for the condition are
+  reported as IsActive false and IsSuppressed true
+  to indicate condition has been overriden
+end note
+"HMI Client" <- Service: ReportAlarmAnnunciation(KeyCrewRole="Driver", Annunciation, IsRemoved=true/false)
+"HMI Client" <- Service: ReportAlarmAnnunciation(KeyCrewRole="Gunner", Annunciation, IsRemoved=true/false)
+"HMI Client" <- Service: ReportAlarmAnnunciation(KeyCrewRole="Commander", Annunciation, IsRemoved=true/false)
+note over Service
+  Reported as removed true if there are no more
+  relevant annunciations for the Role otherwise
+  the next relevant annunciation for the Role is
+  reported as removed false
+end note
+"HMI Client" <- Service: ReportAlertStatus(Status, IsRemoved=false)
+note over Service
+  The number of active alarms is updated in
+  the status
+end note
+...
+"Resource Client" -> Service: CmdRaiseAlarm(Condition)
+note over Service
+  No annunciations are reported for the
+  overridden condition
+end note
+"HMI Client" <- Service: ReportAlarmLog(KeyAlarmId=x, Alarm, IsRemoved=false)
+note over Service
+  The alarm log entry is still reported with
+  IsActive false and IsSuppressed true
+end note
+@enduml
+ *
+@startuml "Unoverride Alarm Condition"
+hide footbox
+title Unoverride Alarm Condition
+"HMI Client" -> Service: CmdUnoverrideAlarmCondition(Condition)
+note over Service
+  The command refers to a previously
+  overridden condition
+end note
+"HMI Client" <- Service: ReportAlarmLog(KeyAlarmId=x, Alarm, IsRemoved=true)
+note over Service
+  Reported as IsActive true and IsSuppressed false
+  to indicate condition has been unoverriden
+end note
+"HMI Client" <- Service: ReportAlarmAnnunciation(KeyCrewRole="Driver", Annunciation, IsRemoved=true)
+"HMI Client" <- Service: ReportAlarmAnnunciation(KeyCrewRole="Gunner", Annunciation, IsRemoved=true)
+"HMI Client" <- Service: ReportAlarmAnnunciation(KeyCrewRole="Commander", Annunciation, IsRemoved=true)
+note over Service
+  The annunciation is reported per role if the
+  alarm should be displayed
+end note
+"HMI Client" <- Service: ReportAlertStatus(Status, IsRemoved=false)
+note over Service
+  The number of active alarms is updated in
+  the status
+end note
+@enduml
+ *
+@startuml "Clear Alarm"
+hide footbox
+title Clear Alarm
+"HMI Client" -> Service: CmdClearAlarm(AlarmIdList=[x])
+note over Service
+  Crew Terminal can remove specific alarms
+  based on the reported id
+end note
+"HMI Client" <- Service: ReportAlarmLog(KeyAlarmId=x, Alarm, IsRemoved=true)
+note over Service
+  Reported as removed true to indicate Alarms
+  has been removed
+end note
+"HMI Client" <- Service: ReportAlarmAnnunciation(KeyCrewRole="Driver", Annunciation, IsRemoved=true/false)
+"HMI Client" <- Service: ReportAlarmAnnunciation(KeyCrewRole="Gunner", Annunciation, IsRemoved=true/false)
+"HMI Client" <- Service: ReportAlarmAnnunciation(KeyCrewRole="Commander", Annunciation, IsRemoved=true/false)
+note over Service
+  Reported as removed true if there are no more
+  relevant annunciations for the Role otherwise
+  the next relevant annunciation for the Role is
+  reported as removed false
+end note
+"HMI Client" <- Service: ReportAlertStatus(Status, IsRemoved=false)
+@enduml
+ *
+@startuml "Raise Threat Alert"
+hide footbox
+title Raise Threat Alert
+"Resource Client" -> Service: CmdRaiseThreatAlert(ThreatId=x, Threat)
+"HMI Client" <- Service: ReportThreatLog(KeyThreatId=x, Threat, IsRemoved=false)
+"HMI Client" <- Service: ReportThreatAnnunciation(Annunciation, false)
+"HMI Client" <- Service: ReportAlertStatus(Status, IsRemoved=false)
+note over Service
+  The number of active threat alerts is updated
+  in the status
+end note
+@enduml
+ *
+@startuml "Cancel Threat Alert"
+hide footbox
+title Cancel Threat Alert
+"Resource Client" -> Service: CmdCancelThreatAlert(ThreatIdList=[x])
+"HMI Client" <- Service: ReportThreatLog(KeyThreatId=x, Threat, IsRemoved=true)
+note over Service
+  Reported as removed true to indicate
+  Threat Alert has been removed
+end note
+"HMI Client" <- Service: ReportThreatAnnunciation(Annunciation, true/false)
+note over Service
+  Reported as removed true if there are no
+  more relevant annunciations otherwise the
+  next relevant annunciation is reported as
+  removed false.
+end note
+"HMI Client" <- Service: ReportAlertStatus(Status, IsRemoved=false)
+note over Service
+  The number of active threat alerts is
+  updated in the status
+end note
+@enduml
+ */
+module M_Alert
+{
+  /// Interface version number.
+  const string Version = "6.1.0";
+
+
+  /**
+   * Service interface.
+   * Contains operations that a client can command the Alert Service to perform.
+   */
+  interface IService
+  {
+    /// Causes an Alarm condition to be raised.
+    /// Note: Creates a new Alarm in the Service.
+    void CmdRaiseAlarm (
+      /// Condition which raised the Alarm.
+      in AlarmConditionInfoType Condition
+    );
+
+    /// Resolve a previously raised Alarm when the condition has been resolved.
+    /// Note: Used to Resolve an existing alarm condition by the one who raised the Alarm.
+    void CmdResolveAlarm (
+      /// Condition which raised the Alarm.
+      in AlarmConditionInfoType Condition
+    );
+
+    /// Acknowledges one or more existing Alarms.
+    /// The Acknowledge function moderates the audio and / or the visual features of the
+    /// alarm (annunciation) and leaves the alarm in the active alarm (log) list.
+    void CmdAcknowledgeAlarm (
+      /// Identifies the Alarms to be acknowledged.
+      in AlertIdListType AlarmIdList
+    );
+
+    /// Causes the Alarm condition to be overridden.
+    /// The Override function is used to suppress the source of the alarm to prevent it from
+    /// triggering again. The alarm remains on the active alarm list. On Mission System power
+    /// up, all previously overridden alarms will be removed.
+    void CmdOverrideAlarmCondition (
+      /// Alarm condition to override.
+      /// Note: All future Alarms raised for this condition will be suppressed.
+      in AlarmConditionInfoType Condition
+    );
+
+    /// Causes the Alarm condition to be changed from being overridden to not overridden.
+    void CmdUnoverrideAlarmCondition (
+      /// Previously overridden Alarm condition.
+      in AlarmConditionInfoType Condition
+    );
+
+    /// Clears one or more existing Alarms.
+    void CmdClearAlarm (
+      /// Identifies the Alarms to be cleared.
+      in AlertIdListType AlarmIdList
+    );
+
+    /// Causes a Threat Alert to be raised.
+    /// Note: Creates a new Threat Alert in the Service.
+    void CmdRaiseThreatAlert (
+      /// Identifies the Threat Alert.
+      in AlertIdType ThreatId,
+      /// Threat Alert to be raised.
+      in ThreatLogType Threat
+    );
+
+    /// Used to Cancel one or more existing Threat Alerts which are no longer relevant.
+    void CmdCancelThreatAlert (
+      /// Identifies the Threat Alerts to be cancelled.
+      in AlertIdListType ThreatIdList
+    );
+  };
+
+
+  /**
+   * Client interface.
+   * Contains callback operations from the Alert Service to the Client.
+   */
+  interface IClient
+  {
+    /// Report static settings of the Alert Service.
+    void ReportAlertSettings (
+      /// Alert Service settings data.
+      in AlertSettingsType Settings
+    );
+
+    /// Report the status with current count of active alarms and threats.
+    void ReportAlertStatus (
+      /// Alert Service status data.
+      in AlertStatusType Status,
+      /// Indicates if the status is no longer available.
+      /// Note: This will always be set to True when a Service has been shutdown.
+      /// After this has been set to True the status will no longer be available to late joiners.
+      in boolean IsRemoved
+    );
+
+    /// Report an Alarm raised as a result of an Alarm condition.
+    /// This is the Log entry.
+    void ReportAlarmLog (
+      /// Identifies the Alarm log entry.
+      in AlertIdType KeyAlarmId,
+      /// The Alarm log entry data.
+      in AlarmLogType Alarm,
+      /// Indicates if the Alarm has been removed from the log.
+      in boolean IsRemoved
+    );
+
+    /// Report an Annunciation for an Alarm.
+    /// Current annunciation text and tone for a specific crew role.
+    /// Note: Only one alarm will be announced per Crew Role at one time.
+    void ReportAlarmAnnunciation (
+      /// Specific Crew role for which this Annunciation applies.
+      in string KeyCrewRole,
+      /// Annunciation data for an Alarm.
+      in AlarmAnnunciationType Annunciation,
+      /// Indicates if there is no longer any Annunciation for the specified Crew role.
+      in boolean IsRemoved
+    );
+
+    /// Report an Alert for a detected Threat.
+    void ReportThreatLog (
+      /// Identifies the Threat Alert log entry.
+      in AlertIdType KeyThreatId,
+      /// The Threat Alert log entry data.
+      in ThreatLogType Threat,
+      /// Indicates if the Threat Alert has been removed from the log.
+      in boolean IsRemoved
+    );
+
+    /// Report an Annunciation for a Threat Alert.
+    /// Current annunciation text and tone.
+    /// Note: Only one threat will be announced at one time.
+    void ReportThreatAnnunciation (
+      /// Annunciation data for a Threat Alert.
+      in ThreatAnnunciationType Annunciation,
+      /// Indicates if there is no longer any Annunciation.
+      in boolean IsRemoved
+    );
+  };
+};

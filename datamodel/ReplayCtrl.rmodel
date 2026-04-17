@@ -1,0 +1,178 @@
+// Copyright (c) 2026 Rheinmetall Electronics GmbH
+//
+// This program and the accompanying materials are made available under the
+// terms of the Eclipse Public License 2.0 which is available at
+// https://www.eclipse.org/legal/epl-2.0.
+//
+// SPDX-License-Identifier: EPL-2.0
+
+#include "CommonTypes.idl"
+#include "ReplayCtrlTypes.idl"
+
+
+/**
+ * Interfaces and types used by the Replay Control Service and Client.
+ *
+@startuml "ReplayCtrl Startup"
+title Startup
+hide footbox
+
+Client <- Service: ReportReplaySettings( Settings.IsStartStopReplaySupported=true,\n                                  Settings.SupportedReplayChannels=[\n                                    {SourceVideoChannel="SAS", ReplayChannelList=["SAS_GnrReplay", "SAS_CdrReplay"]},\n                                    {SourceVideoChannel="SEOSS1_TV", ReplayChannelList=["SEOSS1_TV_GnrReplay", "SEOSS1_TV_CdrReplay"]},\n                                    {SourceVideoChannel="SEOSS1_IR", ReplayChannelList=["SEOSS1_IR_GnrReplay", "SEOSS1_IR_CdrReplay"]} )
+note over Service
+    On startup the Service reports
+    true for all supported functions as
+    well as the names of all configured
+    Stream Replay Channels which can be
+    used for playback
+end note
+Client <- Service: ReportReplayStatus( Status.ReplayTimelines=[\n                                  {SourceVideoChannel="SAS", IntervalList=[{StartTime, StopTime}, {StartTime, StopTime}, ...]},\n                                  {SourceVideoChannel="SEOSS1_TV", IntervalList=[{StartTime, StopTime}, ...]},\n                                  {SourceVideoChannel="SEOSS1_IR", IntervalList=[{StartTime, StopTime}, ...]},\n                                   ...],\n                               Status.InProgressReplays=[],\n                               IsRemoved=false )
+note over Service
+    Service reports the currents status on
+    startup indicating the replayable timeline
+    (a list of intervals defined by start + stop time)
+    for each source video channel
+end note
+@enduml
+
+@startuml "ReplayCtrl Replay"
+title Replay
+hide footbox
+
+== Start Replay ==
+note over Client
+    Client starts replay for a list
+    of specified video channels and
+    at the starting position specified
+    by the absolute starting time
+end note
+Client -> Service: CmdStartReplay( ReplayList=[{SourceVideoChannel="SEOSS1_TV", ReplayVideoChannel="SEOSS1_TV_GnrReplay"}],\n                          StartTime, StopTime=[] )
+Client <- Service: ReportReplayStatus( Status.ReplayTimelines=[...],\n                               Status.InProgressReplays=[{SourceVideoChannel="SEOSS1_TV", ReplayVideoChannel="SEOSS1_TV_GnrReplay"}],\n                               IsRemoved=false )
+note over Service
+    Service reports an updated status which now
+    also contains the updated In Progress Replays
+end note
+...
+
+== Stop Replay ==
+note over Client
+    Client stop one or more currently running
+    replays
+end note
+Client -> Service: CmdStopReplay( ReplayVideoChannelList=["SEOSS1_TV"] )
+Client <- Service: ReportReplayStatus( Status.ReplayTimelines=[...],\n                               Status.InProgressReplays=[],\n                               IsRemoved=false )
+note over Service
+    Service reports an updated status which no
+    longer contains stopped In Progress Replays
+end note
+@enduml
+
+@startuml "ReplayCtrl Periodical Status Update"
+title Periodical Status Update
+hide footbox
+
+Client <- Service: ReportReplayStatus( Status.ReplayTimelines=[\n                                  {SourceVideoChannel="SAS", IntervalList=[{StartTime, StopTime}, {StartTime, StopTime}, ...]},\n                                  {SourceVideoChannel="SEOSS1_TV", IntervalList=[{StartTime, StopTime}, ...]},\n                                  {SourceVideoChannel="SEOSS1_IR", IntervalList=[{StartTime, StopTime}, ...]},\n                                   ...],\n                               Status.InProgressReplays=[...],\n                               IsRemoved=false )
+note over Service
+    Service reports the status periodically
+    to inform the Clients of the current replayable
+    timelines. This is required to keep the timelines
+    up to date during ongoing recordings
+end note
+@enduml
+
+@startuml "ReplayCtrl Shutdown"
+title Shutdown
+hide footbox
+
+Client <- Service: ReportReplayStatus( Status, IsRemoved=true )
+note over Service
+    On service shutdown the previously reported
+    status is automatically removed
+end note
+@enduml
+ */
+module M_ReplayCtrl
+{
+  /// Interface version number.
+  const string Version = "2.1.0";
+
+
+  /**
+   * Service interface.
+   * Contains operations that a client can command the Replay Control Service to perform.
+   */
+  interface IService
+  {
+    /// Start replay of video source or multiple synchronised streams.
+    void CmdStartReplay (
+      /// A list containing one or more pairs of source video channel and replay video channel name to
+      /// play back the source on. Only matching pairs which have been reported as supported by the service
+      /// shall be provided here.
+      /// If more than one element is specified then all the channels in the list should be replayed
+      /// as synchronised streams.
+      in ReplayChannelInfoListType ReplaysList,
+      /// Starting position in stream specified as an absolute time (seconds + nanoseconds since UTC epoch).
+      in M_Common::TimeType StartTime,
+      /// End position in stream specified as an absolute time (seconds + nanoseconds since UTC epoch).
+      /// Not present indicates the stream should play until the end has been reached.
+      in M_Common::TimeOptionalType StopTime,
+      /// Initial loop mode.
+      in ReplayLoopMode::Type LoopMode,
+      /// Initial playback mode.
+      in ReplayStartMode::Type StartMode
+    );
+
+    /// Loop replay of video source(s).
+    void CmdLoopReplay (
+      /// List of video channel names identifying the replayed streams which should (not) be looped.
+      in M_Common::StringListType ReplayVideoChannelList
+    );
+
+    /// Stop replay of video source(s).
+    void CmdStopReplay (
+      /// List of video channel names identifying the replayed streams which should be stopped.
+      in M_Common::StringListType ReplayVideoChannelList
+    );
+
+    /// Pause replay of video source(s).
+    void CmdPauseReplay (
+      /// List of video channel names identifying the replayed streams which should be paused.
+      in M_Common::StringListType ReplayVideoChannelList
+    );
+
+    /// Resume replay of video source(s).
+    void CmdResumeReplay (
+      /// List of video channel names identifying the replayed streams which should be resumed.
+      in M_Common::StringListType ReplayVideoChannelList
+    );
+
+    /// Step a single frame of video source(s).
+    void CmdStepReplay (
+      /// List of video channel names identifying the replayed streams which should be paused.
+      in M_Common::StringListType ReplayVideoChannelList
+    );
+  };
+
+
+  /**
+   * Client interface.
+   * Contains callback operations from the Replay Control Service to the Client.
+   */
+  interface IClient
+  {
+    /// Static settings for the service reported once on startup.
+    void ReportReplaySettings (
+      /// Configured settings for the Replay Control Service.
+      in ReplaySettingsType Settings
+    );
+
+    /// Current status data for the service which are dynamically updated on change.
+    void ReportReplayStatus (
+      /// Current status data for the Replay Control Service.
+      in ReplayStatusType Status,
+      /// Indicates if the status is no longer available.
+      /// Note: This will always be set to True when a Service has been shutdown.
+      /// After this has been set to True the status will no longer be available to late joiners.
+      in boolean IsRemoved
+    );
+  };
+};

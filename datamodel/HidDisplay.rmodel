@@ -1,0 +1,227 @@
+// Copyright (c) 2026 Rheinmetall Electronics GmbH
+//
+// This program and the accompanying materials are made available under the
+// terms of the Eclipse Public License 2.0 which is available at
+// https://www.eclipse.org/legal/epl-2.0.
+//
+// SPDX-License-Identifier: EPL-2.0
+
+#include "CommonTypes.idl"
+#include "HidDisplayTypes.idl"
+
+
+/**
+ * A HID Display service can be used to represent an HID Display.
+ *
+ @startuml "HID Display Information"
+title HID Display Information
+hide footbox
+
+== Startup ==
+Client <- Service: ReportHidInfo(Info)
+note over Service
+    On startup the Service reports existing
+    HID info
+end note
+...
+
+== Configure service ==
+Client -> Service: ConfigButtonLabel(KeyButtonIndex=x, Label, Image, IsEnabled, IsHighlighted)
+Client <- Service: ReportHidInfo(Info.Buttons=[Index=x, ...])
+
+Client -> Service: ConfigAxisLabel(KeyAxisIndex=y, NegativeLabel, NegativeImage, PositiveLabel, PositiveImage)
+Client <- Service: ReportHidInfo(Info.Buttons=[Index=x, ...], Info.Axis=[Index=y, ...])
+
+Client -> Service: ConfigStatusLed(KeyLedIndex=z, TurnLightOn, RgbColorCode)
+Client <- Service: ReportHidInfo(Info.Buttons=[Index=x, ...], Info.Axis=[Index=y, ...], Info.Leds=[Index=z, ...])
+
+Client -> Service: ConfigBackgroundIllumination(Level)
+Client <- Service: ReportHidInfo(Info.Buttons=[Index=x, ...], Info.Axis=[Index=y, ...], Info.Leds=[Index=z, ...], Info.BackgroundIlluminationLevel=Level)
+
+note over Service
+    Service reports the updated
+    HID info
+end note
+...
+
+== Trigger button press ==
+Client -> Service: CmdSelectButton(ButtonIndex=x, IsSelected=true)
+
+@enduml
+ */
+module M_HidDisplay
+{
+  /// Interface version number.
+  const string Version = "10.3.0";
+
+
+  /**
+   * Service interface.
+   * Contains operations that a client can command the Service to perform.
+   */
+  interface IService
+  {
+    /**
+     * Config to set the label and image to be displayed for an axis.
+     * Note: This function is only relevant for input devices which can display
+     * this kind of information.
+     */
+    void ConfigAxisLabel (    // TODO: Is this really needed? For what Axis is it possible to set a Label?
+      /// Index identifying the axis.
+      in unsigned long KeyAxisIndex,
+      /// Label to display for the negative axis.
+      in string NegativeLabel,
+      /// Image to display for the negative axis.
+      in M_Common::ImageType NegativeImage,
+      /// Label to display for the positive axis.
+      in string PositiveLabel,
+      /// Image to display for the positive axis.
+      in M_Common::ImageType PositiveImage,
+      /// Indicates if the payload is no longer available
+      /// Note: This will always be set to true when the instance has been shut down
+      /// After this has been set to true, the payload will no longer be available to late joiners.
+      in boolean IsRemoved
+    );
+
+    /**
+     * Config to indicate if an LED should be on or off.
+     */
+    void ConfigStatusLed (
+      /// Index identifying the LED.
+      in unsigned long KeyLedIndex,
+      /// Indicates the LED light mode.
+      /// Can be On/Off or a specific pattern.
+      in LedLightModeType LedLightMode,
+      /// Indicates if the payload is no longer available
+      /// Note: This will always be set to true when the instance has been shut down
+      /// After this has been set to true, the payload will no longer be available to late joiners.
+      in boolean IsRemoved
+    );
+
+    /**
+     * Config for the background illumination level.
+     */
+    void ConfigBackgroundIllumination (
+      /// The illumination level in percent.
+      in M_Common::PercentType Level
+    );
+
+    /**
+     * Config to indicate if display should be in blackout mode.
+     * Blackout mode turns off all lighting for the complete HID display device.
+     */
+    void ConfigBlackoutMode (
+      /// Indicates if blackout mode should be enabled (true) or disabled (false).
+      in boolean Enable
+    );
+
+    /**
+     * Config with the label and image to be displayed for a button.
+     * Note: This function is only relevant for input devices which can display
+     * this kind of information.
+     */
+    void ConfigButtonLabel (
+      /// Index identifying the button.
+      in unsigned long KeyButtonIndex,
+      /// Label to display for the button.
+      in string Label,
+      /// Image to display for the button.
+      in M_Common::ImageType Image,
+      /// Indicates if the button is enabled (true) or disabled (false).
+      /// An enabled button can be used by the user. A disabled button can NOT be used
+      /// by the user.
+      /// True = Enabled
+      /// False = Disabled
+      in boolean IsEnabled,
+      /// Indicates if the button is highlighted (true).
+      /// True = Highlighted
+      /// False = Not highlighted
+      in boolean IsHighlighted,
+      /// Indicates if the payload is no longer available
+      /// Note: This will always be set to true when the instance has been shut down
+      /// After this has been set to true, the payload will no longer be available to late joiners.
+      in boolean IsRemoved
+    );
+
+    /**
+     * Configure the specified value input.
+     */
+    void ConfigValueInput (
+      /// Index identifying the value input.
+      in unsigned long KeyValueInputIndex,
+
+      /// Label of the value input.
+      in string Label,
+
+      /// Indicates whether value input info is enabled.
+      in boolean IsEnabled,
+
+      /// Value input mode.
+      in M_Common::PropertyOptionalType ValueInputMode,
+
+      /// Default value.
+      in M_Common::PropertyOptionalType DefaultValue,
+
+      /// Minimum value.
+      in M_Common::PropertyOptionalType MinValue,
+
+      /// Maximum value.
+      in M_Common::PropertyOptionalType MaxValue,
+
+      /// Preset list.
+      in M_Common::PropertyListType PresetList,
+
+      /// Indicates if the payload is no longer available
+      /// Note: This will always be set to true when the instance has been shut down
+      /// After this has been set to true, the payload will no longer be available to late joiners.
+      in boolean IsRemoved
+    );
+
+    /**
+     * Configure the specified menu label.
+     */
+    void ConfigMenuLabel (
+      /// Index identifying the menu.
+      in unsigned long KeyMenuIndex,
+
+      /// Label to display.
+      in string Label,
+
+      /// Indicates whether the element is enabled.
+      in boolean IsEnabled,
+
+      /// Indicates if the payload is no longer available
+      /// Note: This will always be set to true when the instance has been shut down
+      /// After this has been set to true, the payload will no longer be available to late joiners.
+      in boolean IsRemoved
+    );
+
+    /**
+     * Cmd to trigger a button press (IsSelected = True) or release (IsSelected = False).
+     * Note: This function can be used to trigger a HID button from a HW button input.
+     */
+    void CmdSelectButton (
+      /// Index identifying the button.
+      in unsigned long ButtonIndex,
+
+      /// Indicates if the button has been selected (true) or unselected (false).
+      in boolean IsSelected
+    );
+  };
+
+
+  /**
+   * Client interface.
+   * Contains operations reported by a HID display Service.
+   */
+  interface IClient
+  {
+    /**
+     * Report the display info for an input device.
+     */
+    void ReportHidInfo (
+      /// The current display info for an input device.
+      in HidInfoType Info
+    );
+  };
+};

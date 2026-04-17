@@ -1,0 +1,64 @@
+// Copyright (c) 2026 Rheinmetall Electronics GmbH
+//
+// This program and the accompanying materials are made available under the
+// terms of the Eclipse Public License 2.0 which is available at
+// https://www.eclipse.org/legal/epl-2.0.
+//
+// SPDX-License-Identifier: EPL-2.0
+
+#include "CommonTypes.idl"
+
+
+/**
+ * Types used by the alignment service and client.
+ */
+module M_Alignment
+{
+  /**
+   * Contains the settings of the alignment service.
+   */
+  struct AlignmentSettingsType
+  {
+    /// Minimum stepsize in azimuth/elevation.
+    M_Common::SphericalPositionOptionalType MinLateralStepsize;
+
+    /// Maximum stepsize in azimuth/elevation.
+    M_Common::SphericalPositionOptionalType MaxLateralStepsize;
+
+    /// Minimum stepsize in roll [deg].
+    M_Common::AngleDegreesOptionalType MinLongitudinalStepsize;
+
+    /// Maximum stepsize in roll [deg].
+    M_Common::AngleDegreesOptionalType MaxLongitudinalStepsize;
+
+    /// Indicates whether external alignment can be allowed.
+    boolean IsCmdAllowExternalAlignmentSupported;
+  };
+
+
+  /**
+   * Contains alignment status data.
+   */
+  struct AlignmentStatusType
+  {
+    /// Indicates if alignment is active (true) or not (false).
+    boolean IsAlignmentActive;
+
+    /// Indicates if a client is currently allowed to initiate alignment.
+    boolean IsAlignmentAllowed;
+
+    /// Indicates if a client is currently allowed to initiate external alignment.
+    boolean IsExternalAlignmentAllowed;
+
+    /// Offset from perfect lateral alignment.
+    /// Note: If empty, values are not known or not relevant.
+    M_Common::SphericalPositionOptionalType LateralOffset;
+
+    /// Offset from perfect longitudinal alignment [deg].
+    /// Note: If empty, values are not known or not relevant.
+    M_Common::AngleDegreesOptionalType LongitudinalOffset;
+  
+    /// Indicates if parallax correction is used (true) or not (false).
+    boolean IsParallaxCorrectionEnabled;
+  };
+};

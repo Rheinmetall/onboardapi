@@ -1,0 +1,109 @@
+// Copyright (c) 2026 Rheinmetall Electronics GmbH
+//
+// This program and the accompanying materials are made available under the
+// terms of the Eclipse Public License 2.0 which is available at
+// https://www.eclipse.org/legal/epl-2.0.
+//
+// SPDX-License-Identifier: EPL-2.0
+
+#include "CommonTypes.idl"
+
+
+/**
+ * Types used by the Logging Service and Client.
+ */
+module M_Logging
+{
+
+  /// Log level type.
+  module LogLevelKind
+  {
+    /// Log level enumeration.
+    enum Type
+    {
+      /// Off level
+      Off,
+
+      /// Critical level
+      Critical,
+
+      /// Error level
+      Error,
+
+      /// Warn level
+      Warn,
+
+      /// Info level
+      Info,
+
+      /// Debug level
+      Debug,
+
+      /// Trace level
+      Trace
+    };
+  };
+
+  /**
+   * Contains log message.
+   */
+  struct LogMessageType
+  {
+    /// The log level.
+    LogLevelKind::Type Level;
+  
+    /// The log message.
+    string Message;
+
+    /// Timestamp of the log.
+    M_Common::UnixTimeType UnixTimestamp;
+
+    /// Optional Name of the function.
+    M_Common::StringOptionalType FunctionName;
+
+    /// Optional Name of the file.
+    M_Common::StringOptionalType FileName;
+
+    /// Optional Name of the logger name.
+    M_Common::StringOptionalType LoggerName;
+
+    /// Optional Name of the component.
+    M_Common::StringOptionalType ComponentName;
+
+    /// Optional The line in the file.
+    M_Common::ULongOptionalType Line;
+
+    /// Optional id of the message.
+    M_Common::ULongLongOptionalType Id;
+
+    /// Optional id of the process.
+    M_Common::ULongOptionalType ProcessId;
+  };
+
+  /// List of LogMessageType.
+  typedef sequence<LogMessageType> LogMessageListType;
+
+  /**
+   * Contains log message.
+   */
+  struct LogSettingsType
+  {
+    /// The current log level.
+    LogLevelKind::Type Level;
+  
+  };
+
+  /**
+   * Contains the request informations.
+   */
+  struct LogMessageRequestType
+  {
+    /// Request all messages after specified id.
+    M_Common::ULongOptionalType AfterId;
+
+    /// Request all messages after specified timestamp.
+    M_Common::UnixTimeOptionalType AfterUnixTimestamp;
+
+  };
+
+};

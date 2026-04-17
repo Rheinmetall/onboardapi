@@ -1,0 +1,111 @@
+// Copyright (c) 2026 Rheinmetall Electronics GmbH
+//
+// This program and the accompanying materials are made available under the
+// terms of the Eclipse Public License 2.0 which is available at
+// https://www.eclipse.org/legal/epl-2.0.
+//
+// SPDX-License-Identifier: EPL-2.0
+
+#include "CommonTypes.idl"
+
+
+/**
+ * Types used by the Auth Service and Client.
+ */
+module M_Auth
+{
+
+  /// Auth state type.
+  module AuthStateKind
+  {
+    /// Auth state enumeration.
+    enum Type
+    {
+      /// The user is not authenticated.
+      Unauthenticated,
+
+      /// The user is successfully authenticated.
+      Authenticated
+    };
+  };
+
+  /// Login failure type.
+  module LoginFailureKind
+  {
+    /// Login failure enumeration.
+    enum Type
+    {
+      /// The login failure reason is not known.
+      Unknown,
+
+      /// The password is not valid.
+      InvalidPassword,
+
+      /// The user is not known.
+      UserNotFound,
+
+      /// The users credentials are expired.
+      ExpiredCredentials,
+
+      /// The user is locked.
+      Locked,
+
+      /// The user is externally locked.
+      LockedExternal
+    };
+  };
+
+  /**
+   * Contains failure reason type.
+   */
+  struct FailureReasonType
+  {
+    /// The reason why it failed.
+    LoginFailureKind::Type Reason;
+  };
+
+  /// Optional FailureReasonType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<FailureReasonType, 1> FailureReasonOptionalType;
+
+  /**
+   * Contains login event type.
+   */
+  struct LoginEventType
+  {
+    /// The login result.
+    AuthStateKind::Type Result;
+
+    /// The reason why it failed.
+    FailureReasonOptionalType FailureReason;
+  };
+
+  /**
+   * Contains minimal info about the logged in user.
+   */
+  struct UserIdentityType
+  {
+    /// The username.
+    string Username;
+
+    /// The roles of the user.
+    M_Common::ULongListType Roles;
+  };
+
+  /// Optional UserIdentityType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<UserIdentityType, 1> UserIdentityOptionalType;
+
+  /**
+   * Contains auth status type.
+   */
+  struct AuthStatusType
+  {
+    /// The users overall auth state.
+    AuthStateKind::Type State;
+
+    /// Optional snapshot of the users identity.
+    UserIdentityOptionalType UserIdentity;
+  };
+
+};

@@ -1,0 +1,74 @@
+// Copyright (c) 2026 Rheinmetall Electronics GmbH
+//
+// This program and the accompanying materials are made available under the
+// terms of the Eclipse Public License 2.0 which is available at
+// https://www.eclipse.org/legal/epl-2.0.
+//
+// SPDX-License-Identifier: EPL-2.0
+
+#include "ManipulatorTypes.idl"
+#include "ActuationCtrl.idl"
+#include "CoordinateFrame.idl"
+#include "KinematicChain.idl"
+
+
+/**
+ * Interfaces used by the manipulator service and client.
+ */
+module M_Manipulator
+{
+  /// Interface version number.
+  const string Version = "2.2.0";
+
+
+  /**
+   * Manipulator service interface.
+   * Contains operations that a client can command the manipulator service to perform.
+   */
+  interface IService : M_CoordinateFrame::IService, M_KinematicChain::IService, M_ActuationCtrl::IService {};
+
+
+  /**
+   * Manipulator client interface.
+   * Contains callback operations from the manipulator service to the client.
+   */
+  interface IClient : M_CoordinateFrame::IClient, M_KinematicChain::IClient, M_ActuationCtrl::IClient
+  {
+    /**
+     * Report static manipulator settings.
+     */
+    void ReportManipulatorSettings
+    (
+      /// Manipulator settings.
+      in ManipulatorSettingsType Settings
+    );
+
+    /**
+     * Report with current manipulator status.
+     * This should always be called with the latest status updates since
+     * the last report can be read by late joiners.
+     */
+    void ReportManipulatorStatus
+    (
+      /// Current status data of the manipulator.
+      in ManipulatorStatusType Status,
+
+      /// Indicates if the status is no longer available.
+      /// Note: This will always be set to true when a service has been shut down.
+      /// After this has been set to true, the status will no longer be available to late joiners.
+      in boolean IsRemoved
+    );
+
+    /**
+     * Report current status of a specific link.
+     */
+    void ReportLinkStatus
+    (
+      /// Identifies the link.
+      in string LinkId,
+
+      /// Link status.
+      in LinkStatusType Status
+    );
+  };
+};

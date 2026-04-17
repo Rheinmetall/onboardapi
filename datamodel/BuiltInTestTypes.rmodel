@@ -1,0 +1,150 @@
+// Copyright (c) 2026 Rheinmetall Electronics GmbH
+//
+// This program and the accompanying materials are made available under the
+// terms of the Eclipse Public License 2.0 which is available at
+// https://www.eclipse.org/legal/epl-2.0.
+//
+// SPDX-License-Identifier: EPL-2.0
+
+#ifndef _BUILTIN_TEST_TYPES_IDL_
+#define _BUILTIN_TEST_TYPES_IDL_
+
+
+#include "CommonTypes.idl"
+
+
+/**
+ * Types used by the BITE Service and Client.
+ */
+module M_BuiltInTest
+{
+  /// Built-in test IBit state context.
+  module IBitRoutineState
+  {
+    /// Built-in test IBit state type enumeration.
+    enum Type
+    {
+      /// Test routine finished with a "GO" (passed) result.
+      Go,
+
+      /// Test routine finished with a "NO GO" (failed) result.
+      No_Go,
+
+      /// Test routine is currently running.
+      Running,
+
+      /// Test routine was cancelled by the user before it could be completed.
+      Cancelled,
+
+      /// Test routine was aborted by the system logic before it could be completed.
+      Aborted
+    };
+  };
+
+
+  /// Test result type context.
+  module TestResult
+  {
+    /// Test result type enumeration.
+    enum Type
+    {
+      /// Unknown -- test has not yet been completed or could not be initiated.
+      Undefined,
+
+      /// OK -- no failure was detected.
+      OK,
+
+      /// Warning -- a situation which warrants a warning was detected.
+      Warning,
+
+      /// Reduced performance -- an error was detected which results in reduced performance.
+      Reduced_Performance_Error,
+
+      /// Fatal error -- a failure was detected which results in complete loss of functionality.
+      Fatal_Error
+    };
+  };
+
+
+  /// Contains information about a supported IBIT routine such the routine name and
+  /// the IBIT names that can be reported as a result of the test routine.
+  struct SupportedIBitRoutineType
+  {
+    /// Name of IBIT routine to which can be started by a Client.
+    /// Note: The specific string names are defined separately for each implementing Service.
+    string RoutineName;
+
+    /// List of supported IBIT status which can be reported for this IBIT routine.
+    /// This name is used as an identifying key so that one Service can report multiple status
+    /// relevant for a device, such as the "Program Checksum" status and the "Temperature" status.
+    M_Common::StringListType SupportedIBitNames;
+
+    /// The estimated duration in milliseconds for the IBIT routine to complete the test procedure.
+    /// Note: If not present then the duration is unknown.
+    M_Common::ULongOptionalType DurationMs;
+  };
+
+  /// List of SupportedIBitRoutineType.
+  typedef sequence<SupportedIBitRoutineType> SupportedIBitRoutineListType;
+
+
+  /// Contains the Built-in test Service settings data.
+  struct BitSettingsType
+  {
+    /// Indicates if IBIT (Initiated Built-In Test) is supported.
+    /// This also indicates if a Client can start IBIT with the CmdStartIBitRoutine operation.
+    boolean IsIBitSupported;
+
+    /// Indicates if a Client can cancel a running IBIT with the CmdCancelIBitRoutine operation.
+    boolean IsCancelIBitRoutineSupported;
+
+    /// Indicates if PBIT (Power-Up Built-In Test) is supported.
+    boolean IsPBitSupported;
+
+    /// Indicates if CBIT (Continuous Built-In Test) is supported.
+    boolean IsCBitSupported;
+
+    /// List of supported IBIT routines that a Client can provide when starting IBIT with
+    /// the CmdStartIBit operation along with the IBIT names (errors that can be detected)
+    /// which can be reported for each routine.
+    SupportedIBitRoutineListType SupportedIBitRoutines;
+
+    /// List of supported PBIT status.
+    /// This name is used as an identifying key so that one Service can report multiple status
+    /// relevant for a device, such as the "Program Checksum" status and the "Temperature" status.
+    M_Common::StringListType SupportedPBitNames;
+
+    /// List of supported CBIT status.
+    /// This name is used as an identifying key so that one Service can report multiple status
+    /// relevant for a device, such as the "Program Checksum" status and the "Temperature" status.
+    M_Common::StringListType SupportedCBitNames;
+
+    /// Additional properties for the Service.
+    /// Note: Properties are defined generically to enable non-essential additional
+    /// information to be provided without impacting the Data Model.
+    M_Common::PropertyListType AdditionalInfo;
+  };
+
+
+  /// Result of Built-in test.
+  struct BitStatusType
+  {
+    /// Name of routine which initiated the test (especially used for IBITs).
+    string RoutineName;
+
+    /// Indicates if a failure was detected, and if so what kind of failure, as a result of the test.
+    TestResult::Type Result;
+
+    /// Optional equipment-specific error code.
+    M_Common::ULongOptionalType ErrorCode;
+
+    /// Optional textual description of error.
+    /// Note: Empty string indicates not relevant or unknown.
+    string ErrorCodeDescription;
+
+    /// Generic additional properties, e.g. specific data from tests.
+    M_Common::PropertyListType AdditionalInfo;
+  };
+};
+
+#endif

@@ -1,0 +1,100 @@
+// Copyright (c) 2026 Rheinmetall Electronics GmbH
+//
+// This program and the accompanying materials are made available under the
+// terms of the Eclipse Public License 2.0 which is available at
+// https://www.eclipse.org/legal/epl-2.0.
+//
+// SPDX-License-Identifier: EPL-2.0
+
+#include "CommonTypes.idl"
+#include "TimeManagerTypes.idl"
+
+
+/**
+ * Interfaces used by a time service and client.
+ */
+module M_TimeManager
+{
+  /// Interface version number.
+  const string Version = "1.2.0";
+
+
+  /**
+   * Time service interface.
+   * Contains operations that a client can command the time service to perform.
+   */
+  interface IService
+  {
+    /**
+     * Set the Universal Time Coordinated (UTC).
+     */
+    void CmdSetTime
+    (
+      /// Specified point in time.
+      in M_Common::UtcType Time,
+
+      /// The source of the time.
+      in TimeSourceType Source
+    );
+
+    /**
+     * Advance the time by a given amount.
+     */
+    void CmdAdvanceTime
+    (
+      /// Time duration to advance.
+      in M_Common::DurationType Duration
+    );
+
+    /**
+     * Reverse the time by a given amount.
+     */
+    void CmdReverseTime
+    (
+      /// Time duration to reverse.
+      in M_Common::DurationType Duration
+    );
+
+    /**
+     * Request the service to communicate UTC to the requesting client.
+     */
+    void RequestTime();
+  };
+
+
+  /**
+   * Time client interface.
+   * Contains callback operations from the time service to a client.
+   */
+  interface IClient
+  {
+    /**
+     * Report the current time of the time service.
+     */
+    void ReportTime
+    (
+      /// Current time communicated by the time service.
+      in M_Common::UtcType Time,
+
+      /// The source of the time.
+      in TimeSourceType Source,
+
+      /// Indicates if the status is no longer available. 
+      /// Note: This will always be set to true when a service has been shut down.
+      /// After this has been set to true, the status will no longer be available to late joiners.
+      in boolean IsRemoved
+    );
+
+    /**
+     * Respond the time to a client upon a request.
+     */
+    void ResponseTime
+    (
+      /// Specified point in time.
+      in M_Common::UtcType Time,
+
+      /// The source of the time.
+      in TimeSourceType Source
+    );
+  };
+};

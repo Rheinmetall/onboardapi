@@ -1,0 +1,86 @@
+// Copyright (c) 2026 Rheinmetall Electronics GmbH
+//
+// This program and the accompanying materials are made available under the
+// terms of the Eclipse Public License 2.0 which is available at
+// https://www.eclipse.org/legal/epl-2.0.
+//
+// SPDX-License-Identifier: EPL-2.0
+
+#include "CommonTypes.idl"
+#include "VideoTrackerTypes.idl"
+
+
+/**
+ * Interfaces used by the Automatic Track Recognition (ATR) Service and Client.
+ * This tracking mode establishes tracks automatically based on expected object characteristics.
+ */
+module M_VideoTrackerAtr
+{
+  /// Interface version number.
+  const string Version = "7.2.0";
+
+
+  /**
+   * Automatic Track Recognition (ATR) Service interface.
+   * Contains operations that a client can command the Automatic Track Recognition (ATR) Service to perform.
+   */
+  interface IService
+  {
+    /// Specify size limits of recognizable objects.
+    void ConfigMinMaxObjectSize
+    (
+      /// Minimum object size.
+      in M_Common::PixelRectSizeType Min,
+
+      /// Maximum object size.
+      in M_Common::PixelRectSizeType Max
+    );
+
+    /// Enable or disable Automatic Track Recognition (ATR).
+    void ConfigEnable
+    (
+      /// Enable or disable (True = Enable, False = Disable).
+      in boolean Enable
+    );
+
+    /// Start (or stop) teaching in of current scene, e.g. to suppress areas of frequent false alarms.
+    void CmdTeachIn
+    (
+      /// Indicates if teaching in should be started (true) or stopped (false).
+      in boolean Activate,
+
+      /// Indicates if learned false alarms shall be deleted.
+      in boolean Reset
+    );
+  };
+
+
+  /**
+   * Automatic Track Recognition (ATR) Client interface.
+   * Contains callback operations from the Automatic Track Recognition (ATR) Service to the Client.
+   */
+  interface IClient
+  {
+    /// Report with static ATR VideoTracker settings.
+    /// This should be provided at startup and in the event of degraded functionality,
+    /// e.g. due to an internal failure.
+    void ReportAtrSettings
+    (
+      /// VideoTracker ATR settings data.
+      in M_VideoTracker::AtrSettingsType Settings
+    );
+
+    /// Report with the current ATR VideoTracker status.
+    /// This will be continually updated every time a value is changed.
+    void ReportAtrStatus
+    (
+      /// Current status data for ATR VideoTracker.
+      in M_VideoTracker::AtrStatusType Status,
+
+      /// Indicates if the status is no longer available.
+      /// Note: This will always be set to True when a Service has been shutdown.
+      /// After this has been set to True the status will no longer be available to late joiners.
+      in boolean IsRemoved
+    );
+  };
+};

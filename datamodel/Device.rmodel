@@ -1,0 +1,202 @@
+// Copyright (c) 2026 Rheinmetall Electronics GmbH
+//
+// This program and the accompanying materials are made available under the
+// terms of the Eclipse Public License 2.0 which is available at
+// https://www.eclipse.org/legal/epl-2.0.
+//
+// SPDX-License-Identifier: EPL-2.0
+
+#include "DeviceTypes.idl"
+
+
+/**
+ * A device service represents a resource or application. It can be used to
+ * report general information such as version info and device mode.
+ *
+@startuml "Device Information"
+title Device Information
+hide footbox
+
+== Startup ==
+Client <- Service: ReportDeviceSettings(Settings)
+note over Service
+    On startup the Service always reports
+    the settings containing the SW version
+    information
+end note
+Client <- Service: ReportDeviceStatus(Status, IsRemoved=false)
+note over Service
+    Service always reports the initial
+    status with the IsRemoved flag set
+    to false
+end note
+...
+
+== Status update ==
+note over Client
+    Client updates device mode
+    (as an example)
+end note
+Client -> Service: CmdSetDeviceMode(Mode)
+Client <- Service: ReportDeviceStatus(Status, IsRemoved=false)
+note over Service
+    Service reports the updated
+    status
+end note
+...
+
+== Shutdown ==
+note over Client
+    Client initiated shutdown
+end note
+Client -> Service: CmdShutdownDevice()
+Client <- Service: ReportDeviceStatus(Status, IsRemoved=true)
+note over Service
+    On service shutdown the previously reported
+    status is automatically removed. This is
+    used as an indication that the Service
+    is no longer running
+end note
+
+@enduml
+ */
+module M_Device
+{
+  /// Interface version number.
+  const string Version = "11.3.0";
+
+
+  /**
+   * Device service interface.
+   * Contains operations that a client can command the device service to perform.
+   */
+  interface IService
+  {
+    /**
+     * Command to check if device service is alive.
+     * Note: If the service is not available, then an exception will be thrown.
+     */
+    void CmdIsDeviceAlive();
+
+    /**
+     * Enable or disable the device, i.e. power on and establish connection.
+     */
+    void CmdEnableDevice
+    (
+      /// Indicates if device should be enabled (true) or disabled (false).
+      in boolean IsEnabled
+    );
+
+    /**
+     * Shut down the device, i.e. power off and disconnect.
+     */
+    void CmdShutdownDevice();
+
+    /**
+     * Restart the device.
+     */
+    void CmdRestartDevice();
+
+    /**
+     * Set the mode of the device.
+     * This instructs the device (software) to assume a specific state/mode beyond powering on.
+     */
+    void CmdSetDeviceMode
+    (
+      /// The mode to which the device should switch.
+      in M_Common::OperationModeType Mode
+    );
+
+    /**
+     * Set a specified value.
+     */
+    void CmdSetValue
+    (
+      /// Identifies the component/location.
+      in string Id,
+
+      /// Value to set.
+      in M_Common::PropertyType Value
+    );
+
+    /**
+     * Incrementally change a specified value.
+     */
+    void CmdSetValueIncrementally
+    (
+      /// Identifies the component/location.
+      in string Id,
+
+      /// Value to change.
+      in M_Common::PropertyType Value
+    );
+
+    /**
+     * Instruct the service to provide the requesting client with a specified value.
+     */
+    void RequestValue
+    (
+      /// Identifies the component/location.
+      in string Id
+    );
+  };
+
+
+  /**
+   * Device client interface.
+   * Contains callback operations from the device service to the client.
+   */
+  interface IClient
+  {
+    /// Report the settings of a device service.
+    void ReportDeviceSettings
+    (
+      /// Settings data for device service.
+      in DeviceSettingsType Settings
+    );
+
+    /// Report the current status of a device.
+    void ReportDeviceStatus
+    (
+      /// Current status data for device.
+      in DeviceStatusType Status,
+
+      /// Indicates if the status is no longer available.
+      /// Note: This will always be set to true when a service has been shut down.
+      /// After this has been set to true, the status will no longer be available to late joiners.
+      in boolean IsRemoved
+    );
+
+    /**
+     * Report a specified value.
+     */
+    void ReportValue
+    (
+      /// Identifies the component/location.
+      /// Note: recommended format for e.g. operating hours:
+      /// KeyId      = <subcomponent_name>
+      /// Value.Name = "OperatingHours"
+      in string KeyId,
+
+      /// Value of interest.
+      in M_Common::PropertyType Value,
+
+      /// Indicates if the payload is no longer available
+      /// Note: This will always be set to true when the instance has been shut down
+      /// After this has been set to true, the payload will no longer be available to late joiners.
+      in boolean IsRemoved
+    );
+
+    /**
+     * Response to a request to transmit a specified value.
+     */
+    void ResponseValue
+    (
+      /// Identifies the component/location.
+      in string Id,
+
+      /// Value of interest.
+      in M_Common::PropertyType Value
+    );
+  };
+};

@@ -1,0 +1,99 @@
+// Copyright (c) 2026 Rheinmetall Electronics GmbH
+//
+// This program and the accompanying materials are made available under the
+// terms of the Eclipse Public License 2.0 which is available at
+// https://www.eclipse.org/legal/epl-2.0.
+//
+// SPDX-License-Identifier: EPL-2.0
+
+#include "DialogueTypes.idl"
+
+
+/**
+ * A dialogue service is used to control user dialogues and other text-based messages (e.g. used for logging).
+ */
+module M_Dialogue
+{
+  /// Interface version number.
+  const string Version = "4.1.0";
+
+
+  /**
+   * Service interface.
+   * Contains operations that a client can command the dialogue service to perform.
+   */
+  interface IService
+  {
+    /**
+     * Configure log level.
+     */
+    void ConfigLogLevel
+    (
+      /// Level.
+      in DialogueCategoryKind::Type Level
+    );
+
+    /**
+     * Select an action as response to the input choice reported by the service for the current test.
+     */
+    void CmdSelectInputChoice
+    (
+      /// Identifier of the currently active dialog.
+      in M_Common::ObjectIdType DialogueId,
+
+      /// The selected input from the InputSelectionList provided in ReportInputChoice().
+      in M_Common::StringListType SelectedInput
+    );
+
+    /**
+     * Notify about an arbitrary text message, e.g. for logging purposes.
+     */
+    void NotifyTextMessage
+    (
+      /// Text.
+      in string Text,
+
+      /// Message/log type.
+      in DialogueCategoryOptionalType MessageType
+    );
+  };
+
+
+  /**
+   * Client interface.
+   * Contains callback operations from the dialogue service to the client.
+   */
+  interface IClient
+  {
+    /**
+     * Reports an arbitrary text message, e.g. for logging purposes.
+     */
+    void EventTextMessage
+    (
+      /// Text.
+      in string Text,
+
+      /// Message/log type.
+      in DialogueCategoryOptionalType MessageType
+    );
+
+    /**
+     * Reports the dialogue for required input to the current action being performed.
+     */
+    void ReportInputChoice
+    (
+      /// Identifier of the currently report input choice.
+      in M_Common::ObjectIdType KeyDialogueId,
+
+      /// Input choice.
+      in InputChoiceType InputChoice,
+
+      /// Indicates if the dialogue is no longer available (true) or actively awaiting input (false).
+      /// The service should provide the report with IsRemoved = true when a CmdSelectInputChoice()
+      /// has been accepted from the client.
+      /// Note: This will always be set to true when a service has been shut down.
+      /// After this has been set to true, the status will no longer be available to late joiners.
+      in boolean IsRemoved
+    );
+  };
+};

@@ -1,0 +1,126 @@
+// Copyright (c) 2026 Rheinmetall Electronics GmbH
+//
+// This program and the accompanying materials are made available under the
+// terms of the Eclipse Public License 2.0 which is available at
+// https://www.eclipse.org/legal/epl-2.0.
+//
+// SPDX-License-Identifier: EPL-2.0
+
+#include "CommonTypes.idl"
+#include "VideoTrackerTypes.idl"
+
+
+/**
+ * Interfaces used by the Lock-On Tracking (LoT) Service and Client.
+ * This tracking mode is active for objects, that are locked-on by the operator.
+ */
+module M_VideoTrackerLot
+{
+  /// Interface version number.
+  const string Version = "9.2.0";
+
+
+  /**
+   * Lock-On Tracking (LoT) Service interface.
+   * Contains operations that a client can command the Lock-On Tracking (LoT) Service to perform.
+   */
+  interface IService
+  {
+    /// Set default gate sizes which are used if gate sizes are not specified in CmdLockOnAtPos command.
+    void ConfigDefaultGateSizes (
+      /// Initial gate at Lock-On.<br>
+      /// The init gate is the initial assumption for the object size.<br>
+      /// The more the init gate size matches the object size, the higher is the propability of acquiring the whole object.<br>
+      /// Note: Not present means current value is kept.
+      in M_Common::PixelRectSizeOptionalType InitGate,
+      /// Maximum search area around Lock-On position for object acquisition.<br>
+      /// Note: Not present means current value is kept.
+      in M_Common::PixelRectSizeOptionalType SearchArea
+    );
+
+    /// Lock-on trackable object at specified position.
+    /// Note: To perform an immediate Lead-On, M_VideoTrackerLosCtrl::CmdLosCtrlLeadOn(ObjId = "Selected") can be called
+    /// directly after this command.
+    void CmdLockOnAtPos (
+      /// Area or point to lock-on. Should be close to expected size and position of object.
+      /// If size is set to zero, lock-on is performed using default init gate size centred around offset position.
+      in M_Common::PixelRegionType LockOnArea,
+      /// Search area used to lock-on. Should be small enough to lower risk of locking-on an undesired object nearby.<br>
+      /// The search area is spanned centrically around the lock-on area centre position.<br>
+      /// Note: Not present means default search area is used.
+      in M_Common::PixelRectSizeOptionalType SearchArea,
+      /// Tracking mode for this Lock-On Track.<br>
+      /// Note: Not present means auto mode is used.
+      in M_VideoTracker::LotModeOptionalType Mode,
+      /// Indicates whether the locked-on object shall lead the line of sight.
+      in boolean LeadOn
+    );
+
+    /// Lock-on an object.
+    void CmdLockOnTrack (
+      /// Identifies an existing currently tracked object.<br>
+      /// Note: If not present then the VideoTracker should initiate a lock-on at the aligned image centre.<br>
+      /// Note: If ObjId is "Selected", a lock-on on the currently selected object (if available) is initiated.<br>
+      /// Note: If ObjId is "SelectedOrCenter", a locked-on on the currently selected object (if available) is initiated.<br>
+      /// Which object will be locked-on is described by M_VideoTracker::VtObjectType::IsSelected flag.
+      in M_Common::ObjectIdOptionalType ObjId,
+      /// Indicates whether the locked-on object shall lead the line of sight.
+      in boolean LeadOn
+    );
+
+    /// Activate and perform manual gate control for a LoT object.
+    /// Note: If ObjId is "Selected", the LoT object currently selected (if available) is taken. <br>
+    /// If ObjId is empty and there is only one LoT object, this one is taken.<br>
+    /// Which object gate is changed is described by M_VideoTracker::VtObjectType::IsSelected flag.<br>
+    void CmdManualGateControl (
+      /// Identifies an existing currently tracked object.
+      in M_Common::ObjectIdOptionalType ObjId,
+      /// The number of pixels to increase/decrease one step in x-direction (rightwards positive).
+      in long StepX,
+      /// The number of pixels to increase/decrease one step in y-direction (downwards positive).
+      in long StepY
+    );
+
+    /// Activate automatic gate size control for a LoT object.
+    /// Note: If ObjId is "Selected", the LoT object currently selected (if available) is taken.<br>
+    /// Note: If ObjId is empty and there is only one LoT object, this one is taken.<br>
+    /// Which object gate is changed is described by M_VideoTracker::VtObjectType::IsSelected flag.
+    void CmdAutoGateControl (
+      /// Identifies an existing currently tracked object.
+      in M_Common::ObjectIdOptionalType ObjId
+    );
+
+    /// Enforce coasting on specified object.
+    /// In coasting, the object position is predicted based on its preceding movement.<br>
+    /// Note: If ObjId is "Selected", the LoT object currently selected (if available) is taken.<br>
+    /// Note: If ObjId is empty and there is only one LoT object, this one is taken.<br>
+    /// Which object is taken is described by M_VideoTracker::VtObjectType::IsSelected flag.<br>
+    void CmdForceCoasting (
+      /// Identifies an existing currently tracked object.
+      in M_Common::ObjectIdOptionalType ObjId,
+      /// Enables / disables coasting for specified object.
+      in boolean Enable
+    );
+  };
+
+
+  /**
+   * Lock-On Tracking (LoT) Client interface.
+   * Contains callback operations from the Lock-On Tracking (LoT) Service to the Client.
+   */
+  interface IClient
+  {
+// TODO: Add void ReportSettings(in LotSettingsType Settings);
+
+    /// Report with the current LoT VideoTracker status.
+    /// This will be continually updated every time a value is changed.
+    void ReportLotStatus (
+      /// VideoTracker status data.
+      in M_VideoTracker::LotStatusType Status,
+      /// Indicates if the status is no longer available.
+      /// Note: This will always be set to True when a Service has been shutdown.
+      /// After this has been set to True the status will no longer be available to late joiners.
+      in boolean IsRemoved
+    );
+  };
+};

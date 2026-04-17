@@ -1,0 +1,92 @@
+// Copyright (c) 2026 Rheinmetall Electronics GmbH
+//
+// This program and the accompanying materials are made available under the
+// terms of the Eclipse Public License 2.0 which is available at
+// https://www.eclipse.org/legal/epl-2.0.
+//
+// SPDX-License-Identifier: EPL-2.0
+
+#include "CommonTypes.idl"
+
+
+/**
+ * Types used by the time manager service and client.
+ */
+module M_TimeManager
+{
+
+  /// Kinds of time sources.
+  module TimeSourceKind
+  {
+    /// Kinds of TimeSource enumeration.
+    enum Type
+    {
+      /// Unknown or unspecified time source.
+      Unspecified,
+
+      /// Time was manually set by a user.
+      Manual,
+
+      /// Time taken from the local system clock.
+      System_Clock,
+
+      /// Time read from a dedicated real-time clock (RTC) module.
+      Rtc,
+
+      /// Time taken from network time protocol (NTP).
+      Ntp_Server,
+
+      /// Time taken from precision time protocol (PTP).
+      Ptp_Master,
+
+      /// Time taken from a satellite.
+      Satellite,
+      
+      /// Time taken from multiple navigation stellite systems (Multi-GNSS).
+      Multi_Gnss,
+
+      /// Time taken from global positioning system (GPS).
+      Gps,
+
+      /// Time taken from Quasi-Zenit-Satelliten-System (QZSS).
+      Qzss,
+
+      /// Time taken from Beidou satellite system.
+      Beidou,
+
+      /// Time taken from Galileo satellite system.
+      Galileo,
+
+      /// Time taken from Global Navigation Satellite System (GLONASS).
+      Glonass,
+
+      /// Time taken from radio time signal.
+      Radio,
+
+      /// Time taken from Loran-C.
+      Loran_C,
+
+      /// Time taken from mobile cellular network.
+      Cellular,
+
+      /// Time taken from internet API or web service.
+      Internet_Service,
+
+      /// Time taken from a paired bluetooth device.
+      Bluetooth
+    };
+  };
+
+  /**
+   * The source of a time information.
+   */
+  struct TimeSourceType
+  {
+    /// The source of the time.
+    TimeSourceKind::Type Source;
+
+    /// Additional context of the time source.
+    string Description;
+  };
+
+};

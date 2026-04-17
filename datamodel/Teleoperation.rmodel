@@ -1,0 +1,79 @@
+// Copyright (c) 2026 Rheinmetall Electronics GmbH
+//
+// This program and the accompanying materials are made available under the
+// terms of the Eclipse Public License 2.0 which is available at
+// https://www.eclipse.org/legal/epl-2.0.
+//
+// SPDX-License-Identifier: EPL-2.0
+
+#include "TeleoperationTypes.idl"
+
+
+/**
+ * Interfaces used by the teleoperation service and client.
+ */
+module M_Teleoperation
+{
+  /// Interface version number.
+  const string Version = "2.2.0";
+
+
+  /**
+   * Teleoperation service interface.
+   * Contains operations that a client can command the teleoperation service to perform.
+   */
+  interface IService {};
+
+
+  /**
+   * Teleoperation client interface.
+   * Contains callback operations from the teleoperation service to the client.
+   */
+  interface IClient
+  {
+    /**
+     * Report static settings.
+     * This should be provided at startup and in the event of degraded functionality,
+     * e.g. due to an internal failure.
+     */
+    void ReportTeleoperationCtrlSettings
+    (
+      /// Settings of the remote system.
+      in TeleoperationCtrlSettingsType TeleoperationCtrlSettings
+    );
+
+    /**
+     * Report current battery status.
+     */
+    void ReportBatteryStatus
+    (
+      /// Identifies the battery.
+      in string KeyId,
+
+      /// Current status of the battery.
+      in BatteryStatusType BatteryStatus,
+
+      /// Indicates if the status is no longer available. 
+      /// Note: This will always be set to true when a service has been shut down.
+      /// After this has been set to true, the status will no longer be available to late joiners.
+      in boolean IsRemoved
+    );
+
+    /**
+     * Report current radio connection status.
+     */
+    void ReportRadioConnectionStatus
+    (
+      /// Identifies the radio connection.
+      in string KeyId,
+
+      /// Current status of the radio connection.
+      in RadioConnectionStatusType RadioConnectionStatus,
+
+      /// Indicates if the status is no longer available. 
+      /// Note: This will always be set to true when a service has been shut down.
+      /// After this has been set to true, the status will no longer be available to late joiners.
+      in boolean IsRemoved
+    );
+  };
+};

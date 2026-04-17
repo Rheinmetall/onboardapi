@@ -1,0 +1,141 @@
+// Copyright (c) 2026 Rheinmetall Electronics GmbH
+//
+// This program and the accompanying materials are made available under the
+// terms of the Eclipse Public License 2.0 which is available at
+// https://www.eclipse.org/legal/epl-2.0.
+//
+// SPDX-License-Identifier: EPL-2.0
+
+#ifndef _TERMINAL_CTRL_TYPES_IDL_
+#define _TERMINAL_CTRL_TYPES_IDL_
+
+
+#include "CommonTypes.idl"
+
+
+/**
+ * Types used by the Terminal Control interfaces.
+ */
+module M_TerminalCtrl
+{
+  /// Light Mode context.
+  module LightMode
+  {
+    /// Light Mode enumeration.
+    enum Type
+    {
+      /// Default
+      Default_Light,
+      /// Reduced Light
+      Reduced_Light,
+      /// Lamp Test
+      Lamp_Test
+    };
+  };
+
+  /// Optional LightMode.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<LightMode::Type, 1> LightModeOptionalType;
+
+
+  /// Sight System View context.
+  module SightSystemView
+  {
+    /// Sight System View enumeration.
+    /// Note: Pano-Camera is NOT the Terminals Panorama picture, but a seperate
+    /// Camera. The Panorma picture is refered to as SAS below.
+    enum Type
+    {
+      /// Free Sight choice (TV-Camera/IR-Camera/Pano-Camera/SAS Camera view)
+      Free_Choice,
+      /// Any Sight System sight (TV-Camera/IR-Camera/Pano-Camera)
+      Only_Sight_System_Cameras,
+      /// Only Sight System Target sight (TV-Camera/IR-Camera)
+      Only_Target_Sight_Camera
+    };
+  };
+
+
+  /// Contains settings for Terminal Control Service.
+  struct TerminalSettingsType
+  {
+    /// Indicates if ConfigTerminalState is supported (true) or not (false).
+    boolean IsConfigTerminalStateSupported;
+    /// Indicates if CmdExitMenu is supported (true) or not (false).
+    boolean IsExitMenuSupported;
+    /// Indicates if CmdSetBlackoutMode is supported (true) or not (false).
+    boolean IsSetBlackoutModeSupported;
+    /// List of supported menu languages.
+    /// Note: This also indicates whether languages can be changed via ConfigMenuLanguage().
+    M_Common::StringListType SupportedMenuLanguages;
+  };
+
+
+  /// Contains the state values for a Terminal.
+  struct TerminalRequiredStateType
+  {
+    /// Brighness level in percent.
+    M_Common::PercentOptionalType BrightnessLevel;
+    /// Light Mode for Terminal.
+    LightModeOptionalType LightMode;
+    /// Indicates the Video source to show.
+    /// Note: If empty then the Terminal is free to show any video source.
+    string VideoChannelName;
+    /// Indicates which Sight View(s) that are allowed to be shown.
+    /// E.g. Is the SAS from the Panorama picture allowed to be shown in the Terminal
+    /// or do we have to show the specified sights video.
+    SightSystemView::Type AllowedView;
+// TODO: Change name to IsTrackingEnabled for consistency
+    /// Indicates if LOS tracking should be enabled (true) or disabled (false).
+    /// Note: If not present then the Terminal is free to have tracking enabled or disabled.
+    M_Common::BooleanOptionalType EnableTracking;
+    /// The aiming mark center offset.
+    /// Note: If not present then the Terminal is free to set the offset to 0 (zero).
+    M_Common::PositionOptionalType AimingMarkCenterOffset;
+    /// Configures the Terminal in offline mode (true) or not (false).
+    M_Common::BooleanOptionalType IsOfflineModeEnabled;
+    /// Configures the menu as locked (true) or unlocked (false).
+    M_Common::BooleanOptionalType IsMenuLocked;
+  };
+
+
+  /// Contains the current state of a Terminal.
+  struct TerminalStateType
+  {
+    /// Operation status.
+    M_Common::OperationStatusType OperationStatus;
+    /// Brighness level in percent.
+    M_Common::PercentOptionalType BrightnessLevel;
+    /// Light Mode for Terminal.
+    LightModeOptionalType LightMode;
+    /// Indicates if blackout mode is enabled (true) or disabled (false).
+    M_Common::BooleanOptionalType IsBlackoutModeEnabled;
+    /// Indicates the Video source the Terminal is currently restricted to show.
+    /// Note: If empty then the Terminal is not restricted to a specific Video source.
+    string VideoChannelName;
+    /// Indicates which Sight View(s) the Terminal is currently allowed to show.
+    /// E.g. Is the SAS from the Panorama picture allowed to be shown in the Terminal
+    /// or do we have to show the specified sights video.
+    SightSystemView::Type AllowedView;
+// TODO: Change name to IsTrackingEnabled for consistency
+    /// Indicates if the Terminal is currently restricted to LOS tracking enabled (true) or disabled (false).
+    /// Note: If not present then the Terminal is free to have tracking enabled or disabled.
+    M_Common::BooleanOptionalType EnableTracking;
+    /// The aiming mark center offset.
+    /// Note: If not present then the Terminal is free to set the offset to 0 (zero).
+    M_Common::PositionOptionalType AimingMarkCenterOffset;
+    /// Indicates if the Terminal is in offline mode (true) or not (false).
+    /// Not present indicates not supported or unknown.
+    M_Common::BooleanOptionalType IsOfflineModeEnabled;
+    /// Indicates if the menu is locked (true) or unlocked (false).
+    /// Not present indicates not supported or unknown.
+    M_Common::BooleanOptionalType IsMenuLocked;
+    /// Indicates if the menu is shown (true) or not (false).
+    /// Not present indicates not supported or unknown.
+    M_Common::BooleanOptionalType IsMenuShown;
+    /// Currently active menu language.
+    string SelectedMenuLanguage;
+  };
+};
+
+#endif

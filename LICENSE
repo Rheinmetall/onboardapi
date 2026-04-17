@@ -1,0 +1,8 @@
+This project uses multiple licenses:
+
+- The .rmodel source files are licensed under EPL-2.0.
+  See LICENSE-EPL-2.0.txt for the full license text.
+
+- The pre-compiled runtime libraries (available in the Releases section) 
+  are licensed under a Custom EULA.
+  See EULA-RME-SDK-1.0.txt for the full license text.

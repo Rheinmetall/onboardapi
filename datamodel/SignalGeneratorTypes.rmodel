@@ -1,0 +1,90 @@
+// Copyright (c) 2026 Rheinmetall Electronics GmbH
+//
+// This program and the accompanying materials are made available under the
+// terms of the Eclipse Public License 2.0 which is available at
+// https://www.eclipse.org/legal/epl-2.0.
+//
+// SPDX-License-Identifier: EPL-2.0
+
+#include "CommonTypes.idl"
+
+
+/**
+ * Types used by the signal generator service and client.
+ */
+module M_SignalGenerator
+{
+  module WaveformFunctionKind
+  {
+    enum Type
+    {
+      /// Step input.
+      Step,
+
+      /// Ramp input.
+      Ramp,
+
+      /// Sine input.
+      Sine,
+
+      /// Linear frequency sweep input.
+      Linear_Sweep,
+
+      /// Logarithmic frequency sweep input.
+      Logarithmic_Sweep,
+
+      /// Bidirectional frequency sweep input.
+      Bidirectional_Sweep,
+
+      /// Pseudorandom binary sequence input.
+      Pseudorandom_Binary_Sequence
+    };
+  };
+
+
+  /**
+   * Contains parameters describing a specific signal waveform.
+   */
+  struct WaveformType
+  {
+    /// Duration of the signal to be generated [s].
+    M_Common::TimeSecondsType Duration;
+
+    /// Type of function for the signal.
+    WaveformFunctionKind::Type WaveformFunction;
+
+    /// Signal amplitude [-].
+    M_Common::AmplitudeScaledType Amplitude;
+
+    /// Signal (start) frequency [Hz].
+    M_Common::FrequencyHertzOptionalType StartFrequency;
+
+    /// Signal stop frequency in case of sweeps [Hz].
+    M_Common::FrequencyHertzOptionalType EndFrequency;
+
+    /// Signal phase [rad].
+    M_Common::AngleRadiansOptionalType Phase;
+
+    /// Order of the pseudorandom binary sequence.
+    M_Common::ULongOptionalType PrbsOrder;
+
+    /// Number of bits used for the pseudorandom binary sequence.
+    M_Common::ULongOptionalType PrbsBitCount;
+  };
+
+
+  /**
+   * Contains a data sample.
+   */
+  struct SampleType
+  {
+    /// Sample time [s].
+    M_Common::TimeSecondsType Time;
+
+    /// Sample amplitude [-].
+    M_Common::AmplitudeScaledType Amplitude;
+  };
+
+  /// List of SampleType.
+  typedef sequence<SampleType> SampleListType;
+};

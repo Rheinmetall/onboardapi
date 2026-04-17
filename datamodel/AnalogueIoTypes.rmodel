@@ -1,0 +1,151 @@
+// Copyright (c) 2026 Rheinmetall Electronics GmbH
+//
+// This program and the accompanying materials are made available under the
+// terms of the Eclipse Public License 2.0 which is available at
+// https://www.eclipse.org/legal/epl-2.0.
+//
+// SPDX-License-Identifier: EPL-2.0
+
+#include "CommonTypes.idl"
+
+
+/**
+ * Types used by the analogue input/output service and client.
+ */
+module M_AnalogueIo
+{
+  /// Logic level context.
+  module LogicLevelKind
+  {
+    /// Logic level enumeration.
+    enum Type
+    {
+      /// Signal is not or cannot be interpreted.
+      Unknown,
+
+      /// Signal is interpreted as logical low.
+      Low,
+
+      /// Signal is interpreted as logical high.
+      High
+    };
+  };
+
+  /// Optional LogicLevelKind.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<LogicLevelKind::Type, 1> LogicLevelKindOptionalType;
+
+
+  /**
+   * Contains information about absolute signal offset and bounds.
+   */
+  struct AbsoluteSignalCorridorType
+  {
+      /// Absolute offset [V].
+      M_Common::VoltageVoltsType Offset;
+
+      /// Absolute minimum level [V].
+      M_Common::VoltageVoltsType MinLevel;
+
+      /// Absolute maximum level [V].
+      M_Common::VoltageVoltsType MaxLevel;
+  };
+
+  /// Optional AbsoluteSignalCorridorType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<AbsoluteSignalCorridorType, 1> AbsoluteSignalCorridorOptionalType;
+
+
+  /**
+   * Contains information about scaled signal offset and bounds.
+   */
+  struct ScaledSignalCorridorType
+  {
+    /// Scaled offset [%].
+    M_Common::PercentType Offset;
+
+    /// Scaled minimum level [%].
+    M_Common::PercentType MinLevel;
+
+    /// Scaled maximum level [%].
+    M_Common::PercentType MaxLevel;
+  };
+
+  /// Optional ScaledSignalCorridorType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<ScaledSignalCorridorType, 1> ScaledSignalCorridorOptionalType;
+
+
+  /**
+   * Contains information about signal offset and bounds.
+   */
+  struct SignalCorridorType
+  {
+    /// Absolute signal corridor.
+    AbsoluteSignalCorridorOptionalType Absolute;
+
+    /// Scaled signal corridor.
+    ScaledSignalCorridorOptionalType Scaled;
+  };
+
+  /// Optional SignalCorridorType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<SignalCorridorType, 1> SignalCorridorOptionalType;
+
+
+  /**
+   * Contains information about an absolute analogue signal.
+   */
+  struct AbsoluteSignalType
+  {
+    /// Signal levels [V].
+    M_Common::VoltageVoltsListType Levels;
+
+    /// Logical high or low.
+    LogicLevelKindOptionalType State;
+
+    /// Time when the data was valid.
+    M_Common::TimeOptionalType TimeStamp;
+  };
+
+  /// Optional AbsoluteSignalType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<AbsoluteSignalType, 1> AbsoluteSignalOptionalType;
+
+
+  /**
+   * Contains information about a scaled analogue signal.
+   */
+  struct ScaledSignalType
+  {
+    /// Signal levels [%].
+    M_Common::PercentListType Levels;
+
+    /// Logical high or low.
+    LogicLevelKindOptionalType State;
+
+    /// Time when the data was valid.
+    M_Common::TimeOptionalType TimeStamp;
+  };
+
+  /// Optional ScaledSignalType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<ScaledSignalType, 1> ScaledSignalOptionalType;
+
+
+  /**
+   * Contains information about an analogue signal.
+   */
+  struct SignalType
+  {
+    /// Absolute signal.
+    AbsoluteSignalOptionalType Absolute;
+
+    /// Scaled signal.
+    ScaledSignalOptionalType Scaled;
+  };
+
+  /// Optional SignalType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<SignalType, 1> SignalOptionalType;
+};

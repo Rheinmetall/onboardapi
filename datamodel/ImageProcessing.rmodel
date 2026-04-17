@@ -1,0 +1,121 @@
+// Copyright (c) 2026 Rheinmetall Electronics GmbH
+//
+// This program and the accompanying materials are made available under the
+// terms of the Eclipse Public License 2.0 which is available at
+// https://www.eclipse.org/legal/epl-2.0.
+//
+// SPDX-License-Identifier: EPL-2.0
+
+#include "ImageProcessingTypes.idl"
+
+
+/**
+ * Interfaces used by image processing devices.
+ */
+module M_ImageProcessing
+{
+  /// Interface version number.
+  const string Version = "4.1.0";
+
+
+  /**
+   * Image processing service interface.
+   * Contains operations that a client can command the image processing service to perform.
+   */
+  interface IService
+  {
+    /**
+     * Set the interpolation method used for some of the image processing operations.
+     */
+    void ConfigInterpolation
+    (
+      /// Interpolation method.
+      in InterpolationKind::Type Interpolation
+    );
+
+    /**
+     * Instruct to drop frames using a specific scheme.
+     */
+    void ConfigFrameDrop
+    (
+      /// Frame drop setting.
+      in FrameDropType FrameDropMethod
+    );
+
+    /**
+     * Instruct to set the bitrate.
+     */
+    void ConfigBitrate
+    (
+      /// Bitrate [kb/s].
+      in M_Common::BitrateKiloBitsPerSecType Bitrate
+    );
+
+    /**
+     * Set region within an image, e.g. for cropping or to promote it to a region of interest.
+     */
+    void CmdSetRegion
+    (
+      /// Image region (offset and size).
+      in M_Common::ImageRegionType Region
+    );
+
+    /**
+     * Scale image.
+     */
+    void CmdScale
+    (
+      /// Image size after scaling.
+      in M_Common::PixelRectSizeType Size
+    );
+
+    /**
+     * Rotate image.
+     */
+    void CmdRotate
+    (
+      /// Angle used to rotate image [deg].
+      in M_Common::AngleDegreesType RotationAngle
+    );
+
+    /**
+     * Flip image.
+     */
+    void CmdFlip
+    (
+      /// Indicates whether to flip horizontally or vertically.
+      in FlipDirectionKind::Type FlipDirection
+    );
+  };
+
+
+  /**
+   * Image processing interface.
+   * Contains callback operations from the image processing service to the client.
+   */
+  interface IClient
+  {
+    /**
+     * Report the settings used for image processing.
+     */
+    void ReportImageProcessingSettings
+    (
+      /// Image processing settings.
+      in ImageProcessingSettingsType Settings
+    );
+
+    /**
+     * Report the current status of the image processing device.
+     */
+    void ReportImageProcessingStatus
+    (
+      /// Current status of the image processing device.
+      in ImageProcessingStatusType Status,
+
+      /// Indicates if the status is no longer available.
+      /// Note: This will always be set to true when a service has been shut down.
+      /// After this has been set to true, the status will no longer be available to late joiners.
+      in boolean IsRemoved
+    );
+  };
+};

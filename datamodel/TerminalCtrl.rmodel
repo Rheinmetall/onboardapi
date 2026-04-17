@@ -1,0 +1,86 @@
+// Copyright (c) 2026 Rheinmetall Electronics GmbH
+//
+// This program and the accompanying materials are made available under the
+// terms of the Eclipse Public License 2.0 which is available at
+// https://www.eclipse.org/legal/epl-2.0.
+//
+// SPDX-License-Identifier: EPL-2.0
+
+#include "TerminalCtrlTypes.idl"
+
+
+/**
+ * Interfaces used by the Terminal Control Service and Client.
+ * The Terminal Control Service can be used to control a Terminal host node,
+ * by commanding it to do things such as changing the display brightness.
+ */
+module M_TerminalCtrl
+{
+  /// Interface version number.
+  const string Version = "5.1.0";
+
+
+  /**
+   * Terminal Control Service interface.
+   * Contains operations that a client can command the Terminal Control Service to perform.
+   */
+  interface IService
+  {
+    /// Configures the state data that a Terminal should use.
+    void ConfigTerminalState
+    (
+      /// Current state data to be used by the Terminal.
+      in TerminalRequiredStateType State,
+
+      /// Indicates if the Terminal is no longer being commanded by the
+      /// Terminal Manager.
+      in boolean IsRemoved
+    );
+
+    /// Configures menu language.
+    void ConfigMenuLanguage
+    (
+      /// Menu language to select.
+      in string MenuLanguage
+    );
+
+    /// Cmd to force the Terminal to exit the current menu.
+    void CmdExitMenu();
+
+    /// Cmd to check if Terminal Control Service is alive.
+    /// If the Service is not available then an exception will thrown.
+    void CmdIsTerminalAlive();
+
+    /// Cmd to set terminal in blackout mode.
+    /// Blackout mode turns off all lighting for the complete terminal.
+    void CmdSetBlackoutMode
+    (
+      /// Indicates if blackout mode should be enabled (true) or disabled (false).
+      in boolean Enable
+    );
+  };
+
+
+  /// Terminal Manager Client interface.
+  /// Contains operations that a terminal can report to the the client(s)
+  /// such as current brighness.
+  interface IClient
+  {
+    /// Reports the static settings for the Terminal.
+    void ReportTerminalSettings
+    (
+      /// Settings data for the Terminal.
+      in TerminalSettingsType Settings
+    );
+
+    /// Reports the current state for the Terminal.
+    void ReportTerminalState
+    (
+      /// Current state of the applicable Terminal.
+      in TerminalStateType State,
+
+      /// Indicates if the Terminal is no longer running.
+      in boolean IsRemoved
+    );
+  };
+};

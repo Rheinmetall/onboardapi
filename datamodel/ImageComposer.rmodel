@@ -1,0 +1,96 @@
+// Copyright (c) 2026 Rheinmetall Electronics GmbH
+//
+// This program and the accompanying materials are made available under the
+// terms of the Eclipse Public License 2.0 which is available at
+// https://www.eclipse.org/legal/epl-2.0.
+//
+// SPDX-License-Identifier: EPL-2.0
+
+#include "CommonTypes.idl"
+#include "ImageComposerTypes.idl"
+
+
+/**
+ * An Image Composer service represents is used to configure view ports for video streams.
+ *
+@startuml "Image Composer Information"
+title Image Composer Information
+hide footbox
+
+== Startup ==
+Client <- Service: ReportImageComposerSettings(Settings)
+note over Service
+    On startup the Service always reports
+    the static settings information
+end note
+...
+
+== Configure viewports ==
+Client -> Service: ConfigViewports(ViewportList)
+Client <- Service: ReportViewports(ViewportList)
+note over Service
+    Service reports the list of 
+    configured viewports
+end note
+...
+
+== Status update ==
+Client <- Service: ReportImageComposerChannelStatus(KeySourceChannel, Status)
+
+@enduml
+ */
+module M_ImageComposer
+{
+  /// Interface version number.
+  const string Version = "2.1.0";
+
+
+  /**
+   * Image Composer Service interface.
+   * Contains operations that a client can command the Service to perform.
+   */
+  interface IService
+  {
+    /// Configure the layout of the viewports.
+    void ConfigViewports (
+      /// List of viewports to be used by the Service.
+      in ViewportListType ViewportList
+    );
+  };
+
+
+  /**
+   * Image Composer Client interface.
+   * Contains callback operations from the Service to the Client.
+   */
+  interface IClient
+  {
+    /// Report with static service settings.
+    /// This should be provided at startup and in the event of degraded functionality,
+    /// e.g. due to an internal failure.
+    void ReportImageComposerSettings (
+      /// Service settings data.
+      in ImageComposerSettingsType Settings
+    );
+
+    /// Report with the current status for a specified channel.
+    /// This will be continually updated every time a value is changed.
+    void ReportImageComposerChannelStatus (
+      /// Name of channel.
+      in string KeySourceChannel,
+      /// Status of the specified channel.
+      in ImageComposerChannelStatusType Status,
+      /// Indicates if the status is no longer available. 
+      /// Note: This will always be set to true when a service has been shut down.
+      /// After this has been set to true, the status will no longer be available to late joiners.
+      in boolean IsRemoved
+    );
+
+    /// Report with the currently configured viewports.
+    /// This will be continually updated every time a viewport is changed.
+    void ReportViewports (
+      /// List of the currently configured viewports.
+      in ViewportListType ViewportList
+    );
+  };
+};

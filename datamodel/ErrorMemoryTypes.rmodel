@@ -1,0 +1,82 @@
+// Copyright (c) 2026 Rheinmetall Electronics GmbH
+//
+// This program and the accompanying materials are made available under the
+// terms of the Eclipse Public License 2.0 which is available at
+// https://www.eclipse.org/legal/epl-2.0.
+//
+// SPDX-License-Identifier: EPL-2.0
+
+#include "CommonTypes.idl"
+
+module M_ErrorMemory
+{
+    /// Error class kind.
+  module ErrorClassKind
+  {
+    /// Errror class enumeration.
+    enum Type
+    {
+      /// Unknown
+      Undefined,
+
+      /// Warning -- a situation which warrants a warning was detected.
+      Warning,
+
+      /// Reduced performance -- an error was detected which results in reduced performance.
+      Reduced_Performance_Error,
+
+      /// Fatal error -- a failure was detected which results in complete loss of functionality.
+      Fatal_Error,
+
+      /// OK -- no failure was detected.
+      OK
+    };
+  };
+
+  /// Error indetification kind.
+  module ErrorIdentificationMethodKind
+  {
+    /// Error identification enumeration.
+    enum Type
+    {
+      /// PBIT
+      PBIT,
+
+      /// CBIT
+      CBIT,
+
+      /// FP
+      FP,
+
+      /// FL
+      FL
+    };
+  };
+  
+  /**
+   * Contains settings for a device.
+   */
+  struct ErrorEntryType
+  {
+    /// Timestamp of the error.
+    M_Common::TimeType Timestamp;
+
+    /// Code of the error.
+    string ErrorCode;
+
+    /// Class of the error.
+    ErrorClassKind::Type ErrorClass;
+
+    /// Source of the error.
+    string ErrorSource;
+
+    /// Identification method for the error.
+    ErrorIdentificationMethodKind::Type ErrorMethod;
+
+    /// ShortText
+    string ShortText;
+
+    /// LongText
+    string LongText;
+  };
+};

@@ -1,0 +1,287 @@
+// Copyright (c) 2026 Rheinmetall Electronics GmbH
+//
+// This program and the accompanying materials are made available under the
+// terms of the Eclipse Public License 2.0 which is available at
+// https://www.eclipse.org/legal/epl-2.0.
+//
+// SPDX-License-Identifier: EPL-2.0
+
+#ifndef _SENSOR_TYPES_IDL_
+#define _SENSOR_TYPES_IDL_
+
+
+#include "CommonTypes.idl"
+#include "LaserRangeFinderTypes.idl"
+#include "VideoTrackerTypes.idl"
+
+
+/**
+ * Interfaces used to handle a sensor.
+ */
+module M_Sensor
+{
+  /// Contains the sensor settings data.
+  struct SensorSettingsType
+  {
+    /// Type of sensor.
+    M_Common::SensorType TypeOfSensor;
+
+    /// Textual name of sensor.
+    string SensorName;
+
+    /// Textual name of sensor type.
+    string SensorTypeName;
+
+    /// Manufacturer of sensor.
+    string Manufacturer;
+
+    /// Indicates if the sensor can provide range for measurements/detections.
+    boolean IsDetectionRangeSupported;
+
+    /// Indicates if the sensor can provide size (height, width, range size) for measurements/detections.
+    boolean IsDetectionSizeSupported;
+
+    /// Indicates if the sensor is capable of tracking objects.
+    /// Note: If set to False then the ReportSensorTrack operation will never be called.
+    /// True = Sensor supports tracking
+    /// False = Sensor does NOT support tracking
+    boolean IsSensorTrackingSupported;
+
+    /// Indicates if a client can delete tracks with the CmdDeleteAllTracks and CmdDeleteTracks operations.
+    boolean IsDeleteSupported;
+
+    /// Indicates if a client can suppress detection from the sensor with the CmdDeactivateSensor operation.
+    boolean IsDeactivateSensorSupported;
+
+    /// Minimum range of the sensor.
+    M_Common::DistanceMetersOptionalType MinimumRange;
+
+    /// Maximum range of the sensor.
+    M_Common::DistanceMetersOptionalType MaximumRange;
+
+    /// Additional properties relating to the sensor.
+    /// Note: Properties are defined generically to enable non-essential additional
+    /// information to be provided without impacting the Data Model.
+    M_Common::PropertyListType AdditionalInfo;
+  };
+
+
+  /// Contains the sensor status data.
+  struct SensorStatusType
+  {
+    /// Operation status.
+    M_Common::OperationStatusType OperationStatus;
+
+    /// Position of the sensor.
+    M_Common::PositionOptionalType SensorPosition;
+
+    /// Indicates if the sensor is deactivated, i.e. detections from the sensor are suppressed.
+    boolean IsDeactivated;
+  };
+
+
+  /**
+   * Wave detection context.
+   */
+  module WaveDetectionKind
+  {
+    /// Wave detection enumeration.
+    enum Type
+    {
+      /// A Mach wave has been detected.
+      MachWave,
+
+      /// A source wave has been detected.
+      SourceWave,
+
+      /// A Mach and a source wave have been detected together (fusion result).
+      MachWave_SourceWave,
+
+      /// A Mach wave has been detected, and there is certainty that a source wave will not follow (fusion result).
+      MachWave_No_SourceWave
+    };
+  };
+
+
+  /**
+   * Characteristics of a detected Mach or source wave.
+   */
+  struct WaveType
+  {
+    /// Azimuth angle [deg].
+    M_Common::AngleDegreesType Azimuth;
+
+    /// Elevation angle [deg].
+    M_Common::AngleDegreesOptionalType Elevation;
+
+    /// Measured amplitude [dB].
+    M_Common::AmplitudeDecibelsOptionalType Amplitude;
+
+    /// Confidence [%].
+    M_Common::PercentOptionalType Confidence;
+
+    /// Time of detection.
+    M_Common::TimeOptionalType DetectionTime;
+  };
+
+  /// Optional WaveType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<WaveType, 1> WaveOptionalType;
+
+
+  /**
+   * Specific information to an acoustic detection.
+   */
+  struct AcousticDetectionType
+  {
+    /// Combination of detected wave types.
+    WaveDetectionKind::Type WaveDetection;
+
+    /// Characteristics of detected Mach wave.
+    WaveOptionalType MachWave;
+
+    /// Characteristics of detected source wave.
+    WaveOptionalType SourceWave;
+
+    /// Time difference between Mach and source wave.
+    M_Common::TimeIntervalOptionalType TimeBetweenMachAndSourceWave;
+
+    /// The width of the detected wave [m].
+    M_Common::DistanceMetersOptionalType WaveWidth;
+
+    /// Trajectory distance [m].
+    M_Common::DistanceMetersOptionalType TrajectoryDistance;
+
+    /// Distance of the sound source [m].
+    M_Common::DistanceMetersOptionalType SourceDistance;
+
+    /// Number of detections that are aggregated into a single message.
+    M_Common::ULongOptionalType NumberOfDetections;
+
+    /// Azimuth 1 angle [deg].
+    M_Common::AngleDegreesOptionalType Azimuth1;
+
+    /// Azimuth 2 angle [deg].
+    M_Common::AngleDegreesOptionalType Azimuth2;
+  };
+
+  /// Optional AcousticDetectionType.
+  typedef sequence<AcousticDetectionType, 1> AcousticDetectionOptionalType;
+
+
+  /**
+   * Contains measurement parameters of a flash region within a video stream.
+   */
+  struct FlashDetectionType
+  {
+    /// Position of the representative pixel of the flash.
+    M_Common::PixelPoint2DType Position;
+
+    /// Size of the flash.
+    M_Common::PixelRectSizeType Size;
+
+    /// Time when the flash occurred.
+    M_Common::TimeType Timestamp;
+
+    /// Frame index to augment time resolution.
+    M_Common::ULongOptionalType FrameIndex;
+
+    /// Time duration of the flash [s].
+    M_Common::TimeSecondsType FlashDuration;
+
+    /// Measurement intensity [%].
+    M_Common::PercentType ScaledIntensity;
+
+    /// Measurement intensity rate [%].
+    M_Common::PercentType ScaledIntensityRate;
+
+    /// Measurement confidence [%].
+    M_Common::PercentType Confidence;
+
+    /// Type of flash.
+    long FlashType;
+  };
+
+  /// Optional FlashDetectionType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<FlashDetectionType, 1> FlashDetectionOptionalType;
+
+
+  /// Context for classifications of laser threats.
+  module LwsClassification
+  {
+    /// Enumeration for classifications of laser threats.
+    enum Type
+    {
+      /// The laser detection has not been classified, yet.
+      Initial,
+
+      /// The laser detection is currently being classified.
+      In_Progress,
+
+      /// The system has not been able to classify the detection.
+      Unknown,
+
+      /// The laser detection corresponds to a single pulse.
+      Single_Pulse,
+
+      /// The laser detection corresponds to a multiple pulse.
+      Multiple_Pulse,
+
+      /// The laser detection corresponds to a beam rider.
+      Beam_Rider,
+
+      /// The laser detection corresponds to a designator.
+      Designator
+    };
+  };
+
+  /// Optional LwsClassification.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<LwsClassification::Type, 1> LwsClassificationOptionalType;
+
+
+  /// Contains data for an object detected or tracked by a sensor.
+  struct SensorDetectionType
+  {
+    /// The type of detection which is the source of the object.
+    M_Common::DetectionType TypeOfDetection;
+
+    /// The identity of the object.
+    M_Common::IdentityType Identity;
+
+    /// Classification of the object.
+    M_Common::ObjectClassificationListType Classification;
+
+    /// Position of the object, resolved in various coordinate frames.
+    M_Common::PositionListType ObjectPositionList;
+
+    /// Linear velocity of the object, resolved in various coordinate frames.
+    M_Common::LinearVelocityListType ObjectVelocityList;
+
+    /// Object dimensions.
+    M_Common::ObjectDimensionsOptionalType ObjectDimensions;
+
+    /// List of range measurement data (in case a laser range finder reported the measurement).
+    M_LaserRangeFinder::RangeMeasurementListType RangeMeasurementList;
+
+    /// Acoustic detection information (in case an acoustic sensor reported the object).
+    AcousticDetectionOptionalType AcousticDetection;
+
+    /// Flash detection information (in case a flash was detected in a video stream).
+    FlashDetectionOptionalType FlashDetection;
+
+    /// Laser beam classification (in case a laser warning system reported the measurement).
+    LwsClassificationOptionalType LwsClassification;
+
+    /// Video track information (in case a video tracker reported the object).
+    M_VideoTracker::VtObjectOptionalType VideoTrackedObject;
+
+    /// Additional properties relating to the tracked object.
+    /// Note: Properties are defined generically to enable non-essential additional
+    /// information to be provided without impacting the Data Model.
+    M_Common::PropertyListType AdditionalInfo;
+  };
+};
+
+#endif

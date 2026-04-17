@@ -1,0 +1,114 @@
+// Copyright (c) 2026 Rheinmetall Electronics GmbH
+//
+// This program and the accompanying materials are made available under the
+// terms of the Eclipse Public License 2.0 which is available at
+// https://www.eclipse.org/legal/epl-2.0.
+//
+// SPDX-License-Identifier: EPL-2.0
+
+#include "CommonTypes.idl"
+
+
+/**
+ * Interfaces and types used by the Replay Control Service and Client.
+ */
+module M_ReplayCtrl
+{
+  /// Indicates how to replay a video channel.
+  module ReplayLoopMode
+  {
+    /// Loop mode enumeration.
+    enum Type
+    {
+      /// Does not restart the replay channel after finishing.
+      No_Loop,
+      /// Lets the replay channel start at the beginning after finishing.
+      Infinite_Loop
+    };
+  };
+
+  /// Indicates how to start replaying a video channel.
+  module ReplayStartMode
+  {
+    /// Loop mode enumeration.
+    enum Type
+    {
+      /// Load video channel and start replay immediately.
+      Play,
+      /// Load video channel for replay, but wait for start or step commands to replay.
+      Pause
+    };
+  };
+
+  /// Indicates which replay channels can be used to play back a source video channel.
+  struct SupportedReplayChannelsType
+  {
+    /// The video channel identifying the video source of a recording.
+    string SourceVideoChannel;
+    /// List of names for supported replay channels for the source video.
+    /// These are the names of the configured video channels which can be used to replay the source video.
+    /// A name from this list will be provided in the CmdStartReplay call together with the source video
+    /// channel name.
+    M_Common::StringListType ReplayChannelList;
+  };
+
+  /// List of ReplayChannelInfoType.
+  typedef sequence<SupportedReplayChannelsType> SupportedReplayChannelsListType;
+
+
+  /// Contains static settings data for the Replay Service.
+  struct ReplaySettingsType
+  {
+    /// Indicates if the Service supports starting and stopping replaying of streams (true) or not (false).
+    boolean IsStartStopReplaySupported;
+    /// Indicates if the Service supports pausing and resuming replaying of streams (true) or not (false).
+    boolean IsPauseResumeReplaySupported;
+    /// Indicates if the Service supports single step replaying of streams (true) or not (false).
+    boolean IsStepReplaySupported;
+    /// Supported replay channels which can be used to play back a specific source video channel.
+    SupportedReplayChannelsListType SupportedReplayChannels;
+  };
+
+
+  /// Contains information about a replayable timeline for a specific source video channel.
+  struct ReplayTimelineType
+  {
+    /// The video channel identifying the video source of the recording.
+    string SourceVideoChannel;
+    /// List of replayable intervals for the source channel.
+    M_Common::TimeIntervalListType IntervalList;
+  };
+
+  /// List of ReplayTimelineType.
+  typedef sequence<ReplayTimelineType> ReplayTimelineListType;
+
+
+  /// Indicates which replay channel is used to play back a source video channel.
+  struct ReplayChannelInfoType
+  {
+    /// The video channel identifying the video source of the recording.
+    string SourceVideoChannel;
+    /// The video channel identifying the replayed stream (target channel).
+    string ReplayVideoChannel;
+  };
+
+  /// List of ReplayChannelInfoType.
+  typedef sequence<ReplayChannelInfoType> ReplayChannelInfoListType;
+
+
+  /// Contains current status data for the Replay Service.
+  struct ReplayStatusType
+  {
+    /// List of timelines (one for each source video channel) which can be replayed.
+    ReplayTimelineListType ReplayTimelines;
+    /// List of video channel names for recordings currently being active for replay.
+    ReplayChannelInfoListType InProgressReplays;
+    /// List of video channel names (target channels) for recordings currently being replayed.
+    /// In case of single step, the video channel should toggle between Running and Paused.
+    M_Common::StringListType RunningReplayChannels;
+    /// List of video channel names (target channels) for recordings currently being paused.
+    M_Common::StringListType PausedReplayChannels;
+    /// List of video channel names (target channels) for recordings currently being in loop mode.
+    M_Common::StringListType LoopingReplayChannels;
+  };
+};

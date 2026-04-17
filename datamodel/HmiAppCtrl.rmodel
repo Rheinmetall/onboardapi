@@ -1,0 +1,238 @@
+// Copyright (c) 2026 Rheinmetall Electronics GmbH
+//
+// This program and the accompanying materials are made available under the
+// terms of the Eclipse Public License 2.0 which is available at
+// https://www.eclipse.org/legal/epl-2.0.
+//
+// SPDX-License-Identifier: EPL-2.0
+
+#include "CommonTypes.idl"
+#include "HmiAppCtrlTypes.idl"
+
+
+/**
+ * An HMI application control service manages external application views for the HMI.
+ *
+@startuml "HMI Application Control Information"
+title HMI Application Control Information
+hide footbox
+
+== Startup ==
+Client <- Service: ReportView(KeyViewId, ViewDesc)
+note over Service
+    On startup the Service always reports
+    the configured views
+end note
+...
+
+== Dynamically configure a view ==
+Client -> Service: CmdSetView(ViewId, ViewDesc)
+Client <- Service: ReportView(KeyViewId, ViewDesc)
+...
+
+== Activate view ==
+Client -> Service: CmdActivateView(ViewId)
+
+@enduml
+ */
+module M_HmiAppCtrl
+{
+  /// Interface version number.
+  const string Version = "4.5.0";
+
+
+  /**
+   * Service interface.
+   * Contains operations that a client can command the HMI application control service to perform.
+   */
+  interface IService
+  {
+    /**
+     * Configure rules for UI display elements.
+     */
+    void ConfigView
+    (
+      /// Identifies the view.
+      in string KeyViewId,
+
+      /// Configuration settings for a view.
+      in ViewDescriptionType ViewDesc,
+
+      /// Indicates if the view should be removed by the service (true) or not (false).
+      /// Note: After this has been set to true, the view will no longer be available to late joiners.
+      in boolean IsRemoved
+    );
+
+    /**
+     * Cmd to activate an existing view.
+     */
+    void CmdActivateView
+    (
+      /// Identifies the view which should be activated.
+      in string ViewId
+    );
+
+    /**
+     * Register a new app during runtime.
+     * This informs the Service about a new app which should be handled.
+     * Note: The registered app will NOT be saved in the configuration of the Service.
+     * This only registers the app, it does NOT start it.
+     */
+    void CmdRegisterApp
+    (
+      /// Identifies the app.
+      in string AppId,
+
+      /// Configuration settings for an app.
+      in ApplicationDescriptionType AppDesc
+    );
+
+    /**
+     * Install a new app during runtime.
+     * This informs the Service about a new app which should be handled and also saves the
+     * new app persistently in the configuration of the Service so that it is available after
+     * a restart.
+     * Note: This only installs the app, it does NOT start it.
+     */
+    void CmdInstallApp
+    (
+      /// Identifies the app.
+      in string AppId,
+
+      /// Configuration settings for an app.
+      in ApplicationDescriptionType AppDesc
+    );
+
+    /**
+     * Start the app with the specified ID.
+     */
+    void CmdRunApp
+    (
+      /// Identifies the managed app which should be started.
+      in string AppId
+    );
+
+    /**
+     * Switch to the application with the specified ID.
+     */
+    void CmdSwitchToApp
+    (
+      /// Identifies the managed application which should be switched to.
+      in string AppId
+    );
+
+    /**
+     * Terminate the app with the specified ID.
+     */
+    void CmdTerminateApp
+    (
+      /// Identifies the running app which should be terminated.
+      in string AppId
+    );
+    
+    /**
+     * Restarts the app with the specified ID.
+     */
+    void CmdRestartApp
+    (
+      /// Identifies the running app which should be restarted.
+      in string AppId
+    );
+
+    /**
+     * Unintall the managed app with the specified ID.
+     * This removed the app from the configuration in the Service so that it is no longer
+     * available after a restart.
+     * Note: This only removes the app from the configuration, it does NOT terminate the app
+     * if it is running.
+     */
+    void CmdUninstallApp
+    (
+      /// Identifies the managed app which should be uninstalled.
+      in string AppId
+    );
+
+    /**
+     * Unregister the managed app with the specified ID.
+     * This removed the app from the current runtime configuration in the Service.
+     * The app may be termiated.
+     */
+    void CmdUnregisterApp
+    (
+      /// Identifies the managed app which should be unregistered.
+      in string AppId
+    );
+
+    /**
+     * Cmd to activate (true) or deactivate (false) a Context.
+     */
+    void CmdActivateContext
+    (
+      /// Context name.
+      in string ContextName,
+
+      /// Indicates if the Context should be activated (true) or deactivated (false).
+      in boolean IsActive
+    );
+  };
+
+
+  /**
+   * Client interface.
+   * Contains operations reported by a HMI application control service.
+   */
+  interface IClient
+  {
+    /**
+     * Reports a view.
+     */
+    void ReportView
+    (
+      /// Identifies the view.
+      in string KeyViewId,
+
+      /// Configuration settings for the view.
+      in ViewDescriptionType ViewDesc,
+
+      /// Indicates if the payload is no longer available
+      /// Note: This will always be set to true when the instance has been shut down
+      /// After this has been set to true, the payload will no longer be available to late joiners.
+      in boolean IsRemoved
+    );
+
+    /**
+     * Reports the list of the managed apps.
+     */
+    void ReportManagedApps
+    (
+      /// List of managed apps.
+      in ApplicationDescriptionListType AppList
+    );
+
+    /**
+     * Reports the current state of an app.
+     */
+    void ReportAppState
+    (
+      /// Identifies the app.
+      in string KeyAppId,
+
+      /// Status information for the app.
+      in ApplicationStateType AppState,
+
+      /// Indicates if the payload is no longer available
+      /// Note: This will always be set to true when the instance has been shut down
+      /// After this has been set to true, the payload will no longer be available to late joiners.
+      in boolean IsRemoved
+    );
+
+    /**
+     * Reports the current active Contexts.
+     */
+    void ReportActiveContexts
+    (
+      /// List of currently active Contexts.
+      in M_Common::StringListType ContextNameList
+    );
+  };
+};

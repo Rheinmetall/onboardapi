@@ -1,0 +1,80 @@
+// Copyright (c) 2026 Rheinmetall Electronics GmbH
+//
+// This program and the accompanying materials are made available under the
+// terms of the Eclipse Public License 2.0 which is available at
+// https://www.eclipse.org/legal/epl-2.0.
+//
+// SPDX-License-Identifier: EPL-2.0
+
+#include "CommonTypes.idl"
+#include "FileTransferTypes.idl"
+
+
+/**
+ * Interfaces and types used by the FileTransfer Service and Client.
+ */
+module M_FileTransfer
+{
+  /// Interface version number.
+  const string Version = "1.2.0";
+
+
+  /**
+   * Service interface.
+   * Contains operations that a client can command the FileTransfer Service to perform.
+   */
+  interface IService
+  {
+    /// Start the file transfer.
+    void CmdStartFileTransfer (
+      /// The id of the transfer.
+      in string KeyId,
+
+      /// The file information of the transfer.
+      in FileTransferInfoType FileTransferInfo
+    );
+
+    /// Cancel the file transfer.
+    void CmdCancelFileTransfer (
+      /// The id of the transfer.
+      in string KeyId
+    );
+
+    /// Pause the file transfer.
+    void CmdPauseFileTransfer (
+      /// The id of the transfer.
+      in string KeyId
+    );
+
+    /// Resume the file transfer.
+    void CmdResumeFileTransfer (
+      /// The id of the transfer.
+      in string KeyId
+    );
+  };
+
+
+  /**
+   * Client interface.
+   * Contains callback operations from the FileTransfer Service to the Client.
+   */
+  interface IClient
+  {
+    /// Current status data for the service which are dynamically updated on change.
+    void ReportFileTransferStatus (
+      /// The id of the status.
+      in string KeyId,
+
+      /// The current status of the file transfer.
+      in FileTransferStatusType Status,
+
+      /// Optional: The file transfer information.
+      in FileTransferInfoOptionalType FileTransferInfo,
+
+      /// Indicates if the payload is no longer available
+      /// Note: This will always be set to true when the instance has been shut down
+      /// After this has been set to true, the payload will no longer be available to late joiners.
+      in boolean IsRemoved
+    );
+  };
+};

@@ -1,0 +1,67 @@
+// Copyright (c) 2026 Rheinmetall Electronics GmbH
+//
+// This program and the accompanying materials are made available under the
+// terms of the Eclipse Public License 2.0 which is available at
+// https://www.eclipse.org/legal/epl-2.0.
+//
+// SPDX-License-Identifier: EPL-2.0
+
+#include "CommonTypes.idl"
+
+
+/**
+ * Interfaces used by the ImageFusion Service and Client.
+ */
+module M_ImageFusion
+{
+  /// Contains the Image Fusion service settings data.
+  struct ImageFusionSettingsType
+  {
+    /// Indicates if CmdFuseChannels can be called from a Client.
+    boolean IsFuseChannelsSupported;
+
+    /// List of supported image fusion methods.
+    M_Common::StringListType SupportedMethodList;
+
+    /// List of supported video channels which can be used for image fusion.
+    M_Common::StringListType SupportedChannelList;
+
+    /// Additional properties for the Service.
+    /// Note: Properties are defined generically to enable non-essential additional
+    /// information to be provided without impacting the Data Model.
+    M_Common::PropertyListType AdditionalInfo;
+  };
+
+
+  /// Contains information about an image fusion consisting of two channels.
+  struct FusedChannelType
+  {
+    /// Name of method.
+    string Method;
+
+    /// Name of primary video channel (Example: "Infrared" or "Daylight")
+    string PrimaryChannelName;
+
+    /// Name of secondary video channel (Example: "Infrared" or "Daylight")
+    string SecondaryChannelName;
+
+    /// Level of primary channel in percent.
+    /// Note: Not present indicates automatically determined level.
+    M_Common::PercentOptionalType PrimaryChannelLevel;
+  };
+
+  /// Optional FusedChannelType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<FusedChannelType, 1> FusedChannelOptionalType;
+
+
+  /// Contains the Image Fusion service status data.
+  struct ImageFusionStatusType
+  {
+    /// Information about a current image fusion consisting of two channels.
+    FusedChannelOptionalType FusedChannel;
+
+    /// Indicates whether fusion ratio among channels is automatic or not.
+    boolean IsAuto;
+  };
+};

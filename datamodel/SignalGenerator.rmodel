@@ -1,0 +1,164 @@
+// Copyright (c) 2026 Rheinmetall Electronics GmbH
+//
+// This program and the accompanying materials are made available under the
+// terms of the Eclipse Public License 2.0 which is available at
+// https://www.eclipse.org/legal/epl-2.0.
+//
+// SPDX-License-Identifier: EPL-2.0
+
+#include "SignalGeneratorTypes.idl"
+
+
+/**
+ * Interfaces used by the signal generator service and client.
+ */
+module M_SignalGenerator
+{
+  /// Interface version number.
+  const string Version = "1.1.0";
+
+
+  /**
+   * Signal generator service interface.
+   * Contains operations that a client can command the signal generator service to perform.
+   */
+  interface IService
+  {
+    /**
+     * Set state of the signal generator.
+     */
+    void ConfigGeneratorState
+    (
+      /// Signal generator state.
+      in unsigned long State
+    );
+
+    /**
+     * Set operation mode of the controller.
+     */
+    void ConfigControllerOperationMode
+    (
+      /// Controller mode.
+      in unsigned long Mode
+    );
+
+    /**
+     * Set control mode.
+     */
+    void ConfigControlMode
+    (
+      /// Control mode.
+      in unsigned long Mode
+    );
+
+    /**
+     * Set test parameters.
+     */
+    void ConfigTestSetup
+    (
+      /// Test mode.
+      in unsigned long TestMode,
+
+      /// Axis state (and identifier).
+      in unsigned long AxisCode,
+
+      /// Source identifier.
+      in unsigned long SourceId,
+
+      /// Sensor identifiers.
+      in M_Common::ULongListType SensorIdList
+    );
+
+    /**
+     * Set waveform to be generated.
+     */
+    void ConfigWaveform
+    (
+      /// Waveform.
+      in WaveformType Waveform
+    );
+
+    /**
+     * Set amplitude mode and scaling.
+     */
+    void ConfigAmplitudeScaling
+    (
+      /// Scaling mode.
+      in unsigned long Mode,
+
+      /// Samples.
+      in SampleListType SampleList
+    );
+  };
+
+
+  /**
+   * Signal generator client interface.
+   * Contains callback operations from the signal generator service to the client.
+   */
+  interface IClient
+  {
+    /**
+     * Report generator state.
+     */
+    void ReportGeneratorState
+    (
+      /// Signal generator state.
+      in unsigned long GeneratorState
+    );
+
+    /**
+     * Report controller operation mode.
+     */
+    void ReportControllerOperationMode
+    (
+      /// Controller mode.
+      in unsigned long Mode
+    );
+
+    /**
+     * Report control mode.
+     */
+    void ReportControlMode
+    (
+      /// Control mode.
+      in unsigned long Mode
+    );
+
+    /**
+     * Report test mode.
+     */
+    void ReportTestMode
+    (
+      /// Test mode.
+      in unsigned long TestMode
+    );
+
+    /**
+     * Report test axis.
+     */
+    void ReportTestAxis
+    (
+      /// Axis state (and identifier).
+      in unsigned long AxisCode
+    );
+
+    /**
+     * Report test source.
+     */
+    void ReportTestSource
+    (
+      /// Source identifier.
+      in unsigned long SourceId
+    );
+
+    /**
+     * Report sensor output.
+     */
+    void EventSensorOutput
+    (
+      /// Sensor values.
+      in M_Common::DoubleListType Values
+    );
+  };
+};

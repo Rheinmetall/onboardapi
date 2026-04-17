@@ -1,0 +1,95 @@
+// Copyright (c) 2026 Rheinmetall Electronics GmbH
+//
+// This program and the accompanying materials are made available under the
+// terms of the Eclipse Public License 2.0 which is available at
+// https://www.eclipse.org/legal/epl-2.0.
+//
+// SPDX-License-Identifier: EPL-2.0
+
+#include "LanguageManagerTypes.idl"
+
+
+/**
+ * Interfaces used by the language manager service and client.
+ */
+module M_LanguageManager
+{
+  /// Interface version number.
+  const string Version = "2.1.0";
+
+
+  /**
+   * Language manager service interface.
+   * Contains operations that a client can command the language manager service to perform.
+   */
+  interface IService
+  {
+    /**
+     * Set the desired language.
+     */
+    void ConfigLanguage
+    (
+      /// Identifies a specific subsystem, if any.
+      in string KeySubsystem,
+
+      /// Language to be used in the subsystem.
+      in LanguageType Language,
+
+      /// Indicates if the payload is no longer available
+      /// Note: This will always be set to true when the instance has been shut down
+      /// After this has been set to true, the payload will no longer be available to late joiners.
+      in boolean IsRemoved
+    );
+  };
+
+
+  /**
+   * Language manager client interface.
+   * Contains callback operations from the language manager service to the client.
+   */
+  interface IClient
+  {
+    /**
+     * Report static settings.
+     * This should be provided at startup and in the event of degraded functionality,
+     * e.g. due to an internal failure.
+     */
+    void ReportLanguageManagerSettings
+    (
+      /// Settings of the language manager.
+      in LanguageManagerSettingsType Settings
+    );
+
+    /**
+     * Report current status.
+     */
+    void ReportLanguageManagerStatus
+    (
+      /// Current status of the language manager.
+      in LanguageManagerStatusType Status,
+
+      /// Indicates if the status is no longer available.
+      /// Note: This will always be set to true when a service has been shut down.
+      /// After this has been set to true, the status will no longer be available to late joiners.
+      in boolean IsRemoved
+    );
+
+    /**
+     * Report translations of specified items.
+     */
+    void ReportTranslations
+    (
+      /// The text in the default language to be translated into other languages.
+      /// Note: This field serves at the same time as a lookup key for the translation tables.
+      in string KeyDefaultLanguageText,
+
+      /// Translated texts.
+      in TextListType Translations,
+
+      /// Indicates if the payload is no longer available
+      /// Note: This will always be set to true when the instance has been shut down
+      /// After this has been set to true, the payload will no longer be available to late joiners.
+      in boolean IsRemoved
+    );
+  };
+};

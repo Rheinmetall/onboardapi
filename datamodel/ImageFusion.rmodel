@@ -1,0 +1,122 @@
+// Copyright (c) 2026 Rheinmetall Electronics GmbH
+//
+// This program and the accompanying materials are made available under the
+// terms of the Eclipse Public License 2.0 which is available at
+// https://www.eclipse.org/legal/epl-2.0.
+//
+// SPDX-License-Identifier: EPL-2.0
+
+#include "CommonTypes.idl"
+#include "ImageFusionTypes.idl"
+
+
+/**
+ * An Image Fusion service is used to blend two video channels together.
+ *
+@startuml "Image Fusion Information"
+title Image Fusion Information
+hide footbox
+
+== Startup ==
+Client <- Service: ReportImageFusionSettings(Settings)
+note over Service
+    On startup the Service always reports
+    the static settings information
+end note
+Client <- Service: ReportImageFusionStatus(Status, IsRemoved=false)
+note over Service
+    Service always reports the initial 
+    status with the IsRemoved flag set
+    to false
+end note
+...
+
+== Start channel fusion ==
+Client -> Service: CmdFuseChannels(Method, PrimaryChannelName, SecondaryChannelName)
+Client <- Service: ReportImageFusionStatus(Status, IsRemoved=false)
+note over Service
+    Service reports the updated
+    status
+end note
+...
+
+== Stop channel fusion ==
+Client -> Service: CmdDisableFuseChannels(PrimaryChannelName, SecondaryChannelName)
+Client <- Service: ReportImageFusionStatus(Status, IsRemoved=false)
+note over Service
+    Service reports the updated
+    status
+end note
+...
+
+== Shutdown ==
+Client <- Service: ReportImageFusionStatus(Status, IsRemoved=true)
+note over Service
+    On service shutdown the previously reported
+    status is automatically removed. This is
+    used as an indication that the Service
+    is no longer running
+end note
+
+@enduml
+ */
+module M_ImageFusion
+{
+  /// Interface version number.
+  const string Version = "5.1.0";
+  
+  
+  /**
+   * Image Fusion Service interface.
+   * Contains operations that a client can command the Service to perform.
+   */
+  interface IService
+  {
+    /// Fuse the image from the specified primary video channel with the specified secondary channel.
+    void ConfigFuseChannels
+    (
+      /// Name of method used to fuse channels.
+      in string Method,
+
+      /// Name of primary video channel (Example: "Infrared" or "Daylight")
+      in string PrimaryChannelName,
+
+      /// Name of secondary video channel (Example: "Infrared" or "Daylight")
+      in string SecondaryChannelName,
+
+      /// Level of primary channel in percent used for image fusion.
+      /// Note: Not present indicates automatically determined level.
+      in M_Common::PercentOptionalType PrimaryChannelLevel
+    );
+  };
+  
+  
+  /**
+   * Image Fusion Client interface.
+   * Contains callback operations from the Service to the Client.
+   */
+  interface IClient
+  {
+    /// Report with static service settings.
+    /// This should be provided at startup and in the event of degraded functionality,
+    /// e.g. due to an internal failure.
+    void ReportImageFusionSettings
+    (
+      /// Service settings data.
+      in ImageFusionSettingsType Settings
+    );
+    
+    /// Report with the current service status.
+    /// This will be continually updated every time a value is changed.
+    void ReportImageFusionStatus
+    (
+      /// Current status data for the service.
+      in ImageFusionStatusType Status,
+
+      /// Indicates if the status is no longer available. 
+      /// Note: This will always be set to True when a Service has been shutdown.
+      /// After this has been set to True the status will no longer be available to late joiners.
+      in boolean IsRemoved
+    );
+  };
+};

@@ -1,0 +1,310 @@
+// Copyright (c) 2026 Rheinmetall Electronics GmbH
+//
+// This program and the accompanying materials are made available under the
+// terms of the Eclipse Public License 2.0 which is available at
+// https://www.eclipse.org/legal/epl-2.0.
+//
+// SPDX-License-Identifier: EPL-2.0
+
+#include "CommonTypes.idl"
+
+/**
+ * Types used by the mission control service and client.
+ */
+module M_MissionCtrl
+{
+  /**
+   * Task category context.
+   */
+  module TaskCategoryKind
+  {
+    /// Task category enumeration.
+    enum Type
+    {
+      /// Undefined/unknown.
+      Undefined,
+
+      /// Connect.
+      Connect,
+
+      /// Disconnect.
+      Disconnect,
+
+      /// Arm.
+      Arm,
+
+      /// Disarm.
+      Disarm,
+
+      /// Fire.
+      Fire,
+
+      /// Observe.
+      Observe,
+
+      /// Let vehicle ascend.
+      Climb,
+
+      /// Let vehicle descend.
+      Descend,
+
+      /// Perform vehicle takeoff.
+      Takeoff,
+
+      /// Perform vehicle landing.
+      Land,
+
+      /// Reboot.
+      Reboot,
+
+      /// Shutdown.
+      Shutdown,
+
+      /// Loiter around a specified position.
+      Loiter,
+
+      /// Return to a specified position.
+      Return,
+
+      /// Follow a specified entity.
+      Follow,
+
+      /// Stop current motion/action.
+      Stop,
+
+      /// Resume the stopped motion/action.
+      Resume
+    };
+  };
+
+  /// Optional TaskCategoryKind.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<TaskCategoryKind::Type, 1> TaskCategoryOptionalType;
+
+
+  /**
+   * Contains a generic task as different representations to choose from.
+   * Note: Both sides of an interface using this structure should mutually agree upon the representation to use.
+   */
+  struct TaskType
+  {
+    /// Task expressed as enumerated value.
+    TaskCategoryOptionalType EnumeratedValue;
+
+    /// Task expressed as integer value.
+    M_Common::ULongOptionalType IntegerValue;
+
+    /// Task expressed as textual value.
+    M_Common::StringOptionalType TextualValue;
+
+    /// Task expressed as list of parameters.
+    M_Common::PropertyListType AdditionalInfo;
+  };
+
+  /// Optional TaskType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<TaskType, 1> TaskOptionalType;
+
+  /// List of TaskType.
+  typedef sequence<TaskType> TaskListType;
+
+
+  /**
+   * Contains waypoint data.
+   */
+  struct WaypointType
+  {
+    /// Waypoint position.
+    M_Common::PositionType Position;
+
+    /// Desired attitude at waypoint.
+    M_Common::AttitudeOptionalType Attitude;
+
+    /// Desired linear velocity at waypoint.
+    M_Common::LinearVelocityOptionalType LinearVelocity;
+
+    /// Absolute point in time of the desired waypoint arrival.
+    M_Common::UtcOptionalType AbsoluteArrivalTime;
+
+    /// Desired time until arrival [s].
+    M_Common::TimeSecondsOptionalType TimeUntilArrival;
+
+    /// Time of the desired waypoint departure.
+    M_Common::UtcOptionalType DepartureTime;
+
+    /// Desired residence time interval [s].
+    M_Common::TimeSecondsOptionalType ResidenceTime;
+
+    /// This position contains the actual position of interest if it differs from the waypoint.
+    /// Can be used to let sight look at this position while being at waypoint.
+    M_Common::PositionOptionalType PositionOfInterest;
+  };
+
+  /// Optional WaypointType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<WaypointType, 1> WaypointOptionalType;
+
+
+  /**
+   * Contains commanded action data.
+   */
+  struct CommandedActionType
+  {
+    /// Task to be performed.
+    /// Note: If commanded to waiting/observation state, the waypoint should be provided.
+    TaskType Task;
+
+    /// Waypoint where the task is to be performed.
+    WaypointOptionalType Waypoint;
+  };
+
+  /// List of CommandedActionType.
+  typedef sequence<CommandedActionType> CommandedActionListType;
+
+
+  /**
+   * Contains action data.
+   */
+  struct ActionType
+  {
+    /// Performed task.
+    /// Note: If in waiting/observation state, the waypoint should be provided.
+    TaskType CurrentTask;
+
+    /// Next planned task.
+    /// Note: If planned to be in waiting/observation state, the next waypoint should be provided.
+    TaskOptionalType NextTask;
+
+    /// Waypoint where the performed task occurs.
+    WaypointOptionalType CurrentWaypoint;
+
+    /// Waypoint where the next task occurs.
+    WaypointOptionalType NextWaypoint;
+  };
+
+  /// List of ActionType.
+  typedef sequence<ActionType> ActionListType;
+
+
+  /**
+   * Contains mission data.
+   */
+  struct MissionType
+  {
+    /// Actions making up the mission.
+    CommandedActionListType Actions;
+
+    /// The revision number of the MissionType, increase on every change to a mission.
+    unsigned long Revision;
+
+    /// Additional properties of the MissionType.
+    /// Note: Properties are defined generically to enable non-essential additional
+    /// information to be provided without impacting the data model.
+    M_Common::PropertyListType AdditionalInfo;
+  };
+
+  /// Optional MissionType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<MissionType, 1> MissionOptionalType;
+
+
+  /**
+   * Contains information about the surface patch of a cell of a multi-level surface map.
+   */
+  struct SurfacePatchType
+  {
+    /// Index of the patch.
+    unsigned long Id;
+
+    /// Height of the patch [m].
+    M_Common::DistanceMetersType Height;
+
+    /// Variance of the height [-].
+    double HeightVariance;
+
+    /// Depth of the patch [m].
+    M_Common::DistanceMetersType Depth;
+  };
+
+  /// List of SurfacePatchType.
+  typedef sequence<SurfacePatchType> SurfacePatchListType;
+
+
+  /**
+   * Contains information about the cell of a multi-level surface map.
+   */
+  struct CellType
+  {
+    /// First cell index.
+    unsigned long RowId;
+
+    /// Second cell index.
+    unsigned long ColumnId;
+
+    /// List of the surfaces patches.
+    SurfacePatchListType SurfacePatchList;
+  };
+
+  /// List of CellType.
+  typedef sequence<CellType> CellListType;
+
+  /// List of CellListType.
+  typedef sequence<CellListType> CellMatrixType;
+
+
+  /**
+   * Contains information about a multi-level surface map.
+   */
+  struct MultiLevelSurfaceMapType
+  {
+    /// Identifies a specific map partition.
+    /// Note: If empty, the entire map should be accessed.
+    string PartitionName;
+
+    /// Width of a single cell [m].
+    M_Common::DistanceMetersType CellWidth;
+
+    /// Matrix of the map cells.
+    CellMatrixType CellMatrix;
+
+    /// Reference position of the map.
+    M_Common::PositionOptionalType ReferencePosition;
+  };
+
+
+  /**
+   * Contains settings of the mission control service.
+   */
+  struct MissionCtrlSettingsType
+  {
+    /// Indicates whether missions can be performed.
+    boolean AreMissionsSupported;
+
+    /// Indicates which tasks are allowed to be used in missions.
+    TaskListType AllowedMissionTasks;
+
+    /// Additional properties of the service.
+    /// Note: Properties are defined generically to enable non-essential additional
+    /// information to be provided without impacting the data model.
+    M_Common::PropertyListType AdditionalInfo;
+  };
+
+
+  /**
+   * Contains the status of the current mission.
+   */
+  struct MissionStatusType
+  {
+    /// Currently active mission name
+    string CurrentMissionName;
+
+    /// Currently performed action.
+    ActionType CurrentAction;
+
+    /// Indicates which tasks are currently allowed to be performed via CmdPerformAction.
+    TaskListType CurrentlyAllowedTasks;
+
+    /// The currently active revision number of the mission.
+    unsigned long Revision;
+  };
+};

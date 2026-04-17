@@ -1,0 +1,84 @@
+// Copyright (c) 2026 Rheinmetall Electronics GmbH
+//
+// This program and the accompanying materials are made available under the
+// terms of the Eclipse Public License 2.0 which is available at
+// https://www.eclipse.org/legal/epl-2.0.
+//
+// SPDX-License-Identifier: EPL-2.0
+
+#include "AnalogueIoTypes.idl"
+
+
+/**
+ * An analogue input/output interface is used to set or retrieve analogue signals in/from devices.
+ */
+module M_AnalogueIo
+{
+  /// Interface version number.
+  const string Version = "3.1.0";
+
+
+  /**
+   * Analogue input/output service interface.
+   * Contains operations that a client can command the analogue input/output service to perform.
+   */
+  interface IService
+  {
+    /**
+     * Configure a specified pin/channel's signal corridor.
+     */
+    void ConfigSignalCorridor
+    (
+      /// Pin or channel name.
+      in string KeyName,
+
+      /// Signal offset and bounds.
+      in SignalCorridorType Corridor,
+
+      /// Indicates if the payload is no longer available
+      /// Note: This will always be set to true when the instance has been shut down
+      /// After this has been set to true, the payload will no longer be available to late joiners.
+      in boolean IsRemoved
+    );
+
+    /**
+     * Set a specified pin/channel's signal data.
+     */
+    void NotifySignal
+    (
+      /// Pin or channel name.
+      in string KeyName,
+
+      /// Signal data.
+      in SignalType Signal
+    );
+  };
+
+
+  /**
+   * Analogue input/output client interface.
+   * Contains callback operations from the analogue input/output service to the client.
+   */
+  interface IClient
+  {
+    /**
+     * Report a specified pin/channel's signal data.
+     */
+    void ReportSignal
+    (
+      /// Pin or channel name.
+      in string KeyName,
+
+      /// Signal offset and bounds.
+      in SignalCorridorOptionalType Corridor,
+
+      /// Signal data.
+      in SignalOptionalType Signal,
+
+      /// Indicates if the status is no longer available.
+      /// Note: This will always be set to true when a service has been shut down.
+      /// After this has been set to true, the status will no longer be available to late joiners.
+      in boolean IsRemoved
+    );
+  };
+};

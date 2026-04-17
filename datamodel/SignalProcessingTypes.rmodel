@@ -1,0 +1,307 @@
+// Copyright (c) 2026 Rheinmetall Electronics GmbH
+//
+// This program and the accompanying materials are made available under the
+// terms of the Eclipse Public License 2.0 which is available at
+// https://www.eclipse.org/legal/epl-2.0.
+//
+// SPDX-License-Identifier: EPL-2.0
+
+#include "CommonTypes.idl"
+
+
+/**
+ * Types used by the signal processing service and client.
+ */
+module M_SignalProcessing
+{
+  /**
+   * High frequency component context.
+   */
+  module HfComponentKind
+  {
+    /// HF component enumeration.
+    enum Type
+    {
+      /// Transmitter.
+      Transmitter,
+
+      /// Receiver.
+      Receiver
+    };
+  };
+
+
+  /**
+   * Gain context.
+   */
+  module GainKind
+  {
+    /// Gain enumeration.
+    enum Type
+    {
+      /// Manual gain value.
+      Manual,
+
+      /// Large delay (digital gain).
+      Slow,
+
+      /// Medium delay (digital gain).
+      Medium,
+
+      /// Small delay (digital gain).
+      Fast
+    };
+  };
+
+
+  /**
+   * (De)Modulation context.
+   */
+  module ModulationKind
+  {
+    /// (De)Modulation enumeration.
+    enum Type
+    {
+      /// Frequency (de)modulation.
+      FM,
+
+      /// Frequency demodulation with squelch.
+      FM_Squelch,
+
+      /// Amplitude (de)modulation.
+      AM,
+
+      /// In-phase-and-quadrature demodulation.
+      IQ,
+
+      /// Lower side band demodulation.
+      LSB,
+
+      /// Upper side band demodulation.
+      USB
+    };
+  };
+
+
+  /**
+   * Thresholding context.
+   */
+  module ThresholdingKind
+  {
+    /// Thresholding enumeration.
+    enum Type
+    {
+      /// Manual thresholding.
+      Manual,
+
+      /// Offset thresholding.
+      Offset,
+
+      /// Global thresholding.
+      Global
+    };
+  };
+
+
+  /**
+   * Properties of analogue or digital gain.
+   */
+  struct GainType
+  {
+    /// Gain mode.
+    GainKind::Type Mode;
+
+    /// Numeric gain value.
+    M_Common::DoubleOptionalType Value;
+  };
+
+  /// Optional GainType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<GainType, 1> GainOptionalType;
+
+
+  /**
+   * Properties of signal modulation or demodulation.
+   */
+  struct ModulationType
+  {
+    /// Modulation or demodulation type.
+    ModulationKind::Type Type;
+
+    /// Indicates whether automatic level control (ALC) (after demodulation) is active (true) or not (false).
+    M_Common::BooleanOptionalType IsAlcActive;
+  };
+
+  /// Optional ModulationType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<ModulationType, 1> ModulationOptionalType;
+
+
+  /**
+   * Thresholding
+   */
+  struct ThresholdingType
+  {
+    /// Thresholding type.
+    ThresholdingKind::Type Type;
+
+    /// Manual: absolute threshold [dBW].
+    /// Offset: offset from noise floor estimate [dBW].
+    M_Common::PowerLevelDecibelWattsOptionalType Threshold;
+
+    /// Offset from the correlated noise floor to use as the threshold
+    /// for correlation-based thresholding [dBW].
+    M_Common::PowerLevelDecibelWattsOptionalType CorrelatedNoiseFloorOffset;
+  };
+
+  /// Optional ThresholdingType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<ThresholdingType, 1> ThresholdingOptionalType;
+
+
+  /**
+   * Properties of a fast Fourier transformation.
+   */
+  struct FftType
+  {
+    /// Number of FFT samples.
+    long NumberOfSamples;
+
+    /// Maximum update frequency of FFT samples [Hz].
+    M_Common::FrequencyHertzType MaximumUpdateFrequency;
+  };
+
+  /// Optional FFT.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<FftType, 1> FftOptionalType;
+
+
+  /**
+   * Properties of a signal of interest.
+   */
+  struct SoiType
+  {
+    /// Signal identifier.
+    string Id;
+
+    /// Centre frequency [Hz].
+    /// Note: For LSB and USB demodulation, this corresponds to the carrier frequency.
+    M_Common::FrequencyHertzType Frequency;
+
+    /// Bandwidth to detect over [Hz].
+    M_Common::FrequencyHertzType DetectionBandwidth;
+
+    /// Demodulation parameters.
+    ModulationType Demodulation;
+
+    /// Thresholding parameters.
+    ThresholdingType Thresholding;
+  };
+
+
+  /**
+   * Properties of a band scan.
+   */
+  struct BandScanType
+  {
+    /// Start frequency [Hz].
+    M_Common::FrequencyHertzType StartFrequency;
+
+    /// Frequency step size [Hz].
+    M_Common::FrequencyHertzType FrequencyStepsize;
+
+    /// Number of frequency steps [-].
+    unsigned long NumberOfFrequencySteps;
+
+    /// Frequency bandwidth [Hz].
+    M_Common::FrequencyHertzType Bandwidth;
+
+    /// Demodulation parameters.
+    ModulationOptionalType Demodulation;
+
+    /// Thresholding parameters.
+    ThresholdingOptionalType Thresholding;
+  };
+
+
+  /**
+   * Properties of a subchannel.
+   */
+  struct SubchannelType
+  {
+    /// Subchannel identifier.
+    string Id;
+
+    /// Subchannel bandwidth [Hz].
+    M_Common::FrequencyHertzOptionalType Bandwidth;
+
+    /// FFT properties.
+    FftOptionalType FftProperties;
+
+    /// Demodulation parameters.
+    ModulationOptionalType Modulation;
+  };
+
+  /// List of SubchannelType.
+  typedef sequence<SubchannelType> SubchannelListType;
+
+
+  /**
+   * Properties of a channel.
+   */
+  struct ChannelType
+  {
+    /// Channel identifier.
+    string Id;
+
+    /// Digital gain.
+    GainOptionalType DigitalGain;
+
+    /// FFT properties.
+    FftOptionalType FftProperties;
+
+    /// List of subchannels.
+    SubchannelListType SubchannelList;
+  };
+
+  /// List of ChannelType.
+  typedef sequence<ChannelType> ChannelListType;
+
+
+  /**
+   * Properties of a high frequency component.
+   */
+  struct HfComponentType
+  {
+    /// HF component identifier.
+    string Id;
+
+    /// Indicates the type of the HF component (e.g. receiver or transmitter).
+    HfComponentKind::Type Type;
+
+    /// Centre frequency [Hz].
+    M_Common::FrequencyHertzOptionalType CentreFrequency;
+
+    /// Analogue gain.
+    GainOptionalType AnalogueGain;
+
+    /// Wide-band FFT properties.
+    FftOptionalType FftProperties;
+
+    /// List of channels.
+    ChannelListType ChannelList;
+  };
+
+  /// List of HfComponentType.
+  typedef sequence<HfComponentType> HfComponentListType;
+
+
+  /**
+   * Settings of a signal processing device.
+   */
+  struct SignalProcessingSettingsType
+  {
+    /// List of high frequency components.
+    HfComponentListType HfComponentList;
+  };
+};

@@ -1,0 +1,467 @@
+// Copyright (c) 2026 Rheinmetall Electronics GmbH
+//
+// This program and the accompanying materials are made available under the
+// terms of the Eclipse Public License 2.0 which is available at
+// https://www.eclipse.org/legal/epl-2.0.
+//
+// SPDX-License-Identifier: EPL-2.0
+
+#ifndef _OBJECT_MANAGER_TYPES_IDL_
+#define _OBJECT_MANAGER_TYPES_IDL_
+
+
+#include "CommonTypes.idl"
+
+
+/**
+ * Types used by the Object Manager Service/Client.
+ */
+module M_ObjectManager
+{
+
+  /// OperatorAcknowledgeKind type.
+  module OperatorAcknowledgeKind
+  {
+    /// OperatorAcknowledgeKind enumeration.
+    enum Type
+    {
+      /// Unknown ack.
+      Unknown,
+
+      /// NotAcknowledged.
+      NotAcknowledged,
+
+      /// Acknowledged.
+      Acknowledged,
+
+      /// Acknowledged but not of interest.
+      Acknowledged_IsNotOfInterest,
+
+      /// Acknowledged and of interest.
+      Acknowledged_IsOfInterest,
+
+      /// Escalate.
+      Escalate
+    };
+  };
+
+  /// Optional OperatorAcknowledgeKind type.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<OperatorAcknowledgeKind::Type, 1> OperatorAcknowledgeKindOptionalType;
+
+  /**
+   * Contains information about (vehicle internal or external unit) names that an object
+   * has been assigned to.
+   */
+  struct AssignType
+  {
+    /// Name of role or subsystem inside of the vehicle to which the object has been assigned.
+    /// Empty if the object is not assigned to any specific role or subsystem.
+    string Name;
+
+    /// Name of an external unit.
+    /// Empty if the object is not assigned to another unit.
+    string UnitName;
+  };
+
+  /// List of AssignType.
+  typedef sequence<AssignType> AssignListType;
+
+
+  /**
+   * Describes the sensor fusion relations between objects.
+   */
+  struct FusionInfoType
+  {
+    /// IDs of clusters that this raw object belongs to.
+    M_Common::ObjectIdListType AssociatedClusteredObjects;
+
+    /// IDs of raw objects that comprise this cluster.
+    M_Common::ObjectIdListType ComprisedRawObjects;
+  };
+
+  /// Optional FusionInfoType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<FusionInfoType, 1> FusionInfoOptionalType;
+
+
+  /**
+   * Contains kinematics information related to own vehicle.
+   */
+  struct OwnInfoType
+  {
+    /// Position.
+    M_Common::PositionType Position;
+
+    /// Attitude.
+    M_Common::AttitudeType Attitude;
+
+    /// Linear velocity.
+    M_Common::LinearVelocityOptionalType LinearVelocity;
+
+    /// Angular velocity.
+    M_Common::AngularVelocityOptionalType AngularVelocity;
+
+    /// Name of own unit.
+    /// Empty if the unit name is unknown.
+    string UnitName;
+
+    /// Identifies own unit.
+    /// Note: Not present if the own unit ID is not known.
+    M_Common::ObjectIdOptionalType UnitId;
+  };
+
+
+  /**
+   * Contains the raw detection data of a sensor.
+   * Note: This is a subset of M_Sensor::SensorDetectionType containing only essential data.
+   */
+  struct SensorRawDetectionType
+  {
+    /// Name of the detecting sensor (e.g. service name).
+    string DetectingSensorName;
+
+    /// Type of sensor that detected the object.
+    M_Common::SensorType TypeOfDetectingSensor;
+
+    /// Object classification.
+    M_Common::ObjectClassificationListType Classification;
+
+    /// Position of the object, resolved in various coordinate frames.
+    M_Common::PositionListType ObjectPositionList;
+
+    /// Linear velocity of the object, resolved in various coordinate frames.
+    M_Common::LinearVelocityListType ObjectVelocityList;
+
+    /// Object dimensions.
+    M_Common::ObjectDimensionsOptionalType ObjectDimensions;
+  };
+
+  /// List of SensorRawDetectionType.
+  typedef sequence<SensorRawDetectionType> SensorRawDetectionListType;
+
+
+  /**
+   * Contains information of a reporting unit.
+   */
+  struct ReportingUnitType
+  {
+    /// Identifies the reporting unit.
+    M_Common::ObjectIdType Id;
+
+    /// Name of reporting unit.
+    string Name;
+  };
+
+  /// Optional ReportingUnitType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<ReportingUnitType, 1> ReportingUnitOptionalType;
+
+
+  /**
+   * Point object.
+   */
+  struct PointObjectType
+  {
+    /// Identity of object.
+    M_Common::IdentityType Identity;
+
+    /// Object classification.
+    M_Common::ObjectClassificationOptionalType Classification;
+
+    /// Type of instance that reported the object.
+    M_Common::SensorType TypeOfReportingInstance;
+
+    /// Degree to which the object resembles a threat.
+    M_Common::ThreatLevelType ThreatLevel;
+
+    /// Textual name of object.
+    string Label;
+
+    /// Textual description of object.
+    string Description;
+
+    /// Time of object creation.
+    M_Common::TimeType CreationTime;
+
+    /// Time of last object update.
+    M_Common::TimeType LastUpdateTime;
+
+    /// Indicates resolved in which coordinate frame the position remains invariant.
+    /// In other words, in this frame, a specific position will stay constant as long as it is not updated.
+    /// Note: If empty, the invariant frame should be assumed to be Earth-centred, Earth-fixed (ECEF).
+    string InvariantPositionCoordinateFrame;
+
+    /// Object position resolved in the frame that the reporting instance uses.
+    M_Common::PositionType SourcePosition;
+
+    /// Object position resolved in all configured coordinate frames.
+    M_Common::PositionListType PositionList;
+
+    /// Object velocity resolved in the frame that the reporting instance uses.
+    M_Common::LinearVelocityOptionalType SourceVelocity;
+
+    /// Object velocity resolved in all configured coordinate frames.
+    M_Common::LinearVelocityListType VelocityList;
+
+    /// Object dimensions.
+    M_Common::ObjectDimensionsOptionalType ObjectDimensions;
+
+    /// List of sensor raw detection datasets.
+    SensorRawDetectionListType SensorDetectionList;
+
+    /// Sensor fusion relations.
+    FusionInfoOptionalType FusionInfo;
+
+    /// A list of (vehicle internal or external unit) names that the object has been assigned to.
+    /// Note: Empty if not assigned to anyone.
+    AssignListType AssignedTo;
+
+    /// Reporting unit.
+    ReportingUnitOptionalType ReportingUnit;
+
+    /// Additional properties for the object.
+    /// Note: Properties are defined generically to enable non-essential additional
+    /// information to be provided without impacting the data model.
+    M_Common::PropertyListType AdditionalInfo;
+
+    /// Snapshot of the point.
+    M_Common::ImageOptionalType Snapshot;
+
+    /// Operator Acknowledge.
+    OperatorAcknowledgeKind::Type OperatorAcknowledge;
+  };
+
+
+  /**
+   * Multi-point object.
+   */
+  struct MultiPointObjectType
+  {
+    /// Identity of object.
+    M_Common::IdentityType Identity;
+
+    /// Object classification.
+    M_Common::ObjectClassificationOptionalType Classification;
+
+    /// Type of instance that reported the object.
+    M_Common::SensorType TypeOfReportingInstance;
+
+    /// Degree to which the object resembles a threat.
+    M_Common::ThreatLevelType ThreatLevel;
+
+    /// Textual name of object.
+    string Label;
+
+    /// Textual description of object.
+    string Description;
+
+    /// Time of object creation.
+    M_Common::TimeType CreationTime;
+
+    /// Time of last object update.
+    M_Common::TimeType LastUpdateTime;
+
+    /// Indicates resolved in which coordinate frame the position remains invariant.
+    /// In other words, in this frame, a specific position will stay constant as long as it is not updated.
+    /// Note: If empty, the invariant frame should be assumed to be Earth-centred, Earth-fixed (ECEF).
+    string InvariantPositionCoordinateFrame;
+
+    /// Object multi-position resolved in the frame that the reporting instance uses.
+    M_Common::MultiPositionType SourceMultiPosition;
+
+    /// Object multi-position resolved in all configured coordinate frames.
+    M_Common::MultiPositionListType MultiPositionList;
+
+    /// Indicates whether the individual positions are closed, i.e. make up a polygon.
+    /// Note: IsClosed = true implies that the last position is connected to the first.
+    boolean IsClosed;
+
+    /// A list of (vehicle internal or external unit) names that the object has been assigned to.
+    /// Note: Empty if not assigned to anyone.
+    AssignListType AssignedTo;
+
+    /// Reporting unit.
+    ReportingUnitOptionalType ReportingUnit;
+
+    /// Additional properties for the object.
+    /// Note: Properties are defined generically to enable non-essential additional
+    /// information to be provided without impacting the Data Model.
+    M_Common::PropertyListType AdditionalInfo;
+
+    /// Snapshot of the multi-point.
+    M_Common::ImageOptionalType Snapshot;
+
+    /// Operator Acknowledge.
+    OperatorAcknowledgeKind::Type OperatorAcknowledge;
+  };
+
+
+  /**
+   * Contains modified common object data fields for an already existing object.
+   */
+  struct ModifyObjectType
+  {
+    /// Identity of object.
+    /// Note: Not present indicates no change, e.g. that the current existing value should be kept.
+    M_Common::IdentityOptionalType Identity;
+
+    /// Object classification.
+    M_Common::ObjectClassificationOptionalType Classification;
+
+    /// Indicates if the existing optional Classification value should be cleared. If true then the
+    /// specified Classification will be ignored.
+    /// True = Set optional value to Not Present and ignored the specified value
+    /// False = Set a provided specified value or keep the existing value if no specified value is provided
+    boolean ClearClassification;
+
+    /// Type of instance that reported the object.
+    /// Note: Not present indicates no change, e.g. that the current existing value should be kept.
+    M_Common::SensorOptionalType TypeOfReportingInstance;
+
+    /// Degree to which the object resembles a threat.
+    /// Note: Not present indicates no change, e.g. that the current existing value should be kept.
+    M_Common::ThreatLevelOptionalType ThreatLevel;
+
+    /// Textual description of object.
+    /// Note: Not present indicates no change, e.g. that the current existing value should be kept.
+    /// Empty string will replace the current value with an empty string.
+    M_Common::StringOptionalType Description;
+
+    /// Indicates resolved in which coordinate frame the position remains invariant.
+    /// Note: Not present indicates no change, e.g. that the current existing value should be kept.
+    /// Empty string will replace the current value with an empty string.
+    M_Common::StringOptionalType InvariantPositionCoordinateFrame;
+
+    /// Reporting unit.
+    /// Note: Not present indicates no change, e.g. that the current existing value should be kept.
+    /// Empty string will replace the current value with an empty string.
+    ReportingUnitOptionalType ReportingUnit;
+
+    /// Indicates if the existing optional ReportingUnit value should be cleared. If true then the
+    /// specified ReportingUnit will be ignored.
+    /// True = Set optional value to Not Present and ignored the specified value
+    /// False = Set a provided specified value or keep the existing value if no specified value is provided
+    boolean ClearReportingUnit;
+
+    /// A list of (vehicle internal or external unit) names that the object has been assigned to.
+    /// Note: Not present indicates no change, e.g. that the current existing value should be kept.
+    AssignListType AssignedTo;
+
+    /// Indicates if the existing optional AssignedTo value should be cleared. If true then the
+    /// specified AssignedTo will be ignored.
+    /// True = Set optional value to Not Present and ignored the specified value
+    /// False = Set a provided specified value or keep the existing value if no specified value is provided
+    boolean ClearAssignedTo;
+
+    /// Additional properties for the object.
+    /// Note: Properties are defined generically to enable non-essential additional
+    /// information to be provided without impacting the Data Model.
+    M_Common::PropertyListType AdditionalInfo;
+
+    /// Modify Snapshot.
+    M_Common::ImageOptionalType Snapshot;
+
+    /// Optional Operator Acknowledge.
+    OperatorAcknowledgeKindOptionalType OperatorAcknowledge;
+  };
+
+
+  /**
+   * Contains modified data fields for an already existing point object.
+   */
+  struct ModifyPointType
+  {
+    /// The common properties of an object which can be modified.
+    ModifyObjectType Data;
+
+    /// Object position resolved in the frame that the reporting instance uses.
+    /// Note: Not present indicates no change, e.g. that the current existing value should be kept.
+    M_Common::PositionOptionalType SourcePosition;
+
+    /// Object velocity resolved in the frame that the reporting instance uses.
+    /// Note: Not present indicates no change, e.g. that the current existing value should be kept.
+    M_Common::LinearVelocityOptionalType SourceVelocity;
+
+    /// Indicates if the existing optional SourceVelocity value should be cleared. If true then the
+    /// specified SourceVelocity will be ignored.
+    /// True = Set optional value to Not Present and ignored the specified value
+    /// False = Set a provided specified value or keep the existing value if no specified value is provided
+    boolean ClearSourceVelocity;
+
+    /// Object dimensions.
+    M_Common::ObjectDimensionsOptionalType ObjectDimensions;
+
+    /// Indicates if the existing optional ObjectDimensions value should be cleared. If true then the
+    /// specified ObjectDimensions will be ignored.
+    /// True = Set optional value to Not Present and ignored the specified value
+    /// False = Set a provided specified value or keep the existing value if no specified value is provided
+    boolean ClearObjectDimensions;
+  };
+
+
+  /**
+   * Contains modified data fields for an already existing multi-point object.
+   */
+  struct ModifyMultiPointType
+  {
+    /// The common properties of an object (point, multi-point) which can be modified.
+    ModifyObjectType Data;
+
+    /// Multi-position of object.
+    /// Note: If multi-position is present, then the provided structure will overwrite all of the
+    /// data in the existing structure. If not present then the existing structure will be kept.
+    M_Common::MultiPositionOptionalType SourceMultiPosition;
+
+    /// Indicates whether the individual positions are closed, i.e. make up a polygon.
+    /// Note: Not present indicates no change, e.g. that the current existing value should be kept.
+    M_Common::BooleanOptionalType IsClosed;
+  };
+
+
+  /**
+   * Contains object parameters that, upon change, can trigger a change event message.
+   */
+  struct ChangeEventTriggerType
+  {
+    /// Identity of object.
+    M_Common::IdentityType Identity;
+
+    /// Object classification.
+    M_Common::ObjectClassificationOptionalType Classification;
+
+    /// Degree to which the object resembles a threat.
+    M_Common::ThreatLevelType ThreatLevel;
+
+    /// A list of (vehicle internal or external unit) names that the object has been assigned to.
+    /// Note: Empty if not assigned to anyone.
+    AssignListType AssignedTo;
+  };
+
+
+  /**
+   * Contains the difference of old versus new object data upon change.
+   */
+  struct ParameterDifferenceType
+  {
+    /// Data before the change.
+    ChangeEventTriggerType OldData;
+
+    /// Data after the change.
+    ChangeEventTriggerType NewData;
+  };
+
+
+  /**
+   * Contains Contains the Service settings data.
+   */
+  struct ObjectManagerSettingsType
+  {
+    /// Additional properties for the Service.
+    /// Note: Properties are defined generically to enable non-essential additional
+    /// information to be provided without impacting the data model.
+    M_Common::PropertyListType AdditionalInfo;
+  };
+};
+
+#endif

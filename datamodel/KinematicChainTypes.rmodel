@@ -1,0 +1,206 @@
+// Copyright (c) 2026 Rheinmetall Electronics GmbH
+//
+// This program and the accompanying materials are made available under the
+// terms of the Eclipse Public License 2.0 which is available at
+// https://www.eclipse.org/legal/epl-2.0.
+//
+// SPDX-License-Identifier: EPL-2.0
+
+#ifndef _KINEMATIC_CHAIN_TYPES_IDL_
+#define _KINEMATIC_CHAIN_TYPES_IDL_
+
+
+#include "CommonTypes.idl"
+
+
+/**
+ * Types used by the kinematic chain service and client.
+ */
+module M_KinematicChain
+{
+  /// Control mode context.
+  module ControlModeKind
+  {
+    /// Axis mode enumeration.
+    enum Type
+    {
+      /// Mode undefined or unknown.
+      Undefined,
+
+      /// Axis is not free to move.
+      Locked,
+
+      /// Axis is not stabilised (open-loop control).
+      Unstabilised,
+
+      /// Axis is stabilised (closed-loop control).
+      Stabilised
+    };
+  };
+
+  /// Optional ControlModeKind.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<ControlModeKind::Type, 1> ControlModeOptionalType;
+
+
+  /**
+   * Contains axis rotation angle and speed constraint.
+   */
+  struct AxisRotationConstraintsType
+  {
+    /// Identifies the axis.
+    /// Note: Axis names for mounts of the conventional gimbal kind should be "Azimuth" and "Elevation".
+    string AxisId;
+
+    /// Minimum angle constraint [deg].
+    M_Common::AngleDegreesOptionalType MinAngle;
+
+    /// Maximum angle constraint [deg].
+    M_Common::AngleDegreesOptionalType MaxAngle;
+
+    /// Speed constraint [deg/s].
+    M_Common::AngleRateDegreesPerSecOptionalType MaxAngularSpeed;
+
+    /// Acceleration constraint [deg/s^2].
+    M_Common::AngularAccelerationDegreesPerSecPerSecOptionalType MaxAngularAcceleration;
+  };
+
+  /// Optional AxisRotationConstraintsType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<AxisRotationConstraintsType, 1> AxisRotationConstraintsOptionalType;
+
+  /// List of AxisRotationConstraintsType.
+  typedef sequence<AxisRotationConstraintsType> AxisRotationConstraintsListType;
+
+
+  /**
+   * Contains advanced axis control information.
+   */
+  struct AxisControlType
+  {
+    /// Axis control mode.
+    ControlModeOptionalType Mode;
+
+    /// Time until the specified value should be reached [s].
+    /// Note: If not present, there is no time constraint.
+    M_Common::TimeSecondsOptionalType TimeToPosition;
+  };
+
+  /// Optional AxisControlType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<AxisControlType, 1> AxisControlOptionalType;
+
+
+  /**
+   * Contains information to move a specific axis and/or to communicate other motion parameters to it.
+   * Note: An axis should normally be rotated by only one of the possible angle or speed values.
+   */
+  struct AxisRotationType
+  {
+    /// Identifies the axis.
+    /// Note: Axis names for mounts of the conventional gimbal kind should be "Azimuth" and "Elevation".
+    string AxisId;
+
+    /// Angle [deg].
+    M_Common::AngleDegreesOptionalType Angle;
+
+    /// Angle increment [deg].
+    M_Common::AngleDegreesOptionalType AngleIncrement;
+
+    /// Absolute speed [deg/s].
+    M_Common::AngleRateDegreesPerSecOptionalType AbsoluteSpeed;
+
+    /// Speed as fraction of maximum speed [%].
+    /// Note: This can also be used to set a turning direction constraint.
+    M_Common::PercentOptionalType RelativeSpeed;
+
+    /// Advanced axis control parameters.
+    AxisControlOptionalType AxisControl;
+  };
+
+  /// List of AxisRotationType.
+  typedef sequence<AxisRotationType> AxisRotationListType;
+
+
+  /**
+   * Contains stored axis rotation data.
+   */
+  struct StoredAxisRotationType
+  {
+    /// Identifies the axis.
+    /// Note: Axis names for mounts of the conventional gimbal kind should be "Azimuth" and "Elevation".
+    string AxisId;
+
+    /// Identifies the stored data.
+    string DatasetId;
+
+    /// Axis rotation.
+    AxisRotationType AxisRotation;
+  };
+
+  /// List of StoredAxisRotationType.
+  typedef sequence<StoredAxisRotationType> StoredAxisRotationListType;
+
+
+  /**
+   * Contains general characteristics of one axis.
+   */
+  struct AxisType
+  {
+    /// Identifies the axis.
+    /// Note: Axis names for mounts of the conventional gimbal kind should be "Azimuth" and "Elevation".
+    string AxisId;
+
+    /// Axis offset w.r.t. own or parent or base coordinate frame.
+    M_Common::PositionOptionalType AxisPosition;
+
+    /// Direction of axis rotation, normalised to unity.
+    M_Common::AxisDirectionOptionalType NormalisedAxisDirection;
+
+    /// Axis rotation constraints.
+    AxisRotationConstraintsOptionalType AxisRotationConstraints;
+  };
+
+  /// List of AxisType.
+  typedef sequence<AxisType> AxisListType;
+
+
+  /**
+   * Contains settings of the kinematic chain.
+   */
+  struct KinematicChainSettingsType
+  {
+    /// List of all available axes and their parameters.
+    AxisListType Axes;
+
+    /// Indicates whether axis rotation constraints can be set.
+    boolean IsConfigAxisRotationConstraintsSupported;
+
+    /// Indicates whether axis rotation can be set.
+    boolean IsNotifyAxisRotationSupported;
+
+    /// Indicates whether axis rotation is reported.
+    boolean IsReportAxisRotationSupported;
+
+    /// Indicates if axis rotations can be stored.
+    boolean AreStoredAxisRotationsSupported;
+
+    /// Additional properties of the service.
+    /// Note: Properties are defined generically to enable non-essential additional
+    /// information to be provided without impacting the data model.
+    M_Common::PropertyListType AdditionalInfo;
+  };
+
+
+  /**
+   * Contains status of the kinematic chain.
+   */
+  struct KinematicChainStatusType
+  {
+    /// List of stored axis rotation datasets.
+    StoredAxisRotationListType StoredAxisRotationList;
+  };
+};
+
+
+#endif

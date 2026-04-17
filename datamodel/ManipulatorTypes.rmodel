@@ -1,0 +1,121 @@
+// Copyright (c) 2026 Rheinmetall Electronics GmbH
+//
+// This program and the accompanying materials are made available under the
+// terms of the Eclipse Public License 2.0 which is available at
+// https://www.eclipse.org/legal/epl-2.0.
+//
+// SPDX-License-Identifier: EPL-2.0
+
+#include "CommonTypes.idl"
+
+
+/**
+ * Types used by the manipulator service and client.
+ */
+module M_Manipulator
+{
+  /**
+   * Contains the six independent entries of a tensor of inertia.
+   */
+  struct InertiaTensorType
+  {
+    /// Moment of inertia about x-axis [kg m^2].
+    M_Common::MomentOfInertiaKilogramMetresSquaredType XX;
+
+    /// Moment of inertia about y-axis [kg m^2].
+    M_Common::MomentOfInertiaKilogramMetresSquaredType YY;
+
+    /// Moment of inertia about z-axis [kg m^2].
+    M_Common::MomentOfInertiaKilogramMetresSquaredType ZZ;
+
+    /// Off-diagonal elements xy, yx [kg m^2].
+    M_Common::MomentOfInertiaKilogramMetresSquaredType XY;
+
+    /// Off-diagonal elements yz, zy [kg m^2].
+    M_Common::MomentOfInertiaKilogramMetresSquaredType YZ;
+
+    /// Off-diagonal elements xz, zx [kg m^2].
+    M_Common::MomentOfInertiaKilogramMetresSquaredType XZ;
+  };
+
+  /// Optional InertiaTensorType.
+  /// List should only contain max 1 element. Empty list means no value is specified.
+  typedef sequence<InertiaTensorType, 1> InertiaTensorOptionalType;
+
+
+  /**
+   * Contains information about inertial properties of a link.
+   */
+  struct InertiaType
+  {
+    /// Centre of gravity.
+    M_Common::PositionOptionalType GravityCentre;
+
+    /// Mass.
+    M_Common::MassKilogramsOptionalType Mass;
+
+    /// Tensor of inertia.
+    InertiaTensorOptionalType InertiaTensor;
+  };
+
+
+  /**
+   * Contains information about a mechanical link.
+   */
+  struct LinkType
+  {
+    /// Identifies the link.
+    string LinkId;
+
+    /// Identifies the joint axis about which the link rotates.
+    string AxisId;
+
+    /// Identifies the actuator exerting the joint torque.
+    string ActuatorId;
+
+    /// Inertial properties.
+    InertiaType Inertia;
+  };
+
+  /// List of LinkType.
+  typedef sequence<LinkType> LinkListType;
+
+
+  /**
+   * Contains the settings of the manipulator.
+   */
+  struct ManipulatorSettingsType
+  {
+    /// List of all available links and their parameters.
+    /// Note: The order of links should reflect the axis rotation order.
+    LinkListType Links;
+
+    /// List of supported operation status.
+    M_Common::OperationStatusListType SupportedOperationStatusList;
+
+    /// Additional properties of the service.
+    /// Note: Properties are defined generically to enable non-essential additional
+    /// information to be provided without impacting the data model.
+    M_Common::PropertyListType AdditionalInfo;
+  };
+
+
+  /**
+   * Contains the manipulator status data.
+   */
+  struct ManipulatorStatusType
+  {
+    /// Operation status.
+    M_Common::OperationStatusType OperationStatus;
+  };
+
+
+  /**
+   * Contains the status of a specific link.
+   */
+  struct LinkStatusType
+  {
+    /// Inertial properties.
+    InertiaType Inertia;
+  };
+};

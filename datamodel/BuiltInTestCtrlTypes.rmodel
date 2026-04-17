@@ -1,0 +1,104 @@
+// Copyright (c) 2026 Rheinmetall Electronics GmbH
+//
+// This program and the accompanying materials are made available under the
+// terms of the Eclipse Public License 2.0 which is available at
+// https://www.eclipse.org/legal/epl-2.0.
+//
+// SPDX-License-Identifier: EPL-2.0
+
+#include "CommonTypes.idl"
+#include "BuiltInTestTypes.idl"
+
+
+/**
+ * Types used by the BITE (Built-In Test Equipment) Control Service and Client.
+ */
+module M_BuiltInTestCtrl
+{
+  /**
+   * Contains the BITE control settings data.
+   */
+  struct BitCtrlSettingsType
+  {
+    /// List of actions which can be selected by the user.
+    /// The actions are specified as strings, where relationships can be represented
+    /// by specifying a path, e.g.
+    /// "/root/sub/element1"
+    /// "/root/sub/element2"
+    M_Common::StringListType SupportedActions;
+
+    /// List of record type names which are stored as historical status report records.
+    /// Note: This list can contain specific names or general path names. The purpose
+    /// of the list is to enable a client to build proper filter expressions when
+    /// requesting historical records.
+    M_Common::StringListType SupportedRecordNames;
+
+    /// Additional properties for the Service.
+    /// Note: Properties are defined generically to enable non-essential additional
+    /// information to be provided without impacting the Data Model.
+    M_Common::PropertyListType AdditionalInfo;
+  };
+
+
+  /**
+   * Contains the BITE control status data.
+   */
+  struct BitCtrlStatusType
+  {
+    /// Name of the current test action being performed.
+    string CurrentAction;
+
+    /// Indicates if the test is currently running (true) or not (false).
+    boolean IsTestRunning;
+
+    /// Indicates if the client is allowed to start a test (true) or not (false).
+    boolean IsStartTestAllowed;
+
+    /// The current number of total historical records stored in the Service.
+    unsigned long TotalNoRecords;
+
+    /// Generic additional properties, e.g. specific data from tests.
+    M_Common::PropertyListType AdditionalInfo;
+  };
+
+
+  /**
+   * Contains a historical record for a reported status.
+   */
+  struct BitRecordType
+  {
+    /// Name identifying the recorded status report.
+    string RecordName;
+
+    /// The recorded status report.
+    M_BuiltInTest::BitStatusType Status;
+
+    /// The time the status report was recorded.
+    M_Common::TimeType Timestamp;
+  };
+
+  /// List of BitRecordType.
+  typedef sequence<BitRecordType, 100> BitRecordListType;
+
+
+  /**
+   * Contains parameters of a historical BIT record.
+   */
+  struct HistoricalBitRecordParamsType
+  {
+    /// The unique ID of the record list. The same ID will be used in the response from the service.
+    string RecordListId;
+
+    /// The index of the first record of the list which matches the filter expression.
+    /// This is used together with MaxNoRecords to request a specific range from the matching list.
+    /// For example if 1000 records match the filter expression and the index here is set to 501 and the
+    /// max records is set to 100 then the service should respond with records number 501 - 600 in
+    /// the list.
+    unsigned long IndexOfFirstRecord;
+
+    /// A simple wildcard (*) matching expression filter which can be used to filter which records
+    /// the service should respond with.
+    /// Note: An empty string means no filtering should be applied.
+    string FilterExpression;
+  };
+};

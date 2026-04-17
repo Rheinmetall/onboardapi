@@ -1,0 +1,128 @@
+// Copyright (c) 2026 Rheinmetall Electronics GmbH
+//
+// This program and the accompanying materials are made available under the
+// terms of the Eclipse Public License 2.0 which is available at
+// https://www.eclipse.org/legal/epl-2.0.
+//
+// SPDX-License-Identifier: EPL-2.0
+
+#include "SignalProcessingTypes.idl"
+
+
+/**
+ * Interfaces used by signal processing devices.
+ */
+module M_SignalProcessing
+{
+  /// Interface version number.
+  const string Version = "5.1.0";
+
+
+  /**
+   * Signal processing service interface.
+   * Contains operations that a client can command the signal processing service to perform.
+   */
+  interface IService
+  {
+    /**
+     * Configure a high frequency component (transmitter/receiver).
+     */
+    void ConfigHfComponent
+    (
+      /// Indicates which HF component to configure.
+      in string KeyId,
+
+      /// HF component data.
+      in HfComponentType HfComponent,
+
+      /// Indicates if the payload is no longer available
+      /// Note: This will always be set to true when the instance has been shut down
+      /// After this has been set to true, the payload will no longer be available to late joiners.
+      in boolean IsRemoved
+    );
+
+    /**
+     * Configure signal of interest.
+     */
+    void ConfigSoi
+    (
+      /// Indicates which SOI to configure.
+      in string KeyId,
+
+      /// SOI data.
+      in SoiType Soi,
+
+      /// Indicates if the SOI no longer exists.
+      /// Note: After this has been set to true, the SOI will no longer be available to late joiners.
+      in boolean IsRemoved
+    );
+
+    /**
+     * Configure band scan parameters.
+     * Note: This operation does not automatically configure the HF component parameters accordingly.
+     */
+    void ConfigBandScanSubscription
+    (
+      /// Indicates which band scan to configure.
+      in string KeyId,
+
+      /// Band scan parameters.
+      in BandScanType BandScan,
+
+      /// Indicates if the band scan parameter set no longer exists.
+      /// Note: After this has been set to true, the band scan parameters will no longer be available to late joiners.
+      in boolean IsRemoved
+    );
+  };
+
+
+  /**
+   * Signal processing interface.
+   * Contains callback operations from the signal processing service to the client.
+   */
+  interface IClient
+  {
+    /**
+     * Report static settings of the signal processing device.
+     */
+    void ReportSignalProcessingSettings
+    (
+      /// Settings of the signal processing device.
+      in SignalProcessingSettingsType Settings
+    );
+
+    /**
+     * Report high frequency component (transmitter/receiver).
+     */
+    void ReportHfComponent
+    (
+      /// HF component identifier.
+      in string KeyId,
+
+      /// HF component data.
+      in HfComponentType HfComponent,
+
+      /// Indicates if the status is no longer available.
+      /// Note: This will always be set to true when a service has been shut down.
+      /// After this has been set to true, the status will no longer be available to late joiners.
+      in boolean IsRemoved
+    );
+
+    /**
+     * Report signal of interest.
+     */
+    void ReportSoi
+    (
+      /// SOI identifier.
+      in string KeyId,
+
+      /// SOI data.
+      in SoiType Soi,
+
+      /// Indicates if the status is no longer available.
+      /// Note: This will always be set to true when a service has been shut down.
+      /// After this has been set to true, the status will no longer be available to late joiners.
+      in boolean IsRemoved
+    );
+  };
+};

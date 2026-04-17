@@ -1,0 +1,227 @@
+// Copyright (c) 2026 Rheinmetall Electronics GmbH
+//
+// This program and the accompanying materials are made available under the
+// terms of the Eclipse Public License 2.0 which is available at
+// https://www.eclipse.org/legal/epl-2.0.
+//
+// SPDX-License-Identifier: EPL-2.0
+
+#include "BuiltInTestCtrlTypes.idl"
+
+
+/**
+ * A BITE (Built-In Test Equipment) Control service is used to control
+ * the Built-In Test subsystem.
+ *
+@startuml "BITE Control Test"
+title BITE Control Test
+hide footbox
+
+participant Service order 30
+participant "Client (Gnr-Terminal)" order 20
+participant "Client (Supervisor)" order 10
+
+== Startup ==
+
+"Client (Gnr-Terminal)" <- Service: ReportBitCtrlSettings(Settings.SupportedActions=["/syst/gnr/seoss/lrf", "/syst/gnr/seoss/ir-camera", ...])
+note over Service
+    Service reports all available
+    tests on startup
+end note
+"Client (Gnr-Terminal)" <- Service: ReportBitCtrlStatus(CurrentAction="", IsTestRunning=False, IsTestAllowed=False, ...)
+note over Service
+    Service reports current status
+    on startup and updates this on
+    change
+end note
+...
+
+== Allow Testing ==
+"Client (Supervisor)" -> Service: ConfigAllowTest(IsAllowed=True)
+"Client (Gnr-Terminal)" <- Service: ReportBitCtrlStatus(CurrentAction="", IsTestRunning=False, IsTestAllowed=True, ...)
+note over Service
+    Service reports a status change
+    as a result of enabled allowance
+    change
+end note
+...
+
+== Perform Test ==
+note over "Client (Gnr-Terminal)"
+    Client starts a test
+end note
+"Client (Gnr-Terminal)" -> Service: CmdStartTest(Action="/syst/gnr/seoss/lrf")
+"Client (Gnr-Terminal)" <- Service: ReportBitCtrlStatus(CurrentAction="/syst/gnr/seoss/lrf", IsTestRunning=True, ...)
+note over Service
+    Service reports a status change
+    as a result of starting the test
+end note
+...
+
+== User Input ==
+"Client (Gnr-Terminal)" <- Service: ReportInputChoice(Text="...", InputSelectionList=["OK, "Cancel, ..."], StartedByClientId="Gnr-Terminal", IsRemoved=False)
+note over Service
+    Service reports current input choice
+    dialogue information
+end note
+"Client (Gnr-Terminal)" -> Service: CmdSelectInputChoice(SelectedInput="OK")
+note over "Client (Gnr-Terminal)"
+    Client selects one of input choices
+end note
+"Client (Gnr-Terminal)" <- Service: ReportInputChoice(Text="", InputSelectionList=[], StartedByClientId="Gnr-Terminal", IsRemoved=True)
+note over Service
+    Service removes previously reported
+    input choice dialogue
+end note
+...
+
+== Test Completed ==
+"Client (Gnr-Terminal)" <- Service: ReportBitCtrlStatus(CurrentAction="", IsTestRunning=False, ...)
+note over Service
+    Service completes the test and
+    reports a status change
+end note
+
+@enduml
+
+
+@startuml "Historical BITE records"
+title Historical BITE records
+hide footbox
+
+== Startup ==
+
+Client <- Service: ReportBitCtrlSettings(Settings.SupportedRecordNames=["abc", "cde", ...])
+note over Service
+    Service reports all available
+    record type names on startup
+end note
+Client <- Service: ReportBitCtrlStatus(TotalNoRecords, ...)
+note over Service
+    Service reports current number
+    of records on startup and updates
+    this on change
+end note
+...
+
+== Historical records ==
+note over Client
+    Client requests records
+end note
+Client -> Service: RequestHistoricalRecords(IndexOfFirstRecord=x, MaxNoRecords, FilterExpression="*")
+Client <- Service: ResponseHistoricalRecords(IndexOfFirstRecord=x, RecordList=[...], FilterExpression="*", TotalNoFilteredRecords)
+note over Service
+    Service responds with list
+    of records
+end note
+
+@enduml
+ */
+module M_BuiltInTestCtrl
+{
+  /// Interface version number.
+  const string Version = "5.1.0";
+
+
+  /**
+   * Service interface.
+   * Contains operations that a client can command the BITE Control Service to perform.
+   */
+  interface IService
+  {
+    /**
+     * Configure if tests should be allowed to be started.
+     */
+    void ConfigAllowTest
+    (
+      /// Indicates if tests should be allowed to be started (true) or not (false).
+      in boolean IsAllowed
+    );
+
+// TODO: Should we use the normal BuiltInTest interface to start the SYST/FLOK tests instead? If so the
+// CmdStartTest can already be done with the CmdStartIBitRoutine operation which eliminates duplicate
+// functionality in the HMI
+    /**
+     * Start a test from the list of supported actions reported by the service.
+     */
+    void CmdStartTest
+    (
+      /// Name of which supported action to start.
+      in string Action
+    );
+
+// TODO: Should we use the normal BuiltInTest interface to start the SYST/FLOK tests instead? If so the
+// CmdCancelTest can already be done with the CmdCancelIBitRoutine operation which eliminates duplicate
+// functionality in the HMI
+    /**
+     * Cmd to stop a currently running test.
+     */
+    void CmdCancelTest();
+
+    /**
+     * Request historical records from the service.
+     */
+    void RequestHistoricalRecords
+    (
+      /// Parameters of the requested records.
+      in HistoricalBitRecordParamsType RecordParams,
+
+      /// Maximum number of records the service should respond with.
+      /// Note: No more than 100 records can be requested at one time.
+      /// Range 1 - 100
+      in unsigned short MaxNoRecords
+    );
+  };
+
+
+  /**
+   * BITE Control Client interface.
+   * Contains callback operations from the BITE Control Service to the Client.
+   */
+  interface IClient
+  {
+    /**
+     * Report with BITE Control Service settings.
+     * This should be provided at startup and in the event of degraded functionality,
+     * e.g. due to an internal failure.
+     */
+    void ReportBitCtrlSettings
+    (
+      /// BITE Control Service settings data.
+      in BitCtrlSettingsType Settings
+    );
+
+    /**
+     * Reports the status of the Service.
+     */
+    void ReportBitCtrlStatus
+    (
+// TODO: Should we use the normal BuiltInTest interface to start the SYST/FLOK tests instead? If so the current action
+// and Running status will already be reported in the ReportIBitRoutineStatus operation
+      in BitCtrlStatusType Status,
+
+      /// Indicates if the status is no longer available.
+      /// Note: This will always be set to True when a Service has been shut down.
+      /// After this has been set to True the status will no longer be available to late joiners.
+      in boolean IsRemoved
+    );
+
+    /**
+     * Response with historical records provided in response to a specific request.
+     *
+     * Note: If no matching historical records can be found in the service, then the
+     * Service should respond with an empty record list.
+     */
+    void ResponseHistoricalRecords
+    (
+      /// Parameters of the requested reports.
+      in HistoricalBitRecordParamsType RecordParams,
+
+      /// The list of requested historical records.
+      in BitRecordListType RecordList,
+
+      /// The total number of records stored in the service which matches the requested filter expression.
+      in unsigned long TotalNoFilteredRecords
+    );
+  };
+};

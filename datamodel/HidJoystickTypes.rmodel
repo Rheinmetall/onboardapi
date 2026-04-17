@@ -1,0 +1,176 @@
+// Copyright (c) 2026 Rheinmetall Electronics GmbH
+//
+// This program and the accompanying materials are made available under the
+// terms of the Eclipse Public License 2.0 which is available at
+// https://www.eclipse.org/legal/epl-2.0.
+//
+// SPDX-License-Identifier: EPL-2.0
+
+#ifndef _HID_JOYSTICK_TYPES_IDL_
+#define _HID_JOYSTICK_TYPES_IDL_
+
+
+#include "CommonTypes.idl"
+
+
+/**
+ * Types used for input devices, for example Joystick axis and buttons.
+ */
+module M_HidJoystick
+{
+  /**
+   * Contains information about a button input device.
+   */
+  struct ButtonInfoType
+  {
+    /// Index identifying the input device.
+    unsigned long Index;
+
+    /// Name of the input device.
+    string Name;
+
+    /// Description of the input device.
+    string Description;
+
+    /// The ID of the input device.
+    M_Common::LongLongOptionalType DeviceId;
+
+    /// The unique hardware address of the input device.
+    M_Common::LongLongOptionalType HardwareAddress;
+  };
+
+  /// List of ButtonInfoType.
+  typedef sequence<ButtonInfoType> ButtonInfoListType;
+
+
+  /**
+   * Contains information about an axis input device.
+   */
+  struct AxisInfoType
+  {
+    /// Index identifying the input device.
+    unsigned long Index;
+
+    /// Name of the input device.
+    string Name;
+
+    /// Description of the input device.
+    string Description;
+
+    /// The ID of the input device.
+    M_Common::LongLongOptionalType DeviceId;
+
+    /// The unique hardware address of the input device.
+    M_Common::LongLongOptionalType HardwareAddress;
+
+    // TODO: NGVA: AxisType (Position, Force, Velocity) - Defines how to interpret the values of the axis.
+    // Defines different types of axes that are available:
+    // Position = Absolute value that describes how far the axis is rotated
+    // Force = The applied force
+    // Velocity = The applied velocity
+
+    // Resolution? Min value? Max value?
+  };
+
+  /// List of AxisInfoType.
+  typedef sequence<AxisInfoType> AxisInfoListType;
+
+
+  /**
+   * Contains information about an input device.
+   */
+  struct DeviceInfoType
+  {
+    /// Name of the input device.
+    string Name;
+
+    /// Description of the input device.
+    string Description;
+
+    /// The ID of the input device.
+    M_Common::LongLongOptionalType DeviceId;
+
+    /// The unique hardware address of the input device.
+    M_Common::LongLongOptionalType HardwareAddress;
+  };
+
+  /// List of DeviceInfoType.
+  typedef sequence<DeviceInfoType> DeviceInfoListType;
+
+
+  /**
+   * Contains information about an increment encoder input device.
+   */
+  struct IncrementEncoderInfoType
+  {
+    /// Index identifying the input device.
+    unsigned long Index;
+
+    /// Name of the input device.
+    string Name;
+
+    /// Description of the input device.
+    string Description;
+
+    /// The ID of the input device.
+    M_Common::LongLongOptionalType DeviceId;
+
+    /// The unique hardware address of the input device.
+    M_Common::LongLongOptionalType HardwareAddress;
+  };
+
+  /// List of IncrementEncoderInfoType.
+  typedef sequence<IncrementEncoderInfoType> IncrementEncoderInfoListType;
+
+
+  /**
+   * Contains data about a value input.
+   */
+  struct ValueInputInfoType
+  {
+    /// Index identifying the input device.
+    unsigned long Index;
+
+    /// Name of the input device.
+    string Name;
+
+    /// Description of the input device.
+    string Description;
+  };
+
+  /// List of ValueInputInfoType.
+  typedef sequence<ValueInputInfoType> ValueInputInfoListType;
+
+
+  /**
+   * Settings for an input device.
+   */
+  struct JoystickSettingsType
+  {
+    /// List of axis supported by the Joystick.
+    AxisInfoListType Axes;
+
+    /// List of buttons supported by the Joystick.
+    ButtonInfoListType Buttons;
+
+    /// List of increment encoders supported by the Joystick.
+    IncrementEncoderInfoListType IncrementEncoders;
+
+    /// List of value inputs supported by the joystick.
+    ValueInputInfoListType ValueInputs;
+
+    /// Device information for the Joystick.
+    DeviceInfoType DeviceInfo;
+
+    /// Indicates whether a client can parametrise joystick input scaling with the ConfigJoystickCurve operation
+    boolean IsConfigJoystickCurveSupported;
+
+    /// Additional properties relating to the Joystick.
+    ///
+    /// Note: Properties are defined generically to enable non-essential additional
+    /// information to be provided without impacting the Data Model.
+    M_Common::PropertyListType AdditionalInfo;
+  };
+};
+
+#endif
