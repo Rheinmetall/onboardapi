@@ -52,7 +52,8 @@ Your use is governed solely by the terms of the LICENSE file in this repository.
 
 The software is provided “as is,” without warranties or representations of any kind, express or implied, including but not limited to merchantability, fitness for a particular purpose, and non infringement. To the extent permitted by law, liability is disclaimed. Mandatory statutory rights remain unaffected, including liability for intent, gross negligence, and for injury to life, body, or health.
 
-There is no entitlement to support, maintenance, or updates. Community support may be provided on a voluntary, best effort basis via GitHub issues. Any commercial offerings or SLAs, if available, are separate and not part of this project. For commercial support inquiries, please contact: opensource.rme@rheinmetall.com
+There is no entitlement to support, maintenance, or updates. Community support may be provided on a voluntary, best effort basis via GitHub issues. Any commercial offerings or SLAs, if available, are separate and not part of this project. For commercial support inquiries, please contact: opensource.rme@rheinmetall.com.
+
 Please report security vulnerabilities confidentially according to the SECURITY policy at opensource.rme@rheinmetall.com and do not post sensitive or personal information in public issues. For details, see SECURITY.md.
 
 By contributing to this project, you confirm you have the rights necessary to license your contributions and you license them under the EPL 2.0. The rules in CONTRIBUTING.md apply; depending on the project, a DCO sign off or a Contributor License Agreement (CLA) may be required.
