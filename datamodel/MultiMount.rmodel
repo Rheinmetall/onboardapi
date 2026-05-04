@@ -6,9 +6,9 @@
 //
 // SPDX-License-Identifier: EPL-2.0
 
-#include "CommonTypes.idl"
-#include "MultiMountTypes.idl"
-#include "KinematicChain.idl"
+#include "CommonTypes.rmodel"
+#include "MultiMountTypes.rmodel"
+#include "KinematicChain.rmodel"
 
 
 /**

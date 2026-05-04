@@ -10,7 +10,7 @@
 #define _VIDEO_TRACKER_TYPES_IDL_
 
 
-#include "CommonTypes.idl"
+#include "CommonTypes.rmodel"
 
 
 /**

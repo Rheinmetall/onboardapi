@@ -6,9 +6,9 @@
 //
 // SPDX-License-Identifier: EPL-2.0
 
-#include "CommonTypes.idl"
-#include "LaserRangeFinderTypes.idl"
-#include "Sensor.idl"
+#include "CommonTypes.rmodel"
+#include "LaserRangeFinderTypes.rmodel"
+#include "Sensor.rmodel"
 
 
 /**

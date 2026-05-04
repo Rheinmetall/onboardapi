@@ -6,7 +6,7 @@
 //
 // SPDX-License-Identifier: EPL-2.0
 
-#include "CommonTypes.idl"
+#include "CommonTypes.rmodel"
 
 /**
  * Types used by the Video Metadata Interface.

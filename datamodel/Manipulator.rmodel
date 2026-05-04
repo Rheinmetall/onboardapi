@@ -6,10 +6,10 @@
 //
 // SPDX-License-Identifier: EPL-2.0
 
-#include "ManipulatorTypes.idl"
-#include "ActuationCtrl.idl"
-#include "CoordinateFrame.idl"
-#include "KinematicChain.idl"
+#include "ManipulatorTypes.rmodel"
+#include "ActuationCtrl.rmodel"
+#include "CoordinateFrame.rmodel"
+#include "KinematicChain.rmodel"
 
 
 /**

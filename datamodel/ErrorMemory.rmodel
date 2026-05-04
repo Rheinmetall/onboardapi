@@ -6,7 +6,7 @@
 //
 // SPDX-License-Identifier: EPL-2.0
 
-#include "ErrorMemoryTypes.idl"
+#include "ErrorMemoryTypes.rmodel"
 
 /**
  * An error memory service is used to store errors in a database.

@@ -6,7 +6,7 @@
 //
 // SPDX-License-Identifier: EPL-2.0
 
-#include "BuiltInTestCtrlTypes.idl"
+#include "BuiltInTestCtrlTypes.rmodel"
 
 
 /**

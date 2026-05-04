@@ -6,9 +6,9 @@
 //
 // SPDX-License-Identifier: EPL-2.0
 
-#include "CommonTypes.idl"
-#include "VideoTrackerTypes.idl"
-#include "Sensor.idl"
+#include "CommonTypes.rmodel"
+#include "VideoTrackerTypes.rmodel"
+#include "Sensor.rmodel"
 
 
 /**

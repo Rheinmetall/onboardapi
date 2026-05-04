@@ -6,7 +6,7 @@
 //
 // SPDX-License-Identifier: EPL-2.0
 
-#include "GenericInputOutputTypes.idl"
+#include "GenericInputOutputTypes.rmodel"
 
 /**
  * A generic input output service represents any IO interface. It can be used

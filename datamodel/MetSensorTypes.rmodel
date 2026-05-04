@@ -10,7 +10,7 @@
 #define _MET_SENSOR_TYPES_IDL_
 
 
-#include "CommonTypes.idl"
+#include "CommonTypes.rmodel"
 
 
 /**

@@ -10,7 +10,7 @@
 #define _SCAN_CTRL_TYPES_IDL_
 
 
-#include "CommonTypes.idl"
+#include "CommonTypes.rmodel"
 
 
 /**

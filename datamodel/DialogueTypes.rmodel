@@ -10,7 +10,7 @@
 #define _DIALOGUE_TYPES_IDL_
 
 
-#include "CommonTypes.idl"
+#include "CommonTypes.rmodel"
 
 
 /**

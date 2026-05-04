@@ -10,9 +10,9 @@
 #define _SENSOR_TYPES_IDL_
 
 
-#include "CommonTypes.idl"
-#include "LaserRangeFinderTypes.idl"
-#include "VideoTrackerTypes.idl"
+#include "CommonTypes.rmodel"
+#include "LaserRangeFinderTypes.rmodel"
+#include "VideoTrackerTypes.rmodel"
 
 
 /**

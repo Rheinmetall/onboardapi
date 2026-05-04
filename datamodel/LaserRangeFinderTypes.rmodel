@@ -10,7 +10,7 @@
 #define _LASER_RANGE_FINDER_TYPES_IDL_
 
 
-#include "CommonTypes.idl"
+#include "CommonTypes.rmodel"
 
 
 /**

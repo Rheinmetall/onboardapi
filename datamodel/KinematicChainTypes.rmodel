@@ -10,7 +10,7 @@
 #define _KINEMATIC_CHAIN_TYPES_IDL_
 
 
-#include "CommonTypes.idl"
+#include "CommonTypes.rmodel"
 
 
 /**

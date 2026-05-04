@@ -6,8 +6,8 @@
 //
 // SPDX-License-Identifier: EPL-2.0
 
-#include "CommonTypes.idl"
-#include "MountTypes.idl"
+#include "CommonTypes.rmodel"
+#include "MountTypes.rmodel"
 
 
 /**

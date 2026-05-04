@@ -10,7 +10,7 @@
 #define _HMI_APP_CTRL_TYPES_IDL_
 
 
-#include "CommonTypes.idl"
+#include "CommonTypes.rmodel"
 
 
 /**

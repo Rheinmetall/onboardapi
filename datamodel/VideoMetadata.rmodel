@@ -6,7 +6,7 @@
 //
 // SPDX-License-Identifier: EPL-2.0
 
-#include "VideoMetadataTypes.idl"
+#include "VideoMetadataTypes.rmodel"
 
 /**
  * Interfaces used by the video metadata service and client.
