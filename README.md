@@ -36,6 +36,10 @@ Available for:
 - [C# / .NET](https://rheinmetall.github.io/onboardapi-documentation/wrappers/dotnet/index.html)
 - [Java](https://rheinmetall.github.io/onboardapi-documentation/wrappers/java/index.html)
 
+## Digital Twin
+
+Explore the capabilities of the onboardapi through a hands-on, interactive program available in the [digital twin repository](https://github.com/Rheinmetall/onboardapi-digital-twin).
+
 ## Contributing
 
 Contributions to the onboardapi interface definitions (`.rmodel`-files) are welcome.
