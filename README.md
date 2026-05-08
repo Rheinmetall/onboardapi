@@ -1,16 +1,5 @@
 # onboardapi
 
-**Licenses**
-
-This project consists of two parts with different licensing terms:
-
-- **Interface Definitions:** Licensed under [Eclipse Public License 2.0](LICENSE-EPL-2.0.txt).
-  - Pure interface definitions (`.rmodel` files) describing the data model structure.
-- **Runtime Libraries:** Distributed under [EULA-RME-SDK-1.0](EULA-RME-SDK-1.0.txt).
-  - Includes the header files and pre-compiled libraries required to transmit and synchronize the data model over the network (available in the [Releases section](https://github.com/Rheinmetall/onboardapi/releases)).
-
-For more details, please see the respective license files.
-
 ## Overview
 
 The [onboardapi](https://rheinmetall.github.io/onboardapi-documentation) defines a structured data model and middleware for bidirectional communication between distributed components.
@@ -36,6 +25,10 @@ Available for:
 - [C# / .NET](https://rheinmetall.github.io/onboardapi-documentation/wrappers/dotnet/index.html)
 - [Java](https://rheinmetall.github.io/onboardapi-documentation/wrappers/java/index.html)
 
+## Tools
+
+The [onboardapi-inspector](https://github.com/Rheinmetall/onboardapi-inspector) is a graphical debugging interface designed for the onboardapi framework. It simplifies troubleshooting and provides live monitoring for your data.
+
 ## Digital Twin
 
 Explore the capabilities of the onboardapi through a hands-on, interactive program available in the [digital twin repository](https://github.com/Rheinmetall/onboardapi-digital-twin).
@@ -49,6 +42,17 @@ Contributions to the onboardapi interface definitions (`.rmodel`-files) are welc
 For commercial support inquiries, please contact:
 
 opensource.rme@rheinmetall.com
+
+## Licenses
+
+This project consists of two parts with different licensing terms:
+
+- **Interface Definitions:** Licensed under [Eclipse Public License 2.0](LICENSE-EPL-2.0.txt).
+  - Pure interface definitions (`.rmodel` files) describing the data model structure.
+- **Runtime Libraries:** Distributed under [EULA-RME-SDK-1.0](EULA-RME-SDK-1.0.txt).
+  - Includes the header files and pre-compiled libraries required to transmit and synchronize the data model over the network (available in the [Releases section](https://github.com/Rheinmetall/onboardapi/releases)).
+
+For more details, please see the respective license files.
 
 ##  Disclaimer
 
