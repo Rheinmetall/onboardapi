@@ -11,5 +11,5 @@
 module M_Common
 {
   /// Interface version number.
-  const string Version = "2.5.0";
+  const string Version = "2.6.0";
 };

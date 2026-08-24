@@ -117,7 +117,7 @@ end note
 module M_RecordingCtrl
 {
   /// Interface version number.
-  const string Version = "3.1.0";
+  const string Version = "3.2.0";
 
 
   /**

@@ -20,6 +20,20 @@
  */
 module M_Sensor
 {
+
+  /// Contains the sensor preset.
+  struct SensorPresetType
+  {
+    /// The id of the preset.
+    M_Common::ObjectIdType Id;
+
+    /// Name of the preset.
+    string Name;
+  };
+
+  /// List of SensorPresetType.
+  typedef sequence<SensorPresetType> SensorPresetListType;
+
   /// Contains the sensor settings data.
   struct SensorSettingsType
   {
@@ -53,11 +67,17 @@ module M_Sensor
     /// Indicates if a client can suppress detection from the sensor with the CmdDeactivateSensor operation.
     boolean IsDeactivateSensorSupported;
 
+    /// Indicates if a client can lock-on tracks.
+    boolean IsLockOnSupported;
+
     /// Minimum range of the sensor.
     M_Common::DistanceMetersOptionalType MinimumRange;
 
     /// Maximum range of the sensor.
     M_Common::DistanceMetersOptionalType MaximumRange;
+
+    /// Presets of the sensor.
+    SensorPresetListType Presets;
 
     /// Additional properties relating to the sensor.
     /// Note: Properties are defined generically to enable non-essential additional
@@ -75,10 +95,61 @@ module M_Sensor
     /// Position of the sensor.
     M_Common::PositionOptionalType SensorPosition;
 
+    /// Active Preset.
+    M_Common::ObjectIdOptionalType ActivePreset;
+
     /// Indicates if the sensor is deactivated, i.e. detections from the sensor are suppressed.
     boolean IsDeactivated;
   };
 
+  /// Channel type.
+  struct ChannelType
+  {
+    unsigned long Id;
+  };
+
+  /// List of ChannelType.
+  typedef sequence<ChannelType> ChannelListType;
+
+  /**
+   * Coverage mode kind.
+   */   
+  module CoverageModeKind
+  {
+    enum Type
+    {
+      /// Polygon is unknown.
+      Unknown,
+
+      /// Polygon is covered.
+      Covered,
+
+      /// Polygon is not covered.
+      Uncovered,
+
+      /// Polygon is blocked.
+      Blocked,
+
+      /// Polygon is suppressed.
+      Suppressed,
+
+      /// Polygon is under controlled emission restrictions.
+      EmissionControl
+    };
+  };
+
+  /// Contains the sensor coverage.
+  struct SensorCoverageType
+  {
+    /// Coverage mode
+    CoverageModeKind::Type CoverageMode;
+
+    /// Channels of the coverage.
+    ChannelListType Channels;
+
+    /// A list of multi positions as a polygon.
+    M_Common::MultiPositionListType Polygon;
+  };
 
   /**
    * Wave detection context.
@@ -206,7 +277,6 @@ module M_Sensor
   /// List should only contain max 1 element. Empty list means no value is specified.
   typedef sequence<FlashDetectionType, 1> FlashDetectionOptionalType;
 
-
   /// Context for classifications of laser threats.
   module LwsClassification
   {
@@ -240,6 +310,53 @@ module M_Sensor
   /// List should only contain max 1 element. Empty list means no value is specified.
   typedef sequence<LwsClassification::Type, 1> LwsClassificationOptionalType;
 
+  /// Contains data for an child object detected or tracked by a sensor.
+  struct ChildDetectionType
+  {
+    /// The type of detection which is the source of the object.
+    M_Common::DetectionType TypeOfDetection;
+
+    /// The identity of the object.
+    M_Common::IdentityType Identity;
+
+    /// Classification of the object.
+    M_Common::ObjectClassificationListType Classification;
+
+    /// Position of the object, resolved in various coordinate frames.
+    M_Common::PositionListType ObjectPositionList;
+
+    /// Linear velocity of the object, resolved in various coordinate frames.
+    M_Common::LinearVelocityListType ObjectVelocityList;
+
+    /// Object dimensions.
+    M_Common::ObjectDimensionsOptionalType ObjectDimensions;
+
+    /// List of range measurement data (in case a laser range finder reported the measurement).
+    M_LaserRangeFinder::RangeMeasurementListType RangeMeasurementList;
+
+    /// Acoustic detection information (in case an acoustic sensor reported the object).
+    AcousticDetectionOptionalType AcousticDetection;
+
+    /// Flash detection information (in case a flash was detected in a video stream).
+    FlashDetectionOptionalType FlashDetection;
+
+    /// Laser beam classification (in case a laser warning system reported the measurement).
+    LwsClassificationOptionalType LwsClassification;
+
+    /// Video track information (in case a video tracker reported the object).
+    M_VideoTracker::VtObjectOptionalType VideoTrackedObject;
+
+    /// Indicates if the detection is locked-on (in case it is supported by the sensor).
+    M_Common::BooleanOptionalType IsLockedOn;
+
+    /// Additional properties relating to the tracked object.
+    /// Note: Properties are defined generically to enable non-essential additional
+    /// information to be provided without impacting the Data Model.
+    M_Common::PropertyListType AdditionalInfo;
+  };
+
+  /// List of ChildDetectionType.
+  typedef sequence<ChildDetectionType> ChildDetectionListType;
 
   /// Contains data for an object detected or tracked by a sensor.
   struct SensorDetectionType
@@ -276,6 +393,12 @@ module M_Sensor
 
     /// Video track information (in case a video tracker reported the object).
     M_VideoTracker::VtObjectOptionalType VideoTrackedObject;
+
+    /// Indicates if the detection is locked-on (in case it is supported by the sensor).
+    M_Common::BooleanOptionalType IsLockedOn;
+
+    /// List of child detections
+    ChildDetectionListType ChildDetections;
 
     /// Additional properties relating to the tracked object.
     /// Note: Properties are defined generically to enable non-essential additional

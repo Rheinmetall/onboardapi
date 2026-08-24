@@ -42,7 +42,7 @@ Client <- Service: ReportImageComposerChannelStatus(KeySourceChannel, Status)
 module M_ImageComposer
 {
   /// Interface version number.
-  const string Version = "2.1.0";
+  const string Version = "2.2.0";
 
 
   /**

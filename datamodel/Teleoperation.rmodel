@@ -15,7 +15,7 @@
 module M_Teleoperation
 {
   /// Interface version number.
-  const string Version = "2.2.0";
+  const string Version = "2.3.0";
 
 
   /**

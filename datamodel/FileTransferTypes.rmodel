@@ -32,7 +32,10 @@ module M_FileTransfer
       Paused,
 
       /// The transfer is failed.
-      Failed
+      Failed,
+
+      /// The transfer completed successfully.
+      Success,
     };
   };
 

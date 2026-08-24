@@ -15,7 +15,7 @@
 module M_ImageProcessing
 {
   /// Interface version number.
-  const string Version = "4.1.0";
+  const string Version = "4.2.0";
 
 
   /**

@@ -17,7 +17,7 @@
 module M_VideoManager
 {
   /// Interface version number.
-  const string Version = "7.1.0";
+  const string Version = "7.2.0";
 
 
   /**

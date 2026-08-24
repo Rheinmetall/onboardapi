@@ -1699,12 +1699,69 @@ module M_Common
 
     /// Uncertainty.
     UncertaintyOptionalType Uncertainty;
+
+    /// Indicates in which coordinate frame the dimension is resolved.
+    string CoordinateFrame;
   };
 
   /// Optional ObjectDimensionsType.
   /// List should only contain max 1 element. Empty list means no value is specified.
   typedef sequence<ObjectDimensionsType, 1> ObjectDimensionsOptionalType;
 
+  /// List of ObjectDimensionsType.
+  typedef sequence<ObjectDimensionsType> ObjectDimensionsListType;
+
+  /**
+   * Context for relationships between different objects.
+   */
+  module ObjectRelationKind
+  {
+    /// Enumeration for the reason two detections are linked.
+    enum Type
+    {
+      /// The relationship reason is not known or not specified.
+      Unknown,
+
+      /// Generic or fallback relationship type.
+      DerivedFrom,
+
+      /// Generic association or bidirectional link to another related detection.
+      Associated,
+
+      /// The related detection represents the predicted point of origin.
+      PointOfOrigin,
+
+      /// The related detection represents the predicted point of destination.
+      PointOfDestination,
+
+      /// The related detection belongs to the same group or cluster.
+      ClusterComponent,
+
+      /// This detection split off from the related detection.
+      TrackSplit,
+
+      /// This detection merged with or into the related detection.
+      TrackMerge,
+
+      /// The related object represents the exact same physical object from a different sensor.
+      Duplicate
+    };
+  };
+
+  /**
+   * Defines a link to another objects and the reason for the link.
+   */
+  struct ObjectRelationType
+  {
+    /// The Unique ID of the related object.
+    ObjectIdType Id;
+
+    /// The nature of the relationship.
+    ObjectRelationKind::Type RelationKind;
+  };
+
+  /// List of ObjectRelationType.
+  typedef sequence<ObjectRelationType> ObjectRelationListType;
 
   /// Availability status context.
   module Availability

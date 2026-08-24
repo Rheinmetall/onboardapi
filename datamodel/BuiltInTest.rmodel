@@ -125,7 +125,7 @@ end note
 module M_BuiltInTest
 {
   /// Interface version number.
-  const string Version = "8.1.0";
+  const string Version = "8.2.0";
 
 
   /**

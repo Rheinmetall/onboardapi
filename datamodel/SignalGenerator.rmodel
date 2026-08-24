@@ -15,7 +15,7 @@
 module M_SignalGenerator
 {
   /// Interface version number.
-  const string Version = "1.1.0";
+  const string Version = "1.2.0";
 
 
   /**

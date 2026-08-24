@@ -204,8 +204,11 @@ module M_ObjectManager
     /// Object velocity resolved in all configured coordinate frames.
     M_Common::LinearVelocityListType VelocityList;
 
-    /// Object dimensions.
+    /// Object dimensions (Source-Dimensions).
     M_Common::ObjectDimensionsOptionalType ObjectDimensions;
+
+    /// Object dimensions extension (e.g. different coordinate frames).
+    M_Common::ObjectDimensionsListType ObjectDimensionsExtension;
 
     /// List of sensor raw detection datasets.
     SensorRawDetectionListType SensorDetectionList;
@@ -230,6 +233,9 @@ module M_ObjectManager
 
     /// Operator Acknowledge.
     OperatorAcknowledgeKind::Type OperatorAcknowledge;
+
+    /// List of associated objects and the reasons they are linked.
+    M_Common::ObjectRelationListType Relations;
   };
 
 
@@ -294,6 +300,9 @@ module M_ObjectManager
 
     /// Operator Acknowledge.
     OperatorAcknowledgeKind::Type OperatorAcknowledge;
+  
+    /// List of associated objects and the reasons they are linked.
+    M_Common::ObjectRelationListType Relations;
   };
 
 

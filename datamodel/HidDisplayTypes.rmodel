@@ -69,6 +69,10 @@ module M_HidDisplay
 
     /// Indicates how long the mode shall persist.
     M_Common::ULongOptionalType durationInMilliseconds;
+
+    /// Indicates the brightness level of the LED.
+    /// Note: Only relevant when turning on the LED.
+    M_Common::PercentOptionalType Brightness;
   };
 
   /// List of LedLightModeActionType.

@@ -15,7 +15,7 @@
 module M_SignalProcessing
 {
   /// Interface version number.
-  const string Version = "5.1.0";
+  const string Version = "5.2.0";
 
 
   /**

@@ -52,7 +52,7 @@ Client -> Service: CmdSelectButton(ButtonIndex=x, IsSelected=true)
 module M_HidDisplay
 {
   /// Interface version number.
-  const string Version = "10.3.0";
+  const string Version = "10.4.0";
 
 
   /**

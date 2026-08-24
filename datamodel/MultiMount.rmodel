@@ -85,7 +85,7 @@ Mode --[hidden]> SubModeCtrlState
 module M_MultiMount
 {
   /// Interface version number.
-  const string Version = "3.2.0";
+  const string Version = "3.3.0";
 
 
   /**

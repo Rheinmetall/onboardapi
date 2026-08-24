@@ -93,7 +93,7 @@ end note
 module M_ReplayCtrl
 {
   /// Interface version number.
-  const string Version = "2.1.0";
+  const string Version = "2.2.0";
 
 
   /**

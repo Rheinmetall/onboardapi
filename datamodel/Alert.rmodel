@@ -299,7 +299,7 @@ end note
 module M_Alert
 {
   /// Interface version number.
-  const string Version = "6.1.0";
+  const string Version = "6.2.0";
 
 
   /**

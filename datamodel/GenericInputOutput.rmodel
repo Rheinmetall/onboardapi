@@ -15,7 +15,7 @@
 module M_GenericInputOutput
 {
   /// Interface version number
-  const string Version = "1.3.0";
+  const string Version = "1.4.0";
 
   /**
    * GenericInputOutput service interface

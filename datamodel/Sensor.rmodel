@@ -29,6 +29,11 @@ note over Service
     status with the IsRemoved flag set
     to false
 end note
+Client <- Service: ReportSensorCoverage(KeyId, Coverage)
+note over Service
+  On startup the Service may report
+  the current sensor coverage
+end note
 ...
 
 == Sensor detection ==
@@ -38,6 +43,10 @@ note over Service
     information of the detection as
     a single shot event
 end note
+...
+
+== Sensor coverage ==
+Client <- Service: ConfigSensorCoverage(KeyId, Coverage)
 ...
 
 == Sensor track ==
@@ -88,7 +97,7 @@ end note
 module M_Sensor
 {
   /// Interface version number.
-  const string Version = "11.2.0";
+  const string Version = "11.3.0";
 
 
   /**
@@ -121,6 +130,36 @@ module M_Sensor
       /// Indicates if sensor should be deactivated (true) or activated (false).
       in boolean Deactivate
     );
+
+    /// Config the sensor coverage.
+    void ConfigSensorCoverage
+    (
+      /// The unique ID of the coverage.
+      in M_Common::ObjectIdType KeyId,
+
+      /// Sensor coverage.
+      in SensorCoverageType Coverage,
+
+      /// Indicates if the config is no longer available.
+      /// Note: This will always be set to True when a Service has been shut down.
+      /// After this has been set to True the status will no longer be available to late joiners.
+      in boolean IsRemoved
+    );
+
+    /// Set current preset.
+    void CmdSetPreset
+    (
+      /// The preset id to activate.
+      /// Optional: Do not set the preset to clear the current active preset.
+      in M_Common::ObjectIdOptionalType Preset
+    );
+
+    /// Set which Tracks shall be locked-on.
+    void CmdLockOnTracks
+    (
+      /// Identifies the tracks to lock-on.
+      in M_Common::ObjectIdListType KeyIdList
+    );
   };
 
 
@@ -148,6 +187,23 @@ module M_Sensor
       in SensorStatusType Status,
 
       /// Indicates if the status is no longer available.
+      /// Note: This will always be set to True when a Service has been shut down.
+      /// After this has been set to True the status will no longer be available to late joiners.
+      in boolean IsRemoved
+    );
+
+    /**
+     * Report current coverage of the sensor.
+     */
+    void ReportSensorCoverage
+    (
+      /// The unique ID of the coverage.
+      in M_Common::ObjectIdType KeyId,
+
+      /// Sensor coverage.
+      in SensorCoverageType Coverage,
+
+      /// Indicates if the coverage is no longer available.
       /// Note: This will always be set to True when a Service has been shut down.
       /// After this has been set to True the status will no longer be available to late joiners.
       in boolean IsRemoved

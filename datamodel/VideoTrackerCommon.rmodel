@@ -110,7 +110,7 @@ package "In- and outputs of MMT(z)" {
 module M_VideoTrackerCommon
 {
   /// Interface version number.
-  const string Version = "9.2.0";
+  const string Version = "9.3.0";
 
 
   /**

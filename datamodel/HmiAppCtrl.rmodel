@@ -38,7 +38,7 @@ Client -> Service: CmdActivateView(ViewId)
 module M_HmiAppCtrl
 {
   /// Interface version number.
-  const string Version = "4.5.0";
+  const string Version = "4.6.0";
 
 
   /**

@@ -63,7 +63,7 @@ end note
 module M_Device
 {
   /// Interface version number.
-  const string Version = "11.3.0";
+  const string Version = "11.4.0";
 
 
   /**

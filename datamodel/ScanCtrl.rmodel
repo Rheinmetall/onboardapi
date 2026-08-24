@@ -81,7 +81,7 @@ end note
 module M_ScanCtrl
 {
   /// Interface version number.
-  const string Version = "4.2.0";
+  const string Version = "4.3.0";
 
 
   /**
